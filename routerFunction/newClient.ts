@@ -20,7 +20,7 @@ export default async function NewClient(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (req.body.phone.length < 10 || req.body.phone.length > 12) {
+	if (req.body.phone.length < 10 || req.body.phone.length > 13) {
 		Log('Invalid phone number from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewClient.ts');
 		res.status(400).send('Invalid phone number');
 		return;

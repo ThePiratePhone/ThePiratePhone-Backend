@@ -9,8 +9,8 @@ const ClientSchema = new mongoose.Schema({
 	phone: {
 		type: String,
 		required: true,
-		minlength: 10,
-		maxlength: 12,
+		minlength: 12,
+		maxlength: 13,
 		unique: true
 	},
 	called: {

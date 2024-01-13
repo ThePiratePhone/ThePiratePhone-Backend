@@ -7,8 +7,15 @@ import router from './routes';
 
 dotenv.config();
 const port = 7000;
+let started = false;
 
 function main() {
+	if (started) {
+		Log('index.ts', 'INFORMATION', 'Server already started');
+		return;
+	}
+	started = true;
+
 	// Connect to MongoDB using Mongoose
 	mongoose
 		.connect(process.env.URI ?? '')
@@ -31,8 +38,10 @@ function main() {
 	});
 
 	app.get('/', (req, res) => {
-		res.send('Hello World!');
+		res.send({ message: 'Hello World!' });
 	});
 }
 
 main();
+
+export default main;

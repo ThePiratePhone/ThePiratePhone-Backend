@@ -2,11 +2,15 @@ import mongoose from 'mongoose';
 const CallerSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true
+		required: true,
+		unique: true
 	},
 	phone: {
 		type: String,
-		required: true
+		required: true,
+		minlength: 12,
+		maxlength: 13,
+		unique: true
 	},
 	pinCode: {
 		type: String,

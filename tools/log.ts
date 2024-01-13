@@ -15,6 +15,7 @@ type WarningLevel = 'DEBUG' | 'INFORMATION' | 'WARNING' | 'ERROR' | 'CRITICAL';
  * - CRITICAL: Significant impact that can cause damage or data loss.
  */
 export async function Log(text: string, impact: WarningLevel = 'DEBUG', location: string | undefined) {
+	if (process?.env?.npm_lifecycle_script?.includes('jest')) return;
 	const date = new Date().toLocaleDateString('en-GB', {
 		timeZone: 'Europe/Paris',
 		year: '2-digit',
