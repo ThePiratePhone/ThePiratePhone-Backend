@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { Log } from './tools/log';
 import router from './routes';
 
-dotenv.config();
+dotenv.config({ path: '.env' });
 
 const port = 7000;
 let started = false;

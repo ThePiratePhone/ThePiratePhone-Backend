@@ -5,7 +5,9 @@
 	"main": "index.ts",
 	"scripts": {
 		"test": "clear && jest -o --forceExit",
-		"testGit": "npx jest --forceExit"
+		"testGit": "npx jest --forceExit",
+		"dev": "npx nodemon index.ts",
+		"start": "ts-node ."
 	},
 	"repository": {
 		"type": "git",
