@@ -3,11 +3,15 @@ import { Caller } from './Caller';
 const ClientSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true
+		required: true,
+		unique: true
 	},
 	phone: {
 		type: String,
-		required: true
+		required: true,
+		minlength: 10,
+		maxlength: 12,
+		unique: true
 	},
 	called: {
 		type: String,
@@ -15,7 +19,8 @@ const ClientSchema = new mongoose.Schema({
 		required: true
 	},
 	caller: {
-		type: Caller,
+		type: mongoose.Schema.ObjectId,
+		ref: 'Caller',
 		required: false
 	},
 	scriptVersion: {
