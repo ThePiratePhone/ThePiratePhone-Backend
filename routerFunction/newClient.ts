@@ -3,7 +3,7 @@ import { Client } from '../Models/Client';
 import { Log } from '../tools/log';
 
 export default async function NewClient(req: Request<any>, res: Response<any>) {
-	if (req.body.name == null || req.body.phone == null) {
+	if (!req.body || req.body.name == null || req.body.phone == null) {
 		Log('Missing parameters from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewClient.ts');
 		res.status(400).send('Missing parameters');
 		return;
@@ -26,7 +26,7 @@ export default async function NewClient(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if ((await Client.findOne({ name: req.body.name })) || (await Client.findOne({ phone: req.body.phone }))) {
+	if ((await Client.exists({ name: req.body.name })) || (await Client.exists({ phone: req.body.phone }))) {
 		Log('Client already exists from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewClient.ts');
 		res.status(400).send('Client already exists');
 		return;

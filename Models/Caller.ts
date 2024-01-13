@@ -8,6 +8,16 @@ const CallerSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
+	pinCode: {
+		type: String,
+		required: true,
+		length: 4
+	},
+	timeInCall: {
+		type: Map,
+		of: Number,
+		required: false
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now()

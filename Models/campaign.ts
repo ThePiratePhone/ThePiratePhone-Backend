@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 const CampaignSchema = new mongoose.Schema({
 	name: {
 		type: String,
+		required: true,
+		unique: true
+	},
+	script: {
+		type: Array<String>(),
 		required: true
 	},
 	dateStart: {

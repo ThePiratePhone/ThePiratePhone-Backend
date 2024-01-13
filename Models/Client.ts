@@ -27,8 +27,12 @@ const ClientSchema = new mongoose.Schema({
 		type: Number,
 		required: false
 	},
+	startCall: {
+		type: Date,
+		required: false
+	},
 	endCall: {
-		type: Number,
+		type: Date,
 		required: false
 	},
 	createdAt: {
