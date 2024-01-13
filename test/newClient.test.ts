@@ -1,0 +1,96 @@
+import mongoose from 'mongoose';
+import request from 'supertest';
+import { Client } from '../Models/Client';
+
+const req = request('http://localhost:7000');
+
+beforeAll(async () => {
+	await mongoose.connect(process.env.URI ?? '');
+});
+
+afterEach(async () => {
+	await Client.deleteOne({ name: 'testCreateClient' });
+});
+
+describe('POST /api/NewUser', () => {
+	it('Should return a 400 if request body is not an object', async () => {
+		const res = await req.post('/api/NewUser');
+		expect(res.body.message).toEqual('Missing parameters');
+		expect(res.body.OK).toEqual(false);
+		expect(res.status).toEqual(400);
+	});
+
+	it('Should return a 400 if request body dont have name', async () => {
+		const res = await req.post('/api/NewUser').send({ phone: '0123456789' });
+		expect(res.body.message).toEqual('Missing parameters');
+		expect(res.status).toEqual(400);
+		expect(res.body.OK).toEqual(false);
+	});
+
+	it('Should return a 400 if request body dont have phone', async () => {
+		const res = await req.post('/api/NewUser').send({ name: 'testCreateClient' });
+		expect(res.body.message).toEqual('Missing parameters');
+		expect(res.status).toEqual(400);
+		expect(res.body.OK).toEqual(false);
+	});
+
+	it('Should return a 400 if request body name is not a string', async () => {
+		const res = await req.post('/api/NewUser').send({ name: 123, phone: '0123456789' });
+		expect(res.body.message).toEqual('Invalid parameters');
+		expect(res.status).toEqual(400);
+		expect(res.body.OK).toEqual(false);
+	});
+
+	//phone Number
+	it('Should return a 400 if request body phone number is invalid', async () => {
+		const res = await req.post('/api/NewUser').send({ name: 'testCreateClient', phone: '123', pinCode: '1234' });
+		expect(res.body.message).toEqual('Invalid phone number');
+		expect(res.status).toEqual(400);
+		expect(res.body.OK).toEqual(false);
+	});
+
+	it('Should return a 400 if request body phone number length is less than 10', async () => {
+		const res = await req
+			.post('/api/NewUser')
+			.send({ name: 'testCreateClient', phone: '123456789', pinCode: '1234' });
+		expect(res.body.message).toEqual('Invalid phone number');
+		expect(res.status).toEqual(400);
+		expect(res.body.OK).toEqual(false);
+	});
+
+	it('Should return a 201 if phone number is french', async () => {
+		const res = await req
+			.post('/api/NewUser')
+			.send({ name: 'testCreateClient', phone: '+33234567891', pinCode: '1234' });
+		expect(res.body.message).toEqual('Client created');
+		expect(res.status).toEqual(201);
+		expect(res.body.OK).toEqual(true);
+	});
+
+	it('Should return a 400 if request body phone number is superior to 13', async () => {
+		const res = await req
+			.post('/api/NewUser')
+			.send({ name: 'testCreateClient', phone: '+3312345678910', pinCode: '1234' });
+		expect(res.body.message).toEqual('Invalid phone number');
+		expect(res.status).toEqual(400);
+		expect(res.body.OK).toEqual(false);
+	});
+	//end phone number
+
+	it('Should return a 201 if request body is correct', async () => {
+		const res = await req.post('/api/NewUser').send({ name: 'testCreateClient', phone: '0123456789' });
+		expect(res.body.message).toEqual('Client created');
+		expect(res.status).toEqual(201);
+		expect(res.body.OK).toEqual(true);
+	});
+
+	it('Should return a 400 if client already exists', async () => {
+		const client = new Client({ name: 'testCreateClient', phone: '+33123456789', called: 'not called' });
+		await client.save();
+
+		const res = await req.post('/api/NewUser').send({ name: 'testCreateClient', phone: '0123456789' });
+		expect(res.body.message).toEqual('Client already exists');
+		expect(res.status).toEqual(400);
+		expect(res.body.OK).toEqual(false);
+	});
+});

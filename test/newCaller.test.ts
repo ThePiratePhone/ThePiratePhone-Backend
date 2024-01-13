@@ -111,7 +111,7 @@ describe('POST /api/NewCaller', () => {
 
 	it('Should return a 400 if request name is already in use', async () => {
 		const caller = new Caller({
-			name: 'testDuplicate',
+			name: 'testCreateCallerDuplicate',
 			phone: '+33123456789',
 			pinCode: '1234',
 			timeInCall: new Map<String, Number>()
@@ -119,12 +119,12 @@ describe('POST /api/NewCaller', () => {
 		await caller.save();
 		const res = await req
 			.post('/api/NewCaller')
-			.send({ name: 'testDuplicate', phone: '0123456789', pinCode: '1234' });
+			.send({ name: 'testCreateCallerDuplicate', phone: '0123456789', pinCode: '1234' });
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
 		expect(res.body.message).toEqual('Caller already exists');
 
-		await Caller.deleteOne({ name: 'testDuplicate' });
+		await Caller.deleteOne({ name: 'testCreateCallerDuplicate' });
 	});
 
 	it('Should return a 400 if request phone is already in use', async () => {

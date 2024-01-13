@@ -8,5 +8,6 @@ const router = Router();
 router.post('/NewCampaign', NewCampaigns);
 router.post('/NewClient', NewClient);
 router.post('/NewCaller', NewCaller);
+router.post('/NewUser', NewClient);
 
 export default router;

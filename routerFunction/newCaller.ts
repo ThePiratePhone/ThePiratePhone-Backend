@@ -20,7 +20,7 @@ export default async function NewCaller(req: Request<any>, res: Response<any>) {
 		res.status(400).send({ message: 'Invalid parameters', OK: false });
 		return;
 	}
-	if (phoneNumberCheck(req.body.phone) == false) {
+	if (!phoneNumberCheck(req.body.phone)) {
 		Log('Invalid phone number from ' + ip, 'WARNING', 'NewCaller.ts');
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
 		return;
@@ -30,6 +30,10 @@ export default async function NewCaller(req: Request<any>, res: Response<any>) {
 		Log('Caller already exists from ' + ip, 'WARNING', 'NewCaller.ts');
 		res.status(400).send({ message: 'Caller already exists', OK: false });
 		return;
+	}
+
+	if (req.body.phone.startsWith('0')) {
+		req.body.phone = req.body.phone.replace('0', '+33');
 	}
 
 	const caller = new Caller({
