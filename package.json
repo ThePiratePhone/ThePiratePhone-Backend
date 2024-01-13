@@ -5,7 +5,7 @@
 	"main": "index.ts",
 	"scripts": {
 		"test": "clear && jest -o --forceExit",
-		"testGit": "jest --forceExit"
+		"testGit": "npx jest --forceExit"
 	},
 	"repository": {
 		"type": "git",
