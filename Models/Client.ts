@@ -13,9 +13,9 @@ const ClientSchema = new mongoose.Schema({
 		maxlength: 13,
 		unique: true
 	},
-	called: {
+	status: {
 		type: String,
-		enum: ['called', 'not called', 'not answered', 'inprogress'],
+		enum: ['status', 'not called', 'not answered', 'inprogress'],
 		required: true
 	},
 	caller: {

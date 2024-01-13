@@ -12,6 +12,7 @@ beforeAll(async () => {
 
 afterEach(async () => {
 	await Client.deleteOne({ name: 'testCreateClient' });
+	return true;
 });
 
 describe('POST /api/NewUser', () => {
@@ -93,6 +94,7 @@ describe('POST /api/NewUser', () => {
 	//end phone number
 
 	it('Should return a 201 if request body is correct', async () => {
+		await Client.deleteOne({ name: 'testCreateClient' });
 		const res = await req
 			.post('/api/NewUser')
 			.send({ name: 'testCreateClient', phone: '0123456789', adminCode: process.env.ADMIN_PASSWORD });
@@ -102,10 +104,11 @@ describe('POST /api/NewUser', () => {
 	});
 
 	it('Should return a 400 if client already exists', async () => {
+		await Client.deleteOne({ name: 'testCreateClient' });
 		const client = new Client({
 			name: 'testCreateClient',
 			phone: '+33123456789',
-			called: 'not called',
+			status: 'not called',
 			adminCode: process.env.ADMIN_PASSWORD
 		});
 		await client.save();

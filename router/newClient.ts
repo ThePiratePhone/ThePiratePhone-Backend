@@ -15,7 +15,7 @@ export default async function NewClient(req: Request<any>, res: Response<any>) {
 		typeof req.body.name != 'string' ||
 		req.body.phone == '' ||
 		typeof req.body.phone != 'string' ||
-		req.body.adminCode == ''
+		typeof req.body.adminCode != 'string'
 	) {
 		Log('Invalid parameters from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewClient.ts');
 		res.status(400).send({ message: 'Invalid parameters', OK: false });
@@ -44,7 +44,7 @@ export default async function NewClient(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const client = new Client({ name: req.body.name, phone: req.body.phone, called: 'not called' });
+	const client = new Client({ name: req.body.name, phone: req.body.phone, status: 'not called' });
 	client
 		.save()
 		.then(() => {

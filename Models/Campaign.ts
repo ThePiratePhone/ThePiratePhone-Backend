@@ -17,6 +17,11 @@ const CampaignSchema = new mongoose.Schema({
 		type: Date,
 		required: true
 	},
+	userList: {
+		type: Array<typeof mongoose.Schema.ObjectId>(),
+		ref: 'Client',
+		required: true
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now()

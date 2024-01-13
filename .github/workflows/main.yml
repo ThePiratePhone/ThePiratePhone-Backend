@@ -26,3 +26,4 @@ jobs:
               env:
                   CI: true
                   URI: ${{ secrets.URI }}
+                  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
