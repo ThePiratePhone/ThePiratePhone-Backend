@@ -1,12 +1,38 @@
-import express from "express";
+import cors from 'cors';
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import { Log } from './tools/log';
+import router from './routes';
 
-const app = express();
+dotenv.config();
 const port = 7000;
 
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
+function main() {
+	// Connect to MongoDB using Mongoose
+	mongoose
+		.connect(process.env.URI ?? '')
+		.then(() => {
+			Log('Successfully connected to MongoDB', 'INFORMATION', 'index.ts');
+		})
+		.catch(error => {
+			Log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
+		});
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+	// Create an instance of the Express app
+	const app = express();
+	app.use(express.json());
+	app.use(cors());
+	app.use('/api', router);
+
+	// Start the Express app
+	app.listen(port, () => {
+		Log(`Listening at http://localhost:${port}`, 'DEBUG', 'index.ts');
+	});
+
+	app.get('/', (req, res) => {
+		res.send('Hello World!');
+	});
+}
+
+main();

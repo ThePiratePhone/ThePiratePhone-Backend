@@ -1,0 +1,8 @@
+POST http://localhost:7000/api/NewCampaign HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Campaign 1",
+    "dateStart": "2020-01-01",
+    "dateEnd": "2020-01-31"
+}
