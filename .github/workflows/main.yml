@@ -22,4 +22,4 @@ jobs:
             - run: npm install
 
             - name: Run tests
-              run: "testGit": "export URI=$secrets_URI && jest --forceExit"
+              run: export URI=$secrets_URI && jest --forceExit
