@@ -6,12 +6,13 @@ const req = request('http://localhost:7000');
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URI ?? '');
-	await Caller.deleteOne({ name: 'testCreateCaller' });
-	await new Caller({ name: 'testCreateCaller', phone: '+33123456789', pinCode: '1234' }).save();
+	await Caller.deleteOne({ name: 'testloginCaller' });
+	await new Caller({ name: 'testloginCaller', phone: '+33123456789', pinCode: '1234' }).save();
+	return true;
 });
 
 afterAll(async () => {
-	await Caller.deleteOne({ name: 'testCreateCaller' });
+	await Caller.deleteOne({ name: 'testloginCaller' });
 });
 
 describe('POST /api/login', () => {
