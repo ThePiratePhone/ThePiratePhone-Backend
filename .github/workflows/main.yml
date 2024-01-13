@@ -21,10 +21,5 @@ jobs:
 
             - run: npm install
 
-            - name: create .env file
-              run: |
-                  touch .env
-                  echo URI=\"${{ secrets.URI }}\" >> .env
-
             - name: Run tests
-              run: npm run testGit
+              run: "testGit": "export URI=$secrets_URI && jest --forceExit"

@@ -1,12 +1,9 @@
 import cors from 'cors';
 import express from 'express';
 import mongoose from 'mongoose';
-// import dotenv from 'dotenv';
 import { Log } from './tools/log';
 import router from './routes';
 
-// dotenv.config();
-console.log(process.env.URI);
 const port = 7000;
 let started = false;
 
