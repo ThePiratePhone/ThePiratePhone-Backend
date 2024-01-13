@@ -19,7 +19,10 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
 
-            - run: npm install
+            - name: Set up environment
+              run: |
+                  echo "export URI=${{ secrets.URI }}" >> .env
+                  npm install
 
             - name: Run tests
-              run: export URI=$secrets_URI && npm run testGit
+              run: npm run testGit
