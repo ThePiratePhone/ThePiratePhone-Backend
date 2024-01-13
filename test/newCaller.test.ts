@@ -6,6 +6,7 @@ const req = request('http://localhost:7000');
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URI ?? '');
+	await Caller.deleteOne({ name: 'testCreateCaller' });
 });
 
 afterEach(async () => {

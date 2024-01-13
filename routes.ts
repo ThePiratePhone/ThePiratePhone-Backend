@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import NewCampaigns from './routerFunction/newCampaigns';
-import NewClient from './routerFunction/newClient';
-import NewCaller from './routerFunction/newCaller';
-import login from './routerFunction/Login';
+import NewCampaigns from './router/newCampaigns';
+import NewClient from './router/newClient';
+import NewCaller from './router/newCaller';
+import login from './router/Login';
 
 const router = Router();
 

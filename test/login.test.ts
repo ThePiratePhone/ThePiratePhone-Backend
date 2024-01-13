@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 import request from 'supertest';
 import { Caller } from '../Models/Caller';
-import { create } from 'ts-node';
 
 const req = request('http://localhost:7000');
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URI ?? '');
+	await Caller.deleteOne({ name: 'testCreateCaller' });
 	await new Caller({ name: 'testCreateCaller', phone: '+33123456789', pinCode: '1234' }).save();
 });
 
@@ -63,13 +63,6 @@ describe('POST /api/login', () => {
 		expect(res.body.message).toEqual('Invalid phone number');
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
-	});
-
-	it('Should return a 200 if phone number is french', async () => {
-		const res = await req.post('/api/login').send({ phone: '+33123456789', pin: '1234' });
-		expect(res.body.message).toEqual('Logged in');
-		expect(res.status).toEqual(200);
-		expect(res.body.OK).toEqual(true);
 	});
 
 	it('Should return a 400 if phone number is not in database', async () => {

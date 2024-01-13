@@ -6,6 +6,7 @@ const req = request('http://localhost:7000');
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URI ?? '');
+	await Client.deleteOne({ name: 'testCreateClient' });
 });
 
 afterEach(async () => {
