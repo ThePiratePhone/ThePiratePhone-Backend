@@ -14,4 +14,4 @@ const CallerSchema = new mongoose.Schema({
 	}
 });
 
-export default mongoose.model('Caller', CallerSchema);
+export const Caller = mongoose.model('Caller', CallerSchema);
