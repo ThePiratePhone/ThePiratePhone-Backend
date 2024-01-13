@@ -24,10 +24,7 @@ jobs:
             - name: create .env file
               run: |
                   touch .env
-                  echo URI="${{ secrets.URI }}" >> .env
+                  echo URI=\"${{ secrets.URI }}\" >> .env
 
             - name: Run tests
               run: npm run testGit
-              env:
-                  CI: true
-                  URI: ${{ secrets.URI }}
