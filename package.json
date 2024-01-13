@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "index.ts",
 	"scripts": {
-		"test": "clear && jest -o  --forceExit",
-		"testGit": "npx jest --forceExit"
+		"test": "clear && jest -o --forceExit",
+		"testGit": "export ${{ secrets.URI }} &&jest --forceExit"
 	},
 	"repository": {
 		"type": "git",
