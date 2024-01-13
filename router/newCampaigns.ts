@@ -1,9 +1,16 @@
 import { Request, Response } from 'express';
-import { Campaign } from '../Models/campaign';
+import { Campaign } from '../Models/Campaign';
 import { Log } from '../tools/log';
 
 export default async function NewCampaigns(req: Request<any>, res: Response<any>) {
-	if (!req.body || !req.body.name || !req.body.dateStart || !req.body.dateEnd || !req.body.script) {
+	if (
+		!req.body ||
+		!req.body.name ||
+		!req.body.dateStart ||
+		!req.body.dateEnd ||
+		!req.body.script ||
+		!req.body.adminCode
+	) {
 		Log('Missing parameters from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewCampaigns.ts');
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		return;
@@ -15,9 +22,15 @@ export default async function NewCampaigns(req: Request<any>, res: Response<any>
 		typeof req.body.name !== 'string' ||
 		isNaN(dateEnd.getTime()) ||
 		typeof req.body.script != 'string' ||
-		isNaN(dateStart.getTime())
+		isNaN(dateStart.getTime()) ||
+		typeof req.body.adminCode !== 'string'
 	) {
 		res.status(400).send({ message: 'Invalid parameters', OK: false });
+		return;
+	}
+
+	if (req.body.adminCode !== process.env.ADMIN_PASSWORD) {
+		res.status(400).send({ message: 'Invalid admin code', OK: false });
 		return;
 	}
 

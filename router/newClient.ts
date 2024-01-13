@@ -4,7 +4,7 @@ import { Log } from '../tools/log';
 import phoneNumberCheck from '../tools/phoneNumberCheck';
 
 export default async function NewClient(req: Request<any>, res: Response<any>) {
-	if (!req.body || req.body.name == null || req.body.phone == null) {
+	if (!req.body || req.body.name == null || req.body.phone == null || req.body.adminCode == null) {
 		Log('Missing parameters from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewClient.ts');
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		return;
@@ -14,10 +14,17 @@ export default async function NewClient(req: Request<any>, res: Response<any>) {
 		req.body.name == '' ||
 		typeof req.body.name != 'string' ||
 		req.body.phone == '' ||
-		typeof req.body.phone != 'string'
+		typeof req.body.phone != 'string' ||
+		req.body.adminCode == ''
 	) {
 		Log('Invalid parameters from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewClient.ts');
 		res.status(400).send({ message: 'Invalid parameters', OK: false });
+		return;
+	}
+
+	if (req.body.adminCode !== process.env.ADMIN_PASSWORD) {
+		Log('Invalid admin code from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewClient.ts');
+		res.status(400).send({ message: 'Invalid admin code', OK: false });
 		return;
 	}
 

@@ -5,7 +5,7 @@ import phoneNumberCheck from '../tools/phoneNumberCheck';
 
 export default async function NewCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (!req.body || !req.body.name || !req.body.phone || !req.body.pinCode) {
+	if (!req.body || !req.body.name || !req.body.phone || !req.body.pinCode || !req.body.adminCode) {
 		Log('Missing parameters from ' + ip, 'WARNING', 'NewCaller.ts');
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		return;
@@ -14,12 +14,20 @@ export default async function NewCaller(req: Request<any>, res: Response<any>) {
 		typeof req.body.name !== 'string' ||
 		typeof req.body.phone !== 'string' ||
 		typeof req.body.pinCode !== 'string' ||
+		typeof req.body.adminCode !== 'string' ||
 		req.body.pinCode.length != 4
 	) {
 		Log('Invalid parameters from ' + ip, 'WARNING', 'NewCaller.ts');
 		res.status(400).send({ message: 'Invalid parameters', OK: false });
 		return;
 	}
+
+	if (req.body.adminCode !== process.env.ADMIN_PASSWORD) {
+		Log('Invalid admin code from ' + ip, 'WARNING', 'NewCaller.ts');
+		res.status(400).send({ message: 'Invalid admin code', OK: false });
+		return;
+	}
+
 	if (!phoneNumberCheck(req.body.phone)) {
 		Log('Invalid phone number from ' + ip, 'WARNING', 'NewCaller.ts');
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
