@@ -18,9 +18,13 @@ const CallerSchema = new mongoose.Schema({
 		length: 4
 	},
 	timeInCall: {
-		type: Map,
-		of: Number,
+		type: Array<[String, Number]>(),
 		required: false
+	},
+	area: {
+		type: typeof mongoose.Schema.ObjectId,
+		ref: 'Area',
+		required: true
 	},
 	createdAt: {
 		type: Date,

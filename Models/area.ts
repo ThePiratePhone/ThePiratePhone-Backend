@@ -1,41 +1,45 @@
 import mongoose from 'mongoose';
-const CampaignSchema = new mongoose.Schema({
+const AreaModel = new mongoose.Schema({
 	name: {
 		type: String,
 		required: true,
 		unique: true
 	},
-	script: {
-		type: Array<String>(),
+	CampaignList: {
+		type: Array<typeof mongoose.Schema.ObjectId>(),
+		ref: 'Campaign',
 		required: true
 	},
-	dateStart: {
-		type: Date,
-		required: true
-	},
-	dateEnd: {
-		type: Date,
-		required: true
-	},
-	userList: {
+
+	ClientList: {
 		type: Array<typeof mongoose.Schema.ObjectId>(),
 		ref: 'Client',
 		required: true
 	},
-	callerList: {
+
+	CallerList: {
 		type: Array<typeof mongoose.Schema.ObjectId>(),
 		ref: 'Caller',
 		required: true
 	},
-	area: {
-		type: typeof mongoose.Schema.ObjectId,
-		ref: 'Area',
+
+	AdminPassword: {
+		type: String,
 		required: true
 	},
+
+	adminPhone: {
+		type: String,
+		required: true,
+		minlength: 12,
+		maxlength: 13,
+		unique: true
+	},
+
 	createdAt: {
 		type: Date,
 		default: Date.now()
 	}
 });
 
-export const Campaign = mongoose.model('Campaign', CampaignSchema);
+export const Area = mongoose.model('Area', AreaModel);
