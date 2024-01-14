@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
-import phoneNumberCheck from '../tools/phoneNumberCheck';
 import { Log } from '../tools/log';
 import { Area } from '../Models/area';
-import { Client } from '../Models/Client';
 import { Campaign } from '../Models/Campaign';
 
 export default async function CreateCampaign(req: Request<any>, res: Response<any>) {
@@ -37,7 +35,7 @@ export default async function CreateCampaign(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (await Campaign.findOne({ name: req.body.name })) {
+	if (await Campaign.findOne({ name: req.body.name, area: area._id })) {
 		res.status(400).send({ message: 'Campaign already exist', OK: false });
 		Log('Campaign already exist', 'WARNING', 'CreateCampaign.ts');
 		return;
@@ -53,6 +51,7 @@ export default async function CreateCampaign(req: Request<any>, res: Response<an
 		callerList: []
 	});
 	await campaign.save();
+	await area.updateOne({ $push: { campaignList: campaign._id } });
 	res.status(200).send({ message: 'Campaign created', OK: true });
 	Log('Campaign created from' + ip, 'INFORMATION', 'CreateCampaign.ts');
 }

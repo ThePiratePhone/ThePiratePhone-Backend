@@ -37,10 +37,6 @@ const ClientSchema = new mongoose.Schema({
 			endCall: {
 				type: Date,
 				required: false
-			},
-			createdAt: {
-				type: Date,
-				default: Date.now()
 			}
 		}
 	},
