@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import phoneNumberCheck from '../tools/phoneNumberCheck';
-import checkCredential from '../tools/checkCreantial';
 import { Log } from '../tools/log';
 import { Area } from '../Models/area';
 import { Client } from '../Models/Client';
@@ -21,7 +20,7 @@ export default async function CreateClient(req: Request<any>, res: Response<any>
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		Log('Wrong admin code', 'WARNING', 'Login.ts');
+		Log('Wrong admin code from ' + ip, 'WARNING', 'Login.ts');
 		return;
 	}
 

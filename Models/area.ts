@@ -25,7 +25,8 @@ const AreaModel = new mongoose.Schema({
 
 	AdminPassword: {
 		type: String,
-		required: true
+		required: true,
+		unique: true
 	},
 
 	adminPhone: {
