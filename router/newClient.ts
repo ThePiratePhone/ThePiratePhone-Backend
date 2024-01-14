@@ -28,14 +28,14 @@ export default async function NewClient(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
+	if (req.body.phone.startsWith('0')) {
+		req.body.phone = req.body.phone.replace('0', '+33');
+	}
+
 	if (phoneNumberCheck(req.body.phone) == false) {
 		Log('Invalid phone number from ' + req.socket?.remoteAddress?.split(':').pop(), 'WARNING', 'NewClient.ts');
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
 		return;
-	}
-
-	if (req.body.phone.startsWith('0')) {
-		req.body.phone = req.body.phone.replace('0', '+33');
 	}
 
 	if ((await Client.exists({ name: req.body.name })) || (await Client.exists({ phone: req.body.phone }))) {

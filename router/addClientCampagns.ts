@@ -28,14 +28,14 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
+	if (req.body.phone.startsWith('0')) {
+		req.body.phone = req.body.phone.replace('0', '+33');
+	}
+
 	if (!phoneNumberCheck(req.body.phone)) {
 		Log('Invalid phone number from ' + ip, 'WARNING', 'NewClient.ts');
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
 		return;
-	}
-
-	if (req.body.phone.startsWith('0')) {
-		req.body.phone = req.body.phone.replace('0', '+33');
 	}
 
 	const client = await Client.findOne({ phone: req.body.phone });

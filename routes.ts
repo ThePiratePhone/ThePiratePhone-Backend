@@ -5,6 +5,7 @@ import NewCaller from './router/newCaller';
 import login from './router/Login';
 import addClientCampaign from './router/addClientCampagns';
 import addCallerCampaign from './router/addCallerCampagns';
+import getUserNotCalled from './router/getUserNotCalled';
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.post('/NewUser', NewClient);
 router.post('/login', login);
 router.post('/addClientcampaign', addClientCampaign);
 router.post('/addCallercampaign', addCallerCampaign);
+router.post('/getUserNotCalled', getUserNotCalled);
 
 export default router;

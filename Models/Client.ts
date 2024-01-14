@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { Caller } from './Caller';
 const ClientSchema = new mongoose.Schema({
 	name: {
 		type: String,
@@ -15,7 +14,7 @@ const ClientSchema = new mongoose.Schema({
 	},
 	status: {
 		type: String,
-		enum: ['status', 'not called', 'not answered', 'inprogress'],
+		enum: ['called', 'not called', 'not answered', 'inprogress'],
 		required: true
 	},
 	caller: {

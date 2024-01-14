@@ -11,6 +11,10 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
+	if (req.body.phone.startsWith('0')) {
+		req.body.phone = req.body.phone.replace('0', '+33');
+	}
+
 	if (!phoneNumberCheck(req.body.phone)) {
 		Log('Invalid phone number from ' + ip, 'WARNING', 'Login.ts');
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
