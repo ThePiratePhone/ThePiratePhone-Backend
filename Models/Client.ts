@@ -2,15 +2,13 @@ import mongoose from 'mongoose';
 const ClientSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true,
-		unique: true
+		required: true
 	},
 	phone: {
 		type: String,
 		required: true,
 		minlength: 12,
-		maxlength: 13,
-		unique: true
+		maxlength: 13
 	},
 	data: {
 		required: true,
