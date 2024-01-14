@@ -10,16 +10,12 @@ beforeAll(async () => {
 	return true;
 });
 
-afterEach(async () => {
-	await Client.deleteOne({ name: 'testCreateClient' });
-	return true;
-});
-
 describe('POST /api/NewUser', () => {
 	it('Should return a 400 if request body is not an object', async () => {
 		const res = await req.post('/api/NewUser');
 		expect(res.body.message).toEqual('Missing parameters');
 		expect(res.body.OK).toEqual(false);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.status).toEqual(400);
 	});
 
@@ -27,6 +23,7 @@ describe('POST /api/NewUser', () => {
 		const res = await req.post('/api/NewUser').send({ phone: '0123456789', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Missing parameters');
 		expect(res.status).toEqual(400);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(false);
 	});
 
@@ -36,6 +33,7 @@ describe('POST /api/NewUser', () => {
 			.send({ name: 'testCreateClient', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Missing parameters');
 		expect(res.status).toEqual(400);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(false);
 	});
 
@@ -43,6 +41,7 @@ describe('POST /api/NewUser', () => {
 		const res = await req.post('/api/NewUser').send({ name: 'testCreateClient', phone: '0123456789' });
 		expect(res.body.message).toEqual('Missing parameters');
 		expect(res.status).toEqual(400);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(false);
 	});
 
@@ -52,6 +51,7 @@ describe('POST /api/NewUser', () => {
 			.send({ name: 123, phone: '0123456789', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Invalid parameters');
 		expect(res.status).toEqual(400);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(false);
 	});
 
@@ -62,6 +62,7 @@ describe('POST /api/NewUser', () => {
 			.send({ name: 'testCreateClient', phone: '123', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Invalid phone number');
 		expect(res.status).toEqual(400);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(false);
 	});
 
@@ -71,6 +72,7 @@ describe('POST /api/NewUser', () => {
 			.send({ name: 'testCreateClient', phone: '123456789', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Invalid phone number');
 		expect(res.status).toEqual(400);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(false);
 	});
 
@@ -80,6 +82,7 @@ describe('POST /api/NewUser', () => {
 			.send({ name: 'testCreateClient', phone: '+33234567891', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Client created');
 		expect(res.status).toEqual(201);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(true);
 	});
 
@@ -89,6 +92,7 @@ describe('POST /api/NewUser', () => {
 			.send({ name: 'testCreateClient', phone: '+3312345678910', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Invalid phone number');
 		expect(res.status).toEqual(400);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(false);
 	});
 	//end phone number
@@ -100,6 +104,7 @@ describe('POST /api/NewUser', () => {
 			.send({ name: 'testCreateClient', phone: '0123456789', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Client created');
 		expect(res.status).toEqual(201);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(true);
 	});
 
@@ -118,6 +123,7 @@ describe('POST /api/NewUser', () => {
 			.send({ name: 'testCreateClient', phone: '0123456789', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.body.message).toEqual('Client already exists');
 		expect(res.status).toEqual(400);
+		await Client.deleteOne({ name: 'testCreateClient' });
 		expect(res.body.OK).toEqual(false);
 	});
 });

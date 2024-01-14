@@ -22,6 +22,11 @@ const CampaignSchema = new mongoose.Schema({
 		ref: 'Client',
 		required: true
 	},
+	callerList: {
+		type: Array<typeof mongoose.Schema.ObjectId>(),
+		ref: 'Caller',
+		required: true
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now()

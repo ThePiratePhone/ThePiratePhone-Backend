@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "index.ts",
 	"scripts": {
-		"test": "clear && jest -o --forceExit",
-		"testGit": "npx jest --forceExit",
+		"test": "clear && jest -o --forceExit  --maxWorkers=1",
+		"testGit": "npx jest --forceExit --maxWorkers=1",
 		"dev": "npx nodemon index.ts",
 		"start": "ts-node ."
 	},

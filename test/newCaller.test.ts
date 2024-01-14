@@ -8,11 +8,8 @@ beforeAll(async () => {
 	await mongoose.connect(process.env.URI ?? '');
 	await Caller.deleteOne({ name: 'testCreateCaller' });
 	await Caller.deleteOne({ name: 'testCreateCallerDuplicate' });
+	await Caller.deleteOne({ name: 'testDuplicate2' });
 	return true;
-});
-
-afterEach(async () => {
-	await Caller.deleteOne({ name: 'testCreateCaller' });
 });
 
 describe('POST /api/NewCaller', () => {
@@ -20,6 +17,7 @@ describe('POST /api/NewCaller', () => {
 		const res = await req.post('/api/NewCaller');
 		expect(res.body.message).toEqual('Missing parameters');
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.status).toEqual(400);
 	});
 
@@ -29,6 +27,7 @@ describe('POST /api/NewCaller', () => {
 			.send({ phone: '123456789', pinCode: '1234', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.status).toEqual(400);
 		expect(res.body.message).toEqual('Missing parameters');
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.OK).toEqual(false);
 	});
 
@@ -38,6 +37,7 @@ describe('POST /api/NewCaller', () => {
 			.send({ name: 'testCreateCaller', pinCode: '1234', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Missing parameters');
 	});
 
@@ -47,6 +47,7 @@ describe('POST /api/NewCaller', () => {
 			.send({ name: 'testCreateCaller', phone: '123456789', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Missing parameters');
 	});
 
@@ -56,6 +57,7 @@ describe('POST /api/NewCaller', () => {
 			.send({ name: 'testCreateCaller', phone: '123456789', pinCode: '1234' });
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Missing parameters');
 	});
 
@@ -65,6 +67,7 @@ describe('POST /api/NewCaller', () => {
 			.send({ name: 123, phone: '123456789', pinCode: '1234', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Invalid parameters');
 	});
 
@@ -74,6 +77,7 @@ describe('POST /api/NewCaller', () => {
 			.send({ name: 'testCreateCaller', phone: 123, pinCode: '1234', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Invalid parameters');
 	});
 
@@ -86,6 +90,7 @@ describe('POST /api/NewCaller', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Invalid parameters');
 	});
 
@@ -98,6 +103,7 @@ describe('POST /api/NewCaller', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Invalid parameters');
 	});
 
@@ -108,6 +114,7 @@ describe('POST /api/NewCaller', () => {
 			.send({ name: 'testCreateCaller', phone: '123', pinCode: '1234', adminCode: process.env.ADMIN_PASSWORD });
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Invalid phone number');
 	});
 
@@ -120,6 +127,7 @@ describe('POST /api/NewCaller', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Invalid phone number');
 	});
 
@@ -132,6 +140,7 @@ describe('POST /api/NewCaller', () => {
 		});
 		expect(res.body.message).toEqual('Caller created');
 		expect(res.status).toEqual(201);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.OK).toEqual(true);
 	});
 
@@ -144,6 +153,7 @@ describe('POST /api/NewCaller', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.message).toEqual('Invalid phone number');
 	});
 	//end phone number
@@ -163,10 +173,9 @@ describe('POST /api/NewCaller', () => {
 			adminCode: process.env.ADMIN_PASSWORD
 		});
 		expect(res.status).toEqual(400);
-		expect(res.body.OK).toEqual(false);
 		expect(res.body.message).toEqual('Caller already exists');
-
 		await Caller.deleteOne({ name: 'testCreateCallerDuplicate' });
+		expect(res.body.OK).toEqual(false);
 	});
 
 	it('Should return a 400 if request phone is already in use', async () => {
@@ -178,16 +187,15 @@ describe('POST /api/NewCaller', () => {
 		});
 		await caller.save();
 		const res = await req.post('/api/NewCaller').send({
-			name: 'testDuplicate3',
+			name: 'testDuplicate2',
 			phone: '0123456789',
 			pinCode: '1234',
 			adminCode: process.env.ADMIN_PASSWORD
 		});
-		expect(res.status).toEqual(400);
-		expect(res.body.OK).toEqual(false);
 		expect(res.body.message).toEqual('Caller already exists');
-
+		expect(res.status).toEqual(400);
 		await Caller.deleteOne({ name: 'testDuplicate2' });
+		expect(res.body.OK).toEqual(false);
 	});
 
 	it('Should return a 201 if request is valid', async () => {
@@ -199,6 +207,7 @@ describe('POST /api/NewCaller', () => {
 		});
 		expect(res.body.message).toEqual('Caller created');
 		expect(res.status).toEqual(201);
+		await Caller.deleteOne({ name: 'testCreateCaller' });
 		expect(res.body.OK).toEqual(true);
 	});
 });

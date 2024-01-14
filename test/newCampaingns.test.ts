@@ -10,15 +10,12 @@ beforeAll(async () => {
 	return true;
 });
 
-afterEach(async () => {
-	await Campaign.deleteOne({ name: 'testCreateCampaign' });
-});
-
 describe('POST /api/NewCampaign', () => {
 	it('Should return a 400 if request body is not an object', async () => {
 		const res = await req.post('/api/NewCampaign');
 		expect(res.body.message).toEqual('Missing parameters');
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.status).toEqual(400);
 	});
 
@@ -31,6 +28,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.message).toEqual('Missing parameters');
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.OK).toEqual(false);
 	});
 
@@ -43,6 +41,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Missing parameters');
 	});
 
@@ -55,6 +54,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Missing parameters');
 	});
 
@@ -67,6 +67,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Missing parameters');
 	});
 
@@ -76,6 +77,7 @@ describe('POST /api/NewCampaign', () => {
 			.send({ name: 'testCreateCampaign', dateStart: '2021-01-01', dateEnd: '2021-01-02', script: 'test' });
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Missing parameters');
 	});
 
@@ -89,6 +91,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Invalid parameters');
 	});
 
@@ -102,6 +105,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Invalid parameters');
 	});
 
@@ -115,6 +119,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Invalid parameters');
 	});
 
@@ -128,6 +133,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(400);
 		expect(res.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Invalid parameters');
 	});
 
@@ -141,6 +147,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res.status).toEqual(201);
 		expect(res.body.OK).toEqual(true);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res.body.message).toEqual('Campaign created');
 	});
 
@@ -161,6 +168,7 @@ describe('POST /api/NewCampaign', () => {
 		});
 		expect(res2.status).toEqual(400);
 		expect(res2.body.OK).toEqual(false);
+		await Campaign.deleteOne({ name: 'testCreateCampaign' });
 		expect(res2.body.message).toEqual('Campaign already exists');
 	});
 });

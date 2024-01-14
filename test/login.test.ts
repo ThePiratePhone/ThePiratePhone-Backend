@@ -13,6 +13,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
 	await Caller.deleteOne({ name: 'testloginCaller' });
+	return true;
 });
 
 describe('POST /api/login', () => {

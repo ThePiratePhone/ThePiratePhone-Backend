@@ -43,6 +43,7 @@ export default async function NewCampaigns(req: Request<any>, res: Response<any>
 		dateStart: dateStart,
 		dateEnd: dateEnd,
 		userList: [],
+		callerList: [],
 		script: new Array<String>().push(req.body.script)
 	});
 
