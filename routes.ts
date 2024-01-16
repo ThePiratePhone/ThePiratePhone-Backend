@@ -1,21 +1,16 @@
 import { Router } from 'express';
-import NewCampaigns from './router/newCampaigns';
-import NewClient from './router/newClient';
-import NewCaller from './router/newCaller';
-import login from './router/Login';
-import addClientCampaign from './router/addClientCampagns';
-import addCallerCampaign from './router/addCallerCampagns';
-import getUserNotCalled from './router/getUserNotCalled';
+import CreateClient from './router/CreateClient';
+import CreateCampaign from './router/CreateCampaing';
+import addClientCampaing from './router/addClientCampaing';
+import addCallerCampaing from './router/addCallerCampaing';
+import CreateCaller from './router/CreateCaller';
 
 const router = Router();
 
-router.post('/NewCampaign', NewCampaigns);
-router.post('/NewClient', NewClient);
-router.post('/NewCaller', NewCaller);
-router.post('/NewUser', NewClient);
-router.post('/login', login);
-router.post('/addClientcampaign', addClientCampaign);
-router.post('/addCallercampaign', addCallerCampaign);
-router.post('/getUserNotCalled', getUserNotCalled);
+router.get('/createClient', CreateClient);
+router.get('/CreateCaller', CreateCaller);
+router.get('/createCampaing', CreateCampaign);
+router.get('/addClientCampaing', addClientCampaing);
+router.get('/addCallerCampaing', addCallerCampaing);
 
 export default router;

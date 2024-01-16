@@ -2,8 +2,7 @@ import mongoose from 'mongoose';
 const CampaignSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true,
-		unique: true
+		required: true
 	},
 	script: {
 		type: Array<String>(),
@@ -18,13 +17,18 @@ const CampaignSchema = new mongoose.Schema({
 		required: true
 	},
 	userList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
+		type: [mongoose.Schema.Types.ObjectId],
 		ref: 'Client',
 		required: true
 	},
 	callerList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
+		type: [mongoose.Schema.Types.ObjectId],
 		ref: 'Caller',
+		required: true
+	},
+	area: {
+		type: mongoose.Schema.ObjectId,
+		ref: 'Area',
 		required: true
 	},
 	createdAt: {
