@@ -39,7 +39,7 @@ const ClientSchema = new mongoose.Schema({
 		}
 	},
 	area: {
-		type: typeof mongoose.Schema.ObjectId,
+		type: mongoose.Schema.ObjectId,
 		ref: 'Area',
 		required: true
 	},

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { Log } from '../tools/log';
-import { Area } from '../Models/area';
 import { Campaign } from '../Models/Campaign';
+import { Area } from '../Models/area';
+import { Log } from '../tools/log';
 
 export default async function CreateCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -38,6 +38,21 @@ export default async function CreateCampaign(req: Request<any>, res: Response<an
 	if (await Campaign.findOne({ name: req.body.name, area: area._id })) {
 		res.status(400).send({ message: 'Campaign already exist', OK: false });
 		Log('Campaign already exist', 'WARNING', 'CreateCampaign.ts');
+		return;
+	}
+
+	const existingCampaign = await Campaign.findOne({
+		$or: [
+			{ $and: [{ dateStart: { $lte: dateStart } }, { dateEnd: { $gte: dateStart } }] },
+			{ $and: [{ dateStart: { $lte: dateEnd } }, { dateEnd: { $gte: dateEnd } }] },
+			{ $and: [{ dateStart: { $gte: dateStart } }, { dateEnd: { $lte: dateEnd } }] }
+		],
+		area: area._id
+	});
+
+	if (existingCampaign) {
+		res.status(400).send({ message: 'Campaign overlaps with an existing campaign', OK: false });
+		Log('Campaign overlaps with an existing campaign', 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 

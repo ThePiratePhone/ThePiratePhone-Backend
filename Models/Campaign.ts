@@ -17,17 +17,17 @@ const CampaignSchema = new mongoose.Schema({
 		required: true
 	},
 	userList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
+		type: [mongoose.Schema.Types.ObjectId],
 		ref: 'Client',
 		required: true
 	},
 	callerList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
+		type: [mongoose.Schema.Types.ObjectId],
 		ref: 'Caller',
 		required: true
 	},
 	area: {
-		type: typeof mongoose.Schema.ObjectId,
+		type: mongoose.Schema.ObjectId,
 		ref: 'Area',
 		required: true
 	},

@@ -18,7 +18,16 @@ const CallerSchema = new mongoose.Schema({
 		length: 4
 	},
 	timeInCall: {
-		type: Array<[String, Number]>(),
+		type: [mongoose.Schema.ObjectId, Number],
+		ref: 'Client',
+		required: false
+	},
+	startCall: {
+		type: Date,
+		required: false
+	},
+	endCall: {
+		type: Date,
 		required: false
 	},
 	area: {
