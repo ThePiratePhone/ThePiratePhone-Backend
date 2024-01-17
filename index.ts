@@ -6,7 +6,7 @@ import https from 'https';
 import mongoose from 'mongoose';
 
 import router from './routes';
-import { Log } from './tools/log';
+import { log } from './tools/log';
 import { Client } from './Models/Client';
 
 dotenv.config({ path: '.env' });
@@ -16,10 +16,10 @@ const port = 7000;
 mongoose
 	.connect(process.env.URI ?? '')
 	.then(() => {
-		Log('Successfully connected to MongoDB', 'INFORMATION', 'index.ts');
+		log('Successfully connected to MongoDB', 'INFORMATION', 'index.ts');
 	})
 	.catch(error => {
-		Log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
+		log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
 	});
 
 // Create an instance of the Express app
@@ -31,11 +31,11 @@ if (process.env.ISDEV == 'false') {
 	};
 	const server = https.createServer(options, app);
 	server.listen(port, () => {
-		Log(`Listening at https://localhost:${port}`, 'DEBUG', 'index.ts');
+		log(`Listening at https://localhost:${port}`, 'DEBUG', 'index.ts');
 	});
 } else {
 	app.listen(port, () => {
-		Log(`Listening at http://localhost:${port}`, 'DEBUG', 'index.ts');
+		log(`Listening at http://localhost:${port}`, 'DEBUG', 'index.ts');
 	});
 }
 

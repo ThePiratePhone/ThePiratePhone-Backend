@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Log } from '../tools/log';
+import { log } from '../tools/log';
 import { Area } from '../Models/area';
 import { Caller } from '../Models/Caller';
 import phoneNumberCheck from '../tools/phoneNumberCheck';
@@ -14,14 +14,14 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		typeof req.body.adminCode != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		Log('Missing parameters', 'WARNING', 'Login.ts');
+		log('Missing parameters', 'WARNING', 'login.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		Log('Wrong admin code from ' + ip, 'WARNING', 'Login.ts');
+		log('Wrong admin code from ' + ip, 'WARNING', 'login.ts');
 		return;
 	}
 
@@ -31,13 +31,13 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		Log('Wrong phone number', 'WARNING', 'Login.ts');
+		log('Wrong phone number', 'WARNING', 'login.ts');
 		return;
 	}
 
 	if ((await Caller.findOne({ phone: req.body.phone })) || (await Caller.findOne({ name: req.body.name }))) {
 		res.status(400).send({ message: 'User already exist', OK: false });
-		Log('User already exist', 'WARNING', 'Login.ts');
+		log('User already exist', 'WARNING', 'login.ts');
 		return;
 	}
 
@@ -51,9 +51,9 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	try {
 		await Promise.all([caller.save(), area.updateOne({ $push: { callerList: caller._id } })]);
 		res.status(200).send({ message: 'user ' + caller.name + ' created', OK: true });
-		Log('user ' + caller.name + ' created from ' + ip, 'INFORMATION', 'Login.ts');
+		log('user ' + caller.name + ' created from ' + ip, 'INFORMATION', 'login.ts');
 	} catch (error: any) {
 		res.status(500).send({ message: 'Internal server error', OK: false });
-		Log('Internal server error: ' + error.message, 'ERROR', 'Login.ts');
+		log('Internal server error: ' + error.message, 'ERROR', 'login.ts');
 	}
 }

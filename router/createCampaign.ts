@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Campaign } from '../Models/Campaign';
 import { Area } from '../Models/area';
-import { Log } from '../tools/log';
+import { log } from '../tools/log';
 
 export default async function createCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -16,14 +16,14 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		typeof req.body.adminCode != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		Log('Missing parameters', 'WARNING', 'CreateCampaign.ts');
+		log('Missing parameters', 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		Log('Wrong admin code from ' + ip, 'WARNING', 'Login.ts');
+		log('Wrong admin code from ' + ip, 'WARNING', 'login.ts');
 		return;
 	}
 
@@ -31,13 +31,13 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 	const dateStart = new Date(req.body.dateStart);
 	if (isNaN(dateEnd.getTime()) || isNaN(dateStart.getTime()) || dateEnd < dateStart) {
 		res.status(400).send({ message: 'dateEnd < dateStart', OK: false });
-		Log('dateEnd < dateStart', 'WARNING', 'CreateCampaign.ts');
+		log('dateEnd < dateStart', 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
 	if (await Campaign.findOne({ name: req.body.name, area: area._id })) {
 		res.status(400).send({ message: 'Campaign already exist', OK: false });
-		Log('Campaign already exist', 'WARNING', 'CreateCampaign.ts');
+		log('Campaign already exist', 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
@@ -52,7 +52,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 
 	if (existingCampaign) {
 		res.status(400).send({ message: 'Campaign overlaps with an existing campaign', OK: false });
-		Log('Campaign overlaps with an existing campaign', 'WARNING', 'CreateCampaign.ts');
+		log('Campaign overlaps with an existing campaign', 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
@@ -68,5 +68,5 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 	await campaign.save();
 	await area.updateOne({ $push: { campaignList: campaign._id } });
 	res.status(200).send({ message: 'Campaign created', OK: true });
-	Log('Campaign created from' + ip, 'INFORMATION', 'CreateCampaign.ts');
+	log('Campaign created from' + ip, 'INFORMATION', 'CreateCampaign.ts');
 }

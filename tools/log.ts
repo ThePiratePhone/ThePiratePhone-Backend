@@ -14,7 +14,7 @@ type WarningLevel = 'DEBUG' | 'INFORMATION' | 'WARNING' | 'ERROR' | 'CRITICAL';
  * - ERROR: Moderate impact that requires attention.
  * - CRITICAL: Significant impact that can cause damage or data loss.
  */
-export async function Log(text: string, impact: WarningLevel = 'DEBUG', location: string | undefined) {
+export async function log(text: string, impact: WarningLevel = 'DEBUG', location: string | undefined) {
 	if (process?.env?.npm_lifecycle_script?.includes('jest')) return;
 	const date = new Date().toLocaleDateString('en-GB', {
 		timeZone: 'Europe/Paris',

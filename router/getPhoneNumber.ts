@@ -3,6 +3,7 @@ import checkCredential from '../tools/checkCreantial';
 import { Area } from '../Models/area';
 import { Campaign } from '../Models/Campaign';
 import { Client } from '../Models/Client';
+import { ObjectId } from 'mongodb';
 
 export default async function GetPhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -16,9 +17,14 @@ export default async function GetPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const caller = checkCredential(req.body.phone, req.body.area, req.body.pinCode);
+	const caller = await checkCredential(req.body.phone, req.body.area, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
+		return;
+	}
+
+	if (typeof caller.curentCall == typeof ObjectId) {
+		res.status(400).send({ message: 'Already in a call', OK: false });
 		return;
 	}
 
@@ -53,7 +59,18 @@ export default async function GetPhoneNumber(req: Request<any>, res: Response<an
 		res.status(400).send({ message: 'No client available', OK: false });
 		return;
 	} else {
-		caller;
+		const clientCampaign = client.data.get(campaign._id.toString());
+		if (!clientCampaign) {
+			res.status(500).send({ message: 'Internal error', OK: false });
+			return;
+		}
+		caller.curentCall = client._id;
+		clientCampaign.status = 'inprogress';
+		clientCampaign.startCall = new Date();
+		clientCampaign.caller = caller._id;
+		clientCampaign.scriptVersion = campaign.script.length - 1;
+
+		await Promise.all([caller.save(), client.save()]);
 		res.status(200).send({ message: 'OK', OK: true, data: client });
 		return;
 	}

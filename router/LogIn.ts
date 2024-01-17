@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import checkCredential from '../tools/checkCreantial';
 import phoneNumberCheck from '../tools/phoneNumberCheck';
 
-export default async function Login(req: Request<any>, res: Response<any>) {
+export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 
 	if (

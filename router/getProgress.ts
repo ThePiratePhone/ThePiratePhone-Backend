@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import checkCredential from '../tools/checkCreantial';
-import AreaCampaingProgress from '../tools/areaCampainProgress';
+import AreaCampaignProgress from '../tools/areaCampaignProgress';
 
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -14,11 +14,11 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		return;
 	}
 
-	const caller = checkCredential(req.body.phone, req.body.area, req.body.pinCode);
+	const caller = await checkCredential(req.body.phone, req.body.area, req.body.pinCode);
 	if (!caller) {
 		res.status(401).send({ message: 'Invalid credential', OK: false });
 		return;
 	}
-	const count = await AreaCampaingProgress(req.body.area);
+	const count = await AreaCampaignProgress(req.body.area);
 	res.status(200).send({ message: 'OK', OK: true, data: count });
 }
