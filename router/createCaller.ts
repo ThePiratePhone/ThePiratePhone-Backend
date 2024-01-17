@@ -4,7 +4,7 @@ import { Area } from '../Models/area';
 import { Caller } from '../Models/Caller';
 import phoneNumberCheck from '../tools/phoneNumberCheck';
 
-export default async function CreateCaller(req: Request<any>, res: Response<any>) {
+export default async function createCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||

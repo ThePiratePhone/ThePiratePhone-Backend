@@ -4,7 +4,7 @@ import { Log } from '../tools/log';
 import { Area } from '../Models/area';
 import { Client } from '../Models/Client';
 
-export default async function CreateClient(req: Request<any>, res: Response<any>) {
+export default async function createClient(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||

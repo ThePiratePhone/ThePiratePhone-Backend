@@ -3,7 +3,7 @@ import { Campaign } from '../Models/Campaign';
 import { Area } from '../Models/area';
 import { Log } from '../tools/log';
 
-export default async function CreateCampaign(req: Request<any>, res: Response<any>) {
+export default async function createCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
