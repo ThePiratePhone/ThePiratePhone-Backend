@@ -3,6 +3,7 @@ import checkCredential from '../tools/checkCreantial';
 import { log } from '../tools/log';
 import { Client } from '../Models/Client';
 import getCurentCampaign from '../tools/getCurentCampaign';
+import mongoose from 'mongoose';
 
 export default async function endCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -11,7 +12,9 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
 		typeof req.body.area != 'string' ||
-		typeof req.body.timeInCall != 'string'
+		typeof req.body.timeInCall != 'string' ||
+		typeof req.body.satisfaction != 'string' ||
+		typeof req.body.status != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters`, 'ERROR', 'endCall');
@@ -21,6 +24,22 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	if (isNaN(parseInt(req.body.timeInCall))) {
 		res.status(400).send({ message: 'timeInCall is not a number', OK: false });
 		log(`timeInCall is not a number from ` + ip, 'ERROR', 'endCall');
+		return;
+	}
+
+	if (
+		isNaN(parseInt(req.body.satisfaction)) ||
+		parseInt(req.body.satisfaction) < 0 ||
+		parseInt(req.body.satisfaction) > 5
+	) {
+		res.status(400).send({ message: 'satisfaction is not a number', OK: false });
+		log(`satisfaction is not a number from ` + ip, 'ERROR', 'endCall');
+		return;
+	}
+
+	if (req.body.status != 'not answered' || req.body.status != 'called') {
+		res.status(400).send({ message: 'status is not valid', OK: false });
+		log(`status is not valid from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
 
@@ -50,8 +69,14 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`no actual Camaing from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
+	let nbCall = client.data.get(curentCampaign._id.toString())?.length;
+	if (!nbCall) {
+		const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
+		client.data.set(curentCampaign._id.toString(), newData);
+		nbCall = 1;
+	}
 
-	const clientCampaign = client.data.get(curentCampaign._id.toString());
+	const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[nbCall - 1];
 	if (!clientCampaign) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		return;
@@ -61,11 +86,12 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`Internal error from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
-
-	clientCampaign.status = 'called';
+	clientCampaign.status = req.body.status;
+	clientCampaign.startCall = new Date(Date.now() - parseInt(req.body.timeInCall));
 	clientCampaign.endCall = new Date();
+	clientCampaign.satisfaction = parseInt(req.body.satisfaction);
 	caller.curentCall = null;
-	caller.timeInCall.push([new Date(), client._id, parseInt(req.body.timeInCall)]);
+	caller.timeInCall.push([new Date(), client._id, new Date(parseInt(req.body.timeInCall))]);
 	await Promise.all([caller.save(), client.save()]);
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end call from ` + ip, 'INFORMATION', 'endCall');

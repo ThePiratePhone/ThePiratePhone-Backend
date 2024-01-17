@@ -3,6 +3,7 @@ import { log } from '../tools/log';
 import { Area } from '../Models/area';
 import { Client } from '../Models/Client';
 import { Campaign } from '../Models/Campaign';
+import mongoose, { Document } from 'mongoose';
 
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -48,6 +49,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	client.data.set(campaign._id.toString(), { status: 'not called' });
+	const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
+	client.data.set(campaign._id.toString(), newData);
 	await Promise.all([client.save(), campaign.updateOne({ $push: { userList: client._id } })]);
 }

@@ -13,30 +13,38 @@ const ClientSchema = new mongoose.Schema({
 	data: {
 		required: true,
 		type: Map,
-		of: {
-			status: {
-				type: String,
-				enum: ['called', 'not called', 'not answered', 'inprogress'],
-				required: true
-			},
-			caller: {
-				type: mongoose.Schema.ObjectId,
-				ref: 'Caller',
-				required: false
-			},
-			scriptVersion: {
-				type: Number,
-				required: false
-			},
-			startCall: {
-				type: Date,
-				required: false
-			},
-			endCall: {
-				type: Date,
-				required: false
+		of: [
+			{
+				status: {
+					type: String,
+					enum: ['called', 'not called', 'not answered', 'inprogress'],
+					required: true
+				},
+				caller: {
+					type: mongoose.Schema.ObjectId,
+					ref: 'Caller',
+					required: false
+				},
+				scriptVersion: {
+					type: Number,
+					required: false
+				},
+				startCall: {
+					type: Date,
+					required: false
+				},
+				endCall: {
+					type: Date,
+					required: false
+				},
+				satisfaction: {
+					type: Number,
+					min: 0,
+					max: 5,
+					required: false
+				}
 			}
-		}
+		]
 	},
 	area: {
 		type: mongoose.Schema.ObjectId,
