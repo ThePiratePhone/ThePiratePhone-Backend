@@ -53,7 +53,7 @@ export default async function GetPhoneNumber(req: Request<any>, res: Response<an
 	//find first client with status not called
 	const client = await Client.findOne({
 		_id: { $in: area.ClientList },
-		data: { $elemMatch: { status: 'not called' } }
+		'data.$last.status': 'not called'
 	});
 	if (!client) {
 		res.status(400).send({ message: 'No client available', OK: false });
@@ -64,11 +64,13 @@ export default async function GetPhoneNumber(req: Request<any>, res: Response<an
 			res.status(500).send({ message: 'Internal error', OK: false });
 			return;
 		}
+
+		const last = clientCampaign.length - 1;
 		caller.curentCall = client._id;
-		clientCampaign.status = 'inprogress';
-		clientCampaign.startCall = new Date();
-		clientCampaign.caller = caller._id;
-		clientCampaign.scriptVersion = campaign.script.length - 1;
+		clientCampaign[last].status = 'inprogress';
+		clientCampaign[last].startCall = new Date();
+		clientCampaign[last].caller = caller._id;
+		clientCampaign[last].scriptVersion = campaign.script.length - 1;
 
 		await Promise.all([caller.save(), client.save()]);
 		res.status(200).send({ message: 'OK', OK: true, data: client });
