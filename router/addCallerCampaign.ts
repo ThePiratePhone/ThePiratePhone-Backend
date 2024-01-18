@@ -29,9 +29,9 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 	}
 
 	const caller = await Caller.findOne({ phone: req.body.Phone, area: area._id });
-	if (!caller || area._id != caller.area) {
-		res.status(404).send({ message: 'User not found', OK: false });
-		log('User not found', 'WARNING', 'addCallerCampaign.ts');
+	if (!caller) {
+		res.status(404).send({ message: 'Caller not found', OK: false });
+		log('Caller not found', 'WARNING', 'addCallerCampaign.ts');
 		return;
 	}
 
@@ -43,9 +43,12 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 	}
 
 	if (campaign.callerList.includes(caller._id)) {
-		res.status(200).send({ message: 'User already in campaign', OK: true });
-		log('User already in campaign', 'WARNING', 'addCallerCampaign.ts');
+		res.status(200).send({ message: 'Caller already in campaign', OK: true });
+		log('Caller already in campaign', 'WARNING', 'addCallerCampaign.ts');
 		return;
 	}
 	await campaign.updateOne({ $push: { callerList: caller._id } });
+
+	res.status(200).send({ message: 'Caller added to campaign', OK: true });
+	log('Caller added to campaign', 'INFORMATION', 'addCallerCampaign.ts');
 }

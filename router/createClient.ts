@@ -43,7 +43,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const user = new Client({ area: area._id, name: req.body.name, phone: req.body.phone });
+	const user = new Client({ area: area._id, name: req.body.name, phone: req.body.phone, data: new Map() });
 	await area.updateOne({ $push: { clientList: user._id } });
 	try {
 		await user.save();

@@ -3,7 +3,7 @@ import { log } from '../tools/log';
 import { Area } from '../Models/area';
 import { Client } from '../Models/Client';
 import { Campaign } from '../Models/Campaign';
-import mongoose, { Document } from 'mongoose';
+import mongoose from 'mongoose';
 
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -30,7 +30,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	}
 
 	const client = await Client.findOne({ phone: req.body.Phone, area: area._id });
-	if (!client || area._id != client.area) {
+	if (!client) {
 		res.status(404).send({ message: 'User not found', OK: false });
 		log('User not found', 'WARNING', 'addClientCampaign.ts');
 		return;
@@ -52,4 +52,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
 	client.data.set(campaign._id.toString(), newData);
 	await Promise.all([client.save(), campaign.updateOne({ $push: { userList: client._id } })]);
+
+	res.status(200).send({ message: 'User added to campaign', OK: true });
+	log('User added to campaign', 'INFORMATION', 'addClientCampaign.ts');
 }
