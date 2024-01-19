@@ -7,7 +7,6 @@ import mongoose from 'mongoose';
 
 import router from './routes';
 import { log } from './tools/log';
-import { Client } from './Models/Client';
 
 dotenv.config({ path: '.env' });
 const port = 7000;
