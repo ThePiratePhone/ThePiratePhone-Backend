@@ -51,9 +51,21 @@ export default async function GetPhoneNumber(req: Request<any>, res: Response<an
 	}
 
 	//find first client with status not called
-	const client = await Client.findOne({
-		_id: { $in: area.ClientList },
-		'data.$last.status': 'not called'
+	const threeHoursAgo = new Date();
+	threeHoursAgo.setHours(threeHoursAgo.getHours() - 3);
+	let client = await Client.findOne({
+		$or: [
+			{
+				_id: { $in: area.ClientList },
+				'data.$size': 5,
+				'data.$last.status': 'not answered',
+				'data.$last.endCall': { $lte: threeHoursAgo }
+			},
+			{
+				_id: { $in: area.ClientList },
+				'data.$last.status': 'not called'
+			}
+		]
 	});
 	if (!client) {
 		res.status(400).send({ message: 'No client available', OK: false });
