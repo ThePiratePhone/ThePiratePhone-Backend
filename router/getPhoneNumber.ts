@@ -23,11 +23,6 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (typeof caller.curentCall == typeof ObjectId) {
-		res.status(400).send({ message: 'Already in a call', OK: false });
-		return;
-	}
-
 	const area = await Area.findOne({ _id: req.body.area });
 	if (!area) {
 		res.status(500).send({ message: 'Internal error', OK: false });
@@ -48,6 +43,21 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	if (campaign.dateStart.getTime() > Date.now() || campaign.dateEnd.getTime() < Date.now()) {
 		res.status(400).send({ message: 'out of date', OK: false });
 		return;
+	}
+
+	if (typeof caller.curentCall == typeof ObjectId) {
+		const client = await Client.findOne({ _id: caller.curentCall });
+		if (!client) {
+			caller.curentCall = null;
+		} else {
+			res.status(400).send({
+				message: 'Already in a call',
+				OK: false,
+				client: client,
+				script: campaign.script[campaign.script.length - 1]
+			});
+			return;
+		}
 	}
 
 	//find first client with status not called
@@ -85,7 +95,11 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		clientCampaign[last].scriptVersion = campaign.script.length - 1;
 
 		await Promise.all([caller.save(), client.save()]);
-		res.status(200).send({ message: 'OK', OK: true, data: client });
+		res.status(200).send({
+			message: 'OK',
+			OK: true,
+			data: { client: client, script: campaign.script[campaign.script.length - 1] }
+		});
 		return;
 	}
 }
