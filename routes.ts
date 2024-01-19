@@ -10,11 +10,11 @@ import getArea from './router/getArea';
 
 const router = Router();
 
-router.get('/createClient', createClient);
-router.get('/CreateCaller', createCaller);
-router.get('/createCampaign', createCampaign);
-router.get('/addClientCampaign', addClientCampaign);
-router.get('/addCallerCampaign', addCallerCampaign);
-router.get('/getProgress', getProgress);
-router.post('/getArea', getArea);
+router.post('/createClient', createClient);
+router.post('/CreateCaller', createCaller);
+router.post('/createCampaign', createCampaign);
+router.post('/addClientCampaign', addClientCampaign);
+router.post('/addCallerCampaign', addCallerCampaign);
+router.post('/getProgress', getProgress);
+router.get('/getArea', getArea);
 export default router;
