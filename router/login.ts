@@ -7,7 +7,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 
 	if (
 		!req.body ||
-		typeof req.body.name != 'string' ||
+		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
 		typeof req.body.area != 'string'
 	) {
