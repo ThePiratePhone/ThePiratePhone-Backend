@@ -6,6 +6,7 @@ import createCaller from './router/createCaller';
 import createCampaign from './router/createCampaign';
 import createClient from './router/createClient';
 import getArea from './router/getArea';
+import getPhoneNumber from './router/getPhoneNumber';
 import getProgress from './router/getProgress';
 import login from './router/login';
 
@@ -17,6 +18,7 @@ router.post('/createCampaign', createCampaign);
 router.post('/addClientCampaign', addClientCampaign);
 router.post('/addCallerCampaign', addCallerCampaign);
 router.post('/getProgress', getProgress);
+router.post('/getPhoneNumber', getPhoneNumber);
 router.post('/login', login);
 router.get('/getArea', getArea);
 export default router;

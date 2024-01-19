@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import checkCredential from '../tools/checkCreantial';
-import { Area } from '../Models/area';
+import { ObjectId } from 'mongodb';
 import { Campaign } from '../Models/Campaign';
 import { Client } from '../Models/Client';
-import { ObjectId } from 'mongodb';
+import { Area } from '../Models/area';
+import checkCredential from '../tools/checkCreantial';
 
-export default async function GetPhoneNumber(req: Request<any>, res: Response<any>) {
+export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
