@@ -6,6 +6,7 @@ export default async function getArea(req: Request<any>, res: Response<any>) {
 	const area = await Area.find();
 	if (!area) {
 		res.status(500).send({ message: 'Internal error', OK: false });
+		log(`Error while getting area`, 'CRITICAL', 'getArea');
 		return;
 	}
 	const rep = [{}];
