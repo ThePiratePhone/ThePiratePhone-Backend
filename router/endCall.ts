@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import checkCredential from '../tools/checkCreantial';
+import checkCredentials from '../tools/checkCredentials';
 import { log } from '../tools/log';
 import { Client } from '../Models/Client';
 import getCurentCampaign from '../tools/getCurentCampaign';
@@ -43,7 +43,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const caller = await checkCredential(req.body.phone, req.body.area, req.body.pinCode);
+	const caller = await checkCredentials(req.body.phone, req.body.area, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from ` + ip, 'ERROR', 'endCall');

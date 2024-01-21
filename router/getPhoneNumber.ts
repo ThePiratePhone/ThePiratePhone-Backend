@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+
 import { Campaign } from '../Models/Campaign';
 import { Client } from '../Models/Client';
 import { Area } from '../Models/area';
-import checkCredential from '../tools/checkCreantial';
+import checkCredentials from '../tools/checkCredentials';
 import { log } from '../tools/log';
 
 export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
@@ -19,7 +20,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const caller = await checkCredential(req.body.phone, req.body.area, req.body.pinCode);
+	const caller = await checkCredentials(req.body.phone, req.body.area, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from: ` + ip, 'WARNING', 'getPhoneNumber');

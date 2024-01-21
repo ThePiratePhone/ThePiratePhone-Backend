@@ -1,8 +1,4 @@
 function phoneNumberCheck(phone: string) {
-	if (phone.startsWith('0')) {
-		phone = phone.replace('0', '+33');
-	}
-
 	if (!phone.startsWith('+')) return false;
 
 	const phoneArray = phone.split('');

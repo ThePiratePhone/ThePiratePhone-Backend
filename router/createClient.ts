@@ -27,7 +27,6 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	if (req.body.phone.startsWith('0')) {
 		req.body.phone = req.body.phone.replace('0', '+33');
 	}
-
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
 		log('Wrong phone number', 'WARNING', 'login.ts');

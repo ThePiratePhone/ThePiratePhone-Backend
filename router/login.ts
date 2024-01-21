@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import checkCredential from '../tools/checkCreantial';
-import phoneNumberCheck from '../tools/phoneNumberCheck';
+
+import checkCredentials from '../tools/checkCredentials';
 import { log } from '../tools/log';
 
 export default async function login(req: Request<any>, res: Response<any>) {
@@ -23,16 +23,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (req.body.phone.startsWith('0')) {
-		req.body.phone = req.body.phone.replace('0', '+33');
-	}
-	if (!phoneNumberCheck(req.body.phone)) {
-		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from: ` + ip, 'WARNING', 'login');
-		return;
-	}
-
-	const caller = await checkCredential(req.body.phone, req.body.area, req.body.pinCode);
+	const caller = await checkCredentials(req.body.phone, req.body.area, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Wrong credentials', OK: false });
 		log(`Wrong credentials from: ` + ip, 'WARNING', 'login');
