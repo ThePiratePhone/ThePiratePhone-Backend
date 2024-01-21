@@ -6,6 +6,7 @@ import { Client } from '../Models/Client';
 import { Area } from '../Models/area';
 import checkCredentials from '../tools/checkCredentials';
 import { log } from '../tools/log';
+import AreaCampaignProgress from '../tools/areaCampaignProgress';
 
 export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -34,22 +35,11 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (!area.campaignInProgress) {
-		res.status(400).send({ message: 'No campaign in progress', OK: false });
-		log(`No campaign in progress`, 'WARNING', 'getPhoneNumber');
-		return;
-	}
+	const campaign = AreaCampaignProgress(area._id) as any;
 
-	const campaign = await Campaign.findOne({ _id: area.campaignInProgress });
 	if (!campaign) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		log(`Error while getting campaign`, 'CRITICAL', 'getPhoneNumber');
-		return;
-	}
-
-	if (campaign.dateStart.getTime() > Date.now() || campaign.dateEnd.getTime() < Date.now()) {
-		res.status(400).send({ message: 'out of date', OK: false });
-		log(`Campaign out of date`, 'WARNING', 'getPhoneNumber');
 		return;
 	}
 

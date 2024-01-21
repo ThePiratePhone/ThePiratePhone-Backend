@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import checkCredentials from '../tools/checkCredentials';
 import AreaCampaignProgress from '../tools/areaCampaignProgress';
 import { log } from '../tools/log';
+import { Client } from '../Models/Client';
 
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -26,7 +27,16 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		log(`Invalid credential from: ` + ip, 'WARNING', 'getProgress');
 		return;
 	}
-	const count = await AreaCampaignProgress(req.body.area);
-	res.status(200).send({ message: 'OK', OK: true, data: count });
+	const campaign = (await AreaCampaignProgress(req.body.area)) as any;
+	if (!campaign) {
+		res.status(500).send({ message: 'Internal error', OK: false });
+		log(`Error while getting campaign`, 'CRITICAL', 'getProgress');
+		return;
+	}
+	const count = await Client.countDocuments({
+		area: { $in: campaign.ClientList },
+		data: { $elemMatch: { status: 'called' } }
+	});
+	res.status(200).send({ message: 'OK', OK: true, data: [count, campaign.userList.length] });
 	log(`Get progress from: ` + ip, 'INFORMATION', 'getProgress');
 }
