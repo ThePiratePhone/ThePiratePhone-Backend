@@ -4,6 +4,7 @@ import { log } from '../tools/log';
 import { Client } from '../Models/Client';
 import getCurentCampaign from '../tools/getCurentCampaign';
 import mongoose from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 export default async function endCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -12,34 +13,23 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
 		typeof req.body.area != 'string' ||
-		typeof req.body.timeInCall != 'string' ||
-		typeof req.body.satisfaction != 'string' ||
-		typeof req.body.status != 'string'
+		typeof req.body.timeInCall != 'number' ||
+		typeof req.body.satisfaction != 'number'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters`, 'ERROR', 'endCall');
 		return;
 	}
 
-	if (isNaN(parseInt(req.body.timeInCall))) {
+	if (isNaN(req.body.timeInCall)) {
 		res.status(400).send({ message: 'timeInCall is not a number', OK: false });
 		log(`timeInCall is not a number from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
 
-	if (
-		isNaN(parseInt(req.body.satisfaction)) ||
-		parseInt(req.body.satisfaction) < 0 ||
-		parseInt(req.body.satisfaction) > 5
-	) {
-		res.status(400).send({ message: 'satisfaction is not a number', OK: false });
-		log(`satisfaction is not a number from ` + ip, 'ERROR', 'endCall');
-		return;
-	}
-
-	if (req.body.status != 'not answered' || req.body.status != 'called') {
-		res.status(400).send({ message: 'status is not valid', OK: false });
-		log(`status is not valid from ` + ip, 'ERROR', 'endCall');
+	if (isNaN(req.body.satisfaction) || req.body.satisfaction < -1 || req.body.satisfaction > 2) {
+		res.status(400).send({ message: 'satisfaction is not a valid number', OK: false });
+		log(`satisfaction is not a valid number from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
 
@@ -49,14 +39,13 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`Invalid credential from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
-
-	if (typeof caller.curentCall != 'string') {
+	if (!caller.curentCall) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
 		log(`Not in a call from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
 
-	const client = await Client.findOne({ phone: caller.curentCall });
+	const client = await Client.findOne({ _id: caller.curentCall.toString() });
 	if (!client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
 		log(`Not in a call from ` + ip, 'ERROR', 'endCall');
@@ -86,13 +75,19 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`Internal error from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
-	clientCampaign.status = req.body.status;
-	clientCampaign.startCall = new Date(Date.now() - parseInt(req.body.timeInCall));
+	clientCampaign.status = req.body.satisfaction == -1 ? 'not answered' : 'called';
+	clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
+	console.log('1');
 	clientCampaign.endCall = new Date();
-	clientCampaign.satisfaction = parseInt(req.body.satisfaction);
+	console.log('2');
+	clientCampaign.satisfaction = req.body.satisfaction;
+	console.log('3');
 	caller.curentCall = null;
-	caller.timeInCall.push([new Date(), client._id, new Date(parseInt(req.body.timeInCall))]);
+	console.log('4');
+	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
+	console.log('5');
 	await Promise.all([caller.save(), client.save()]);
+	console.log('6');
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end call from ` + ip, 'INFORMATION', 'endCall');
 }

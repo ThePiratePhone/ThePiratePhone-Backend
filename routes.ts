@@ -9,10 +9,12 @@ import getArea from './router/getArea';
 import getPhoneNumber from './router/getPhoneNumber';
 import getProgress from './router/getProgress';
 import login from './router/login';
+import endCall from './router/endCall';
 
 const router = Router();
 
 router.post('/createClient', createClient);
+router.post('/endCall', endCall);
 router.post('/createCaller', createCaller);
 router.post('/createCampaign', createCampaign);
 router.post('/addClientCampaign', addClientCampaign);

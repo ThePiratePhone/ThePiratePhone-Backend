@@ -35,7 +35,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const campaign = AreaCampaignProgress(area._id) as any;
+	const campaign = (await AreaCampaignProgress(area)) as any;
 
 	if (!campaign) {
 		res.status(500).send({ message: 'Internal error', OK: false });
@@ -43,14 +43,14 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (typeof caller.curentCall == typeof ObjectId) {
+	if (typeof caller.curentCall == 'object') {
 		const client = await Client.findOne({ _id: caller.curentCall });
 		if (!client) {
 			caller.curentCall = null;
 		} else {
 			res.status(400).send({
 				message: 'Already in a call',
-				OK: false,
+				OK: true,
 				client: client,
 				script: campaign.script[campaign.script.length - 1]
 			});
@@ -66,13 +66,14 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		$or: [
 			{
 				_id: { $in: area.ClientList },
-				'data.$size': 5,
-				'data.$last.status': 'not answered',
-				'data.$last.endCall': { $lte: threeHoursAgo }
+				[`data.${campaign._id}.$last.status`]: 'not answered',
+				[`data.${campaign._id}.$slice`]: -1,
+				[`data.${campaign._id}.$elemMatch.endCall`]: { $lte: new Date(Date.now() - 10_800_000) }
 			},
 			{
 				_id: { $in: area.ClientList },
-				'data.$last.status': 'not called'
+				[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
+				[`data.${campaign._id}`]: { $elemMatch: { status: 'not called' } }
 			}
 		]
 	});
@@ -81,7 +82,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		log(`No client available from: ` + ip, 'WARNING', 'getPhoneNumber');
 		return;
 	} else {
-		const clientCampaign = client.data.get(campaign._id.toString());
+		const clientCampaign = client.data.get(campaign._id);
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
 			log(`Error while getting client campaign`, 'CRITICAL', 'getPhoneNumber');
@@ -91,10 +92,8 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		const last = clientCampaign.length - 1;
 		caller.curentCall = client._id;
 		clientCampaign[last].status = 'inprogress';
-		clientCampaign[last].startCall = new Date();
 		clientCampaign[last].caller = caller._id;
 		clientCampaign[last].scriptVersion = campaign.script.length - 1;
-
 		await Promise.all([caller.save(), client.save()]);
 		res.status(200).send({
 			message: 'OK',

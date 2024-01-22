@@ -18,7 +18,7 @@ const CallerSchema = new mongoose.Schema({
 		length: 4
 	},
 	timeInCall: {
-		type: [[Date, mongoose.Schema.ObjectId, Number]],
+		type: [{ date: Date, client: mongoose.Schema.ObjectId, time: Number }],
 		ref: 'Client',
 		required: true
 	},

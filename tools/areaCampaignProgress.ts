@@ -1,26 +1,23 @@
-import { ObjectId } from 'mongodb';
 import { Campaign } from '../Models/Campaign';
 import { Area } from '../Models/area';
-async function AreaCampaignProgress(area: ObjectId): Promise<typeof Campaign | null> {
-	const CampaignArea = await Area.findOne({ _id: area });
-	if (!CampaignArea) {
+async function AreaCampaignProgress(area): Promise<typeof Campaign | null> {
+	if (!area && !area.id) {
 		return null;
 	}
 	let campaign: any;
-	if (!CampaignArea.campaignInProgress) {
+	if (!area.campaignInProgress) {
 		campaign = await Campaign.findOne({
-			dateStart: { $lte: new Date() },
-			dateEnd: { $gte: new Date() }
+			dateStart: { $lte: new Date() }
+			// dateEnd: { $gte: new Date() }
 		});
 		if (!campaign) {
 			return null;
 		}
-		CampaignArea.campaignInProgress = campaign._id;
-		await CampaignArea.save();
+		area.campaignInProgress = campaign._id;
+		await area.save();
 	} else {
-		campaign = await Campaign.findOne({ _id: CampaignArea.campaignInProgress });
+		campaign = await Campaign.findOne({ _id: area.campaignInProgress });
 	}
-
-	return Campaign;
+	return campaign;
 }
 export default AreaCampaignProgress;
