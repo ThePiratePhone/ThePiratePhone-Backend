@@ -1,5 +1,5 @@
 import { Campaign } from '../Models/Campaign';
-import { Area } from '../Models/area';
+
 async function AreaCampaignProgress(area): Promise<typeof Campaign | null> {
 	if (!area && !area.id) {
 		return null;
@@ -20,4 +20,5 @@ async function AreaCampaignProgress(area): Promise<typeof Campaign | null> {
 	}
 	return campaign;
 }
+
 export default AreaCampaignProgress;
