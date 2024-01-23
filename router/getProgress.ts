@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
-import checkCredentials from '../tools/checkCredentials';
-import AreaCampaignProgress from '../tools/areaCampaignProgress';
-import { log } from '../tools/log';
+
 import { Client } from '../Models/Client';
+import { Area } from '../Models/area';
+
+import AreaCampaignProgress from '../tools/areaCampaignProgress';
+import checkCredentials from '../tools/checkCredentials';
+import { log } from '../tools/log';
 
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -23,7 +26,14 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		log(`Invalid credential from: ` + ip, 'WARNING', 'getProgress');
 		return;
 	}
-	const campaign = (await AreaCampaignProgress(req.body.area)) as any;
+
+	const area = await Area.findOne({ _id: req.body.area });
+	if (!area) {
+		res.status(500).send({ message: 'Internal error', OK: false });
+		log(`Error while getting area`, 'CRITICAL', 'getProgress');
+		return;
+	}
+	const campaign = (await AreaCampaignProgress(area)) as any;
 	if (!campaign) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		log(`Error while getting campaign`, 'CRITICAL', 'getProgress');

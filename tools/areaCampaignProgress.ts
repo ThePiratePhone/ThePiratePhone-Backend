@@ -1,7 +1,7 @@
 import { Campaign } from '../Models/Campaign';
 
 async function AreaCampaignProgress(area): Promise<typeof Campaign | null> {
-	if (!area && !area.id) {
+	if (!area || !area.id) {
 		return null;
 	}
 	let campaign: any;
