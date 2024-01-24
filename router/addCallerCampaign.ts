@@ -9,7 +9,7 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 	if (
 		!req.body ||
 		typeof req.body.campaign != 'string' ||
-		typeof req.body.Phone != 'string' ||
+		typeof req.body.phone != 'string' ||
 		typeof req.body.adminCode != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
