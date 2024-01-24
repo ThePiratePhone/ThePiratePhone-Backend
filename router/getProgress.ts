@@ -40,9 +40,10 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		return;
 	}
 	const count = await Client.countDocuments({
-		area: { $in: campaign.ClientList },
-		data: { $elemMatch: { status: 'called' } }
+		_id: { $in: campaign.userList },
+		[`data.${campaign._id}.status`]: 'called'
 	});
+
 	res.status(200).send({ message: 'OK', OK: true, data: [count, campaign.userList.length] });
 	log(`Get progress from: ` + ip, 'INFORMATION', 'getProgress');
 }
