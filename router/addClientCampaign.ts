@@ -25,11 +25,11 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	if (req.body.Phone.startsWith('0')) {
-		req.body.Phone = req.body.Phone.replace('0', '+33');
+	if (req.body.phone.startsWith('0')) {
+		req.body.phone = req.body.phone.replace('0', '+33');
 	}
 
-	const client = await Client.findOne({ phone: req.body.Phone, area: area._id });
+	const client = await Client.findOne({ phone: req.body.phone, area: area._id });
 	if (!client) {
 		res.status(404).send({ message: 'User not found', OK: false });
 		log('User not found', 'WARNING', 'addClientCampaign.ts');
