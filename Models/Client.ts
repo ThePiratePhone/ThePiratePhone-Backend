@@ -39,8 +39,8 @@ const ClientSchema = new mongoose.Schema({
 				},
 				satisfaction: {
 					type: Number,
-					min: 0,
-					max: 5,
+					min: -1,
+					max: 2,
 					required: false
 				}
 			}
