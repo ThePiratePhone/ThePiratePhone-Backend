@@ -77,17 +77,11 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 	clientCampaign.status = req.body.satisfaction == -1 ? 'not answered' : 'called';
 	clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
-	console.log('1');
 	clientCampaign.endCall = new Date();
-	console.log('2');
 	clientCampaign.satisfaction = req.body.satisfaction;
-	console.log('3');
 	caller.curentCall = null;
-	console.log('4');
 	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
-	console.log('5');
 	await Promise.all([caller.save(), client.save()]);
-	console.log('6');
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end call from ` + ip, 'INFORMATION', 'endCall');
 }
