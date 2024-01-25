@@ -75,7 +75,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`Internal error from ` + ip, 'ERROR', 'endCall');
 		return;
 	}
-	clientCampaign.status = req.body.satisfaction == -1 ? 'not answered' : 'called';
+	clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
 	clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
 	clientCampaign.endCall = new Date();
 	clientCampaign.satisfaction = req.body.satisfaction;
