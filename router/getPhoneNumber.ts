@@ -15,21 +15,21 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		typeof req.body.area != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'getPhoneNumber');
+		log(`Missing parameters from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
 	const caller = await checkCredentials(req.body.phone, req.body.area, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ` + ip, 'WARNING', 'getPhoneNumber');
+		log(`Invalid credential from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ _id: req.body.area });
 	if (!area) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting area`, 'CRITICAL', 'getPhoneNumber');
+		log(`Error while getting area`, 'CRITICAL', 'getPhoneNumber.ts');
 		return;
 	}
 
@@ -37,7 +37,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 
 	if (!campaign) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting campaign`, 'CRITICAL', 'getPhoneNumber');
+		log(`Error while getting campaign`, 'CRITICAL', 'getPhoneNumber.ts');
 		return;
 	}
 
@@ -52,7 +52,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				client: client,
 				script: campaign.script[campaign.script.length - 1]
 			});
-			log(`Already in a call from: ` + ip, 'WARNING', 'getPhoneNumber');
+			log(`Already in a call from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 			return;
 		}
 	}
@@ -77,13 +77,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	});
 	if (!client) {
 		res.status(400).send({ message: 'No client available', OK: false });
-		log(`No client available from: ` + ip, 'WARNING', 'getPhoneNumber');
+		log(`No client available from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	} else {
 		const clientCampaign = client.data.get(campaign._id);
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Error while getting client campaign`, 'CRITICAL', 'getPhoneNumber');
+			log(`Error while getting client campaign`, 'CRITICAL', 'getPhoneNumber.ts');
 			return;
 		}
 
@@ -98,7 +98,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			OK: true,
 			data: { client: client, script: campaign.script[campaign.script.length - 1] }
 		});
-		log(`Get phone number success for ${caller.name} from: ` + ip, 'INFORMATION', 'getPhoneNumber');
+		log(`Get phone number success for ${caller.name} from: ` + ip, 'INFORMATION', 'getPhoneNumber.ts');
 		return;
 	}
 }

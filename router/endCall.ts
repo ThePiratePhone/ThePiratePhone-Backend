@@ -17,45 +17,45 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		typeof req.body.satisfaction != 'number'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters`, 'ERROR', 'endCall');
+		log(`Missing parameters`, 'ERROR', 'endCall.ts');
 		return;
 	}
 
 	if (isNaN(req.body.timeInCall)) {
 		res.status(400).send({ message: 'timeInCall is not a number', OK: false });
-		log(`timeInCall is not a number from ` + ip, 'ERROR', 'endCall');
+		log(`timeInCall is not a number from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}
 
 	if (isNaN(req.body.satisfaction) || req.body.satisfaction < -1 || req.body.satisfaction > 2) {
 		res.status(400).send({ message: 'satisfaction is not a valid number', OK: false });
-		log(`satisfaction is not a valid number from ` + ip, 'ERROR', 'endCall');
+		log(`satisfaction is not a valid number from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}
 
 	const caller = await checkCredentials(req.body.phone, req.body.area, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from ` + ip, 'ERROR', 'endCall');
+		log(`Invalid credential from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}
 	if (!caller.curentCall) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
-		log(`Not in a call from ` + ip, 'ERROR', 'endCall');
+		log(`Not in a call from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}
 
 	const client = await Client.findOne({ _id: caller.curentCall.toString() });
 	if (!client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
-		log(`Not in a call from ` + ip, 'ERROR', 'endCall');
+		log(`Not in a call from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}
 
 	const curentCampaign: any = await getCurentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(400).send({ message: 'no actual Camaing', OK: false });
-		log(`no actual Camaing from ` + ip, 'ERROR', 'endCall');
+		log(`no actual Camaing from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}
 	let nbCall = client.data.get(curentCampaign._id.toString())?.length;
@@ -83,5 +83,5 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
 	await Promise.all([caller.save(), client.save()]);
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`end call from ` + ip, 'INFORMATION', 'endCall');
+	log(`end call from ` + ip, 'INFORMATION', 'endCall.ts');
 }

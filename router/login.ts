@@ -13,24 +13,24 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		typeof req.body.area != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'login');
+		log(`Missing parameters from: ` + ip, 'WARNING', 'login.ts');
 		return;
 	}
 
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Wrong pin code', OK: false });
-		log(`Wrong pin code from: ` + ip, 'WARNING', 'login');
+		log(`Wrong pin code from: ` + ip, 'WARNING', 'login.ts');
 		return;
 	}
 
 	const caller = await checkCredentials(req.body.phone, req.body.area, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Wrong credentials', OK: false });
-		log(`Wrong credentials from: ` + ip, 'WARNING', 'login');
+		log(`Wrong credentials from: ` + ip, 'WARNING', 'login.ts');
 		return;
 	} else {
 		res.status(200).send({ message: 'OK', OK: true, data: caller });
-		log(`Login success for ${caller.name} from: ` + ip, 'INFORMATION', 'login');
+		log(`Login success for ${caller.name} from: ` + ip, 'INFORMATION', 'login.ts');
 		return;
 	}
 }

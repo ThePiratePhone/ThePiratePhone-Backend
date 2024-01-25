@@ -21,7 +21,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'login.ts');
+		log('Wrong admin code from ' + ip, 'WARNING', 'addClientCampaign.ts');
 		return;
 	}
 
