@@ -10,9 +10,11 @@ import getPhoneNumber from './router/getPhoneNumber';
 import getProgress from './router/getProgress';
 import login from './router/login';
 import endCall from './router/endCall';
+import clientBuster from './router/ClientBuster';
 
 const router = Router();
 
+router.post('/clientBuster', clientBuster);
 router.post('/createClient', createClient);
 router.post('/endCall', endCall);
 router.post('/createCaller', createCaller);
