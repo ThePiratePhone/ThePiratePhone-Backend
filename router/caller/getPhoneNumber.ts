@@ -64,9 +64,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		$or: [
 			{
 				_id: { $in: area.ClientList },
-				[`data.${campaign._id}.$last.status`]: 'not answered',
-				[`data.${campaign._id}.$slice`]: -1,
-				[`data.${campaign._id}.$elemMatch.endCall`]: { $lte: new Date(Date.now() - 10_800_000) }
+				[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
+				[`data.${campaign._id}`]: {
+					$elemMatch: {
+						status: 'not answered',
+						endCall: { $lte: new Date(Date.now() - 10_800_000) }
+					}
+				}
 			},
 			{
 				_id: { $in: area.ClientList },
