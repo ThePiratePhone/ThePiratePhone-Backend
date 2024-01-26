@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import checkCredentials from '../tools/checkCredentials';
-import { Client } from '../Models/Client';
-import getCurentCampaign from '../tools/getCurentCampaign';
-import { Campaign } from '../Models/Campaign';
-import { Area } from '../Models/area';
-import { log } from '../tools/log';
+import checkCredentials from '../../tools/checkCredentials';
+import { Client } from '../../Models/Client';
+import getCurentCampaign from '../../tools/getCurentCampaign';
+import { Campaign } from '../../Models/Campaign';
+import { Area } from '../../Models/area';
+import { log } from '../../tools/log';
 
 export default async function clientBuster(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

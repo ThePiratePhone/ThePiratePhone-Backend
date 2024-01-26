@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { log } from '../tools/log';
-import { Area } from '../Models/area';
-import { Client } from '../Models/Client';
-import { Campaign } from '../Models/Campaign';
+import { log } from '../../tools/log';
+import { Area } from '../../Models/area';
+import { Client } from '../../Models/Client';
+import { Campaign } from '../../Models/Campaign';
 import mongoose from 'mongoose';
 
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {

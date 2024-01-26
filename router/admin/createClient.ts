@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import phoneNumberCheck from '../tools/phoneNumberCheck';
-import { log } from '../tools/log';
-import { Area } from '../Models/area';
-import { Client } from '../Models/Client';
+import phoneNumberCheck from '../../tools/phoneNumberCheck';
+import { log } from '../../tools/log';
+import { Area } from '../../Models/area';
+import { Client } from '../../Models/Client';
 
 export default async function createClient(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

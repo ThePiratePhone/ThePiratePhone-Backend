@@ -1,21 +1,23 @@
 import { Router } from 'express';
 
-import addCallerCampaign from './router/addCallerCampaign';
-import addClientCampaign from './router/addClientCampaign';
-import createCaller from './router/createCaller';
-import createCampaign from './router/createCampaign';
-import createClient from './router/createClient';
+import addCallerCampaign from './router/admin/addCallerCampaign';
+import addClientCampaign from './router/admin/addClientCampaign';
+import createCaller from './router/admin/createCaller';
+import createCampaign from './router/admin/createCampaign';
+import createClient from './router/admin/createClient';
 import getArea from './router/getArea';
-import getPhoneNumber from './router/getPhoneNumber';
-import getProgress from './router/getProgress';
-import login from './router/login';
-import endCall from './router/endCall';
-import clientBuster from './router/ClientBuster';
+import getPhoneNumber from './router/caller/getPhoneNumber';
+import getProgress from './router/caller/getProgress';
+import login from './router/caller/login';
+import endCall from './router/caller/endCall';
+import clientBuster from './router/caller/ClientBuster';
 import { log } from './tools/log';
+import listClientCampaign from './router/admin/listClientCampaign';
 
 const router = Router();
 
 try {
+	router.post('listClientCampaign', listClientCampaign);
 	router.post('/clientBuster', clientBuster);
 	router.post('/createClient', createClient);
 	router.post('/endCall', endCall);

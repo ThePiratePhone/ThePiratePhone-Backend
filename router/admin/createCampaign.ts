@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { Campaign } from '../Models/Campaign';
-import { Area } from '../Models/area';
-import { log } from '../tools/log';
+import { Campaign } from '../../Models/Campaign';
+import { Area } from '../../Models/area';
+import { log } from '../../tools/log';
 
 export default async function createCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

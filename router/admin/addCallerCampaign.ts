@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { log } from '../tools/log';
-import { Area } from '../Models/area';
-import { Caller } from '../Models/Caller';
-import { Campaign } from '../Models/Campaign';
+import { log } from '../../tools/log';
+import { Area } from '../../Models/area';
+import { Caller } from '../../Models/Caller';
+import { Campaign } from '../../Models/Campaign';
 
 export default async function addCallerCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
-import checkCredentials from '../tools/checkCredentials';
-import { log } from '../tools/log';
+import checkCredentials from '../../tools/checkCredentials';
+import { log } from '../../tools/log';
 
 export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

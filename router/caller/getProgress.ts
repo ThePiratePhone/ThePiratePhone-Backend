@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 
-import { Client } from '../Models/Client';
-import { Area } from '../Models/area';
+import { Client } from '../../Models/Client';
+import { Area } from '../../Models/area';
 
-import AreaCampaignProgress from '../tools/areaCampaignProgress';
-import checkCredentials from '../tools/checkCredentials';
-import { log } from '../tools/log';
+import AreaCampaignProgress from '../../tools/areaCampaignProgress';
+import checkCredentials from '../../tools/checkCredentials';
+import { log } from '../../tools/log';
 
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
