@@ -5,6 +5,8 @@ import { Client } from '../../Models/Client';
 import getCurentCampaign from '../../tools/getCurentCampaign';
 import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
+import { Campaign } from '../../Models/Campaign';
+import { Area } from '../../Models/area';
 
 export default async function endCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -27,7 +29,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (isNaN(req.body.satisfaction) || req.body.satisfaction < -1 || req.body.satisfaction > 2) {
+	if (isNaN(req.body.satisfaction) || req.body.satisfaction < -2 || req.body.satisfaction > 2) {
 		res.status(400).send({ message: 'satisfaction is not a valid number', OK: false });
 		log(`satisfaction is not a valid number from ` + ip, 'ERROR', 'endCall.ts');
 		return;
@@ -65,23 +67,35 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		nbCall = 1;
 	}
 
-	const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[nbCall - 1];
-	if (!clientCampaign) {
-		res.status(500).send({ message: 'Internal error', OK: false });
-		return;
+	if (req.body.satisfaction != -2) {
+		const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[
+			nbCall - 1
+		];
+		if (!clientCampaign) {
+			res.status(500).send({ message: 'Internal error', OK: false });
+			log(`Internal error from ` + ip, 'ERROR', 'endCall.ts');
+			return;
+		}
+		if (!clientCampaign) {
+			res.status(500).send({ message: 'Internal error', OK: false });
+			log(`Internal error from ` + ip, 'ERROR', 'endCall.ts');
+			return;
+		}
+		clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
+		clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
+		clientCampaign.endCall = new Date();
+		clientCampaign.satisfaction = req.body.satisfaction;
+	} else if (req.body.satisfaction == -2) {
+		await Client.deleteOne({ _id: client._id });
+		await Campaign.updateOne({ _id: curentCampaign._id }, { $pull: { userList: client._id } });
+		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
+		log(`delete ${client.phone} client from ${caller.name}` + ip, 'INFORMATION', 'endCall.ts');
 	}
-	if (!clientCampaign) {
-		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Internal error from ` + ip, 'ERROR', 'endCall');
-		return;
-	}
-	clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
-	clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
-	clientCampaign.endCall = new Date();
-	clientCampaign.satisfaction = req.body.satisfaction;
 	caller.curentCall = null;
 	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
-	await Promise.all([caller.save(), client.save()]);
+
+	if (req.body.satisfaction != -2) await Promise.all([caller.save(), client.save()]);
+	else await caller.save();
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end call from ` + ip, 'INFORMATION', 'endCall.ts');
 }

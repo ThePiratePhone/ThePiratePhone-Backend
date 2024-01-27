@@ -10,7 +10,6 @@ import getPhoneNumber from './router/caller/getPhoneNumber';
 import getProgress from './router/caller/getProgress';
 import login from './router/caller/login';
 import endCall from './router/caller/endCall';
-import clientBuster from './router/caller/ClientBuster';
 import { log } from './tools/log';
 import listClientCampaign from './router/admin/listClientCampaign';
 import listCaller from './router/admin/listCaller';
@@ -22,7 +21,6 @@ try {
 	router.post('/listCallerCampaign', listCallerCampaign);
 	router.post('/listCaller', listCaller);
 	router.post('listClientCampaign', listClientCampaign);
-	router.post('/clientBuster', clientBuster);
 	router.post('/createClient', createClient);
 	router.post('/endCall', endCall);
 	router.post('/createCaller', createCaller);
