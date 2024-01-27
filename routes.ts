@@ -14,13 +14,20 @@ import { log } from './tools/log';
 import listClientCampaign from './router/admin/listClientCampaign';
 import listCaller from './router/admin/listCaller';
 import listCallerCampaign from './router/admin/listCallerCampaign';
+import numberOfCalls from './router/stats/numberOfCalls';
+import numberOfCallers from './router/stats/numberOfCallers';
+import numberOfClients from './router/stats/numberOfClients';
 
 const router = Router();
 
 try {
+	router.post('/stats/numberOfClients', numberOfClients);
+	router.post('/stats/numberOfCallers', numberOfCallers);
+	router.post('/stats/numberOfCalls', numberOfCalls);
+
 	router.post('/listCallerCampaign', listCallerCampaign);
 	router.post('/listCaller', listCaller);
-	router.post('listClientCampaign', listClientCampaign);
+	router.post('/listClientCampaign', listClientCampaign);
 	router.post('/createClient', createClient);
 	router.post('/endCall', endCall);
 	router.post('/createCaller', createCaller);
