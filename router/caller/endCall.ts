@@ -89,7 +89,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		await Client.deleteOne({ _id: client._id });
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $pull: { userList: client._id } });
 		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
-		log(`delete ${client.phone} client from ${caller.name}` + ip, 'INFORMATION', 'endCall.ts');
+		log(`delete ${client.phone} client from ${caller.name} ` + ip, 'INFORMATION', 'endCall.ts');
 	}
 	caller.curentCall = null;
 	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
