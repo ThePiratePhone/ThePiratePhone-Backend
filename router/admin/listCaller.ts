@@ -23,7 +23,9 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const callers = await Caller.find({ area: area._id });
+	const callers = await Caller.find({ area: area._id })
+		.skip(req.body.skip ? req.body.skip : 0)
+		.limit(req.body.limit ? req.body.limit : 50);
 	if (!callers) {
 		res.status(404).send({ message: 'No caller found', OK: false });
 		log('No caller found from ' + ip, 'WARNING', 'listCaller.ts');
