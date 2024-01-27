@@ -13,10 +13,12 @@ import endCall from './router/caller/endCall';
 import clientBuster from './router/caller/ClientBuster';
 import { log } from './tools/log';
 import listClientCampaign from './router/admin/listClientCampaign';
+import listCaller from './router/admin/listCaller';
 
 const router = Router();
 
 try {
+	router.post('/listCaller', listCaller);
 	router.post('listClientCampaign', listClientCampaign);
 	router.post('/clientBuster', clientBuster);
 	router.post('/createClient', createClient);
