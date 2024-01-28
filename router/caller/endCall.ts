@@ -86,8 +86,10 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		clientCampaign.endCall = new Date();
 		clientCampaign.satisfaction = req.body.satisfaction;
 	} else if (req.body.satisfaction == -2) {
-		await Client.deleteOne({ _id: client._id });
-		await Campaign.updateOne({ _id: curentCampaign._id }, { $pull: { userList: client._id } });
+		await Campaign.updateOne(
+			{ _id: curentCampaign._id },
+			{ $pull: { userList: client._id }, $push: { trashUser: client._id } }
+		);
 		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} ` + ip, 'INFORMATION', 'endCall.ts');
 	}

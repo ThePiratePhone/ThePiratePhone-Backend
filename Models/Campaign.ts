@@ -34,6 +34,11 @@ const CampaignSchema = new mongoose.Schema({
 	createdAt: {
 		type: Date,
 		default: Date.now()
+	},
+	trashUser: {
+		type: [mongoose.Schema.Types.ObjectId],
+		ref: 'Client',
+		required: true
 	}
 });
 

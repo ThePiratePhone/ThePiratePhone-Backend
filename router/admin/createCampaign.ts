@@ -63,7 +63,8 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		dateStart: dateStart,
 		dateEnd: dateEnd,
 		userList: [],
-		callerList: []
+		callerList: [],
+		trashUser: []
 	});
 	await campaign.save();
 	await area.updateOne({ $push: { campaignList: campaign._id } });

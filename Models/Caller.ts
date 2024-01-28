@@ -9,8 +9,7 @@ const CallerSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 		minlength: 12,
-		maxlength: 13,
-		unique: true
+		maxlength: 13
 	},
 	pinCode: {
 		type: String,
