@@ -10,6 +10,8 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.name != 'string' ||
+		(typeof req.body.promotion != 'undefined' && typeof req.body.promotion != 'string') ||
+		(typeof req.body.institution != 'undefined' && typeof req.body.institution != 'string') ||
 		typeof req.body.adminCode != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -42,7 +44,14 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const user = new Client({ area: area._id, name: req.body.name, phone: req.body.phone, data: new Map() });
+	const user = new Client({
+		area: area._id,
+		name: req.body.name,
+		phone: req.body.phone,
+		data: new Map(),
+		promotion: req.body.promotion ?? null,
+		institution: req.body.institution ?? null
+	});
 	await Area.updateOne({ _id: area._id }, { $push: { ClientList: user._id } });
 	try {
 		await user.save();

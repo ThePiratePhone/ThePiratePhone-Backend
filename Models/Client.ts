@@ -4,6 +4,14 @@ const ClientSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
+	institution: {
+		type: String,
+		required: false
+	},
+	promotion: {
+		type: String,
+		required: false
+	},
 	phone: {
 		type: String,
 		required: true,
