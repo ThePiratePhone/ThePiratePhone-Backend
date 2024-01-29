@@ -9,8 +9,12 @@ export default async function checkCredentials(phone: string, area: string, pinC
 	if (!phoneNumberCheck(phone)) return false;
 	if (pinCode.length != 4) return false;
 
-	const caller = await Caller.findOne({ phone: phone, area: area });
-	if (!caller) return false;
-	if (caller.pinCode != pinCode) return false;
-	return caller;
+	try {
+		const caller = await Caller.findOne({ phone: phone, area: area });
+		if (!caller) return false;
+		if (caller.pinCode != pinCode) return false;
+		return caller;
+	} catch {
+		return false;
+	}
 }

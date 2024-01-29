@@ -50,8 +50,8 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 
 	try {
 		await Promise.all([caller.save(), area.updateOne({ $push: { callerList: caller._id } })]);
-		res.status(200).send({ message: 'user ' + caller.name + ' created', OK: true });
-		log('user ' + caller.name + ' created from ' + ip, 'INFORMATION', 'createCaller.ts');
+		res.status(200).send({ message: 'caller ' + caller.name + ' created', OK: true });
+		log('caller ' + caller.name + ' created from ' + ip, 'INFORMATION', 'createCaller.ts');
 	} catch (error: any) {
 		res.status(500).send({ message: 'Internal server error', OK: false });
 		log('Internal server error: ' + error.message, 'ERROR', 'createCaller.ts');

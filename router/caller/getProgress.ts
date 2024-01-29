@@ -44,6 +44,14 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		[`data.${campaign._id}.status`]: 'called'
 	});
 
-	res.status(200).send({ message: 'OK', OK: true, data: [count, campaign.userList.length] });
+	const callMake = caller.timeInCall.filter(call => {
+		return (call?.date?.getTime() ?? 0) > campaign.createdAt.getTime();
+	});
+
+	res.status(200).send({
+		message: 'OK',
+		OK: true,
+		data: { count: count, callerCall: callMake.length, total: campaign.userList.length }
+	});
 	log(`Get progress from: ` + ip, 'INFORMATION', 'getProgress.ts');
 }
