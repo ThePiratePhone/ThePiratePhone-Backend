@@ -17,6 +17,8 @@ import numberOfCalls from './router/stats/numberOfCalls';
 import numberOfCallers from './router/stats/numberOfCallers';
 import numberOfClients from './router/stats/numberOfClients';
 import callePerClient from './router/stats/callPerClient';
+import validatePhoneNumber from './router/caller/validatePhoneNumber';
+import joinCampaign from './router/caller/joinCampaign';
 
 const router = Router();
 
@@ -25,6 +27,8 @@ router.post('/stats/numberOfClients', numberOfClients);
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/numberOfCalls', numberOfCalls);
 
+router.post('/joinCampaign', joinCampaign);
+router.post('/validatePhoneNumber', validatePhoneNumber);
 router.post('/listCallerCampaign', listCallerCampaign);
 router.post('/listCaller', listCaller);
 router.post('/listClientCampaign', listClientCampaign);
