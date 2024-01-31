@@ -6,6 +6,7 @@ import { Area } from '../../Models/area';
 import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
+import { ObjectId } from 'mongodb';
 
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -13,14 +14,14 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		typeof req.body.area != 'string'
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', 'getProgress.ts');
 		return;
 	}
 
-	const caller = await checkCredentials(req.body.phone, req.body.area, req.body.pinCode);
+	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
 	if (!caller) {
 		res.status(401).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from: ` + ip, 'WARNING', 'getProgress.ts');

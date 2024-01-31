@@ -3,13 +3,14 @@ import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
+import { ObjectId } from 'mongodb';
 
 export default async function listCallerCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
-		typeof req.body.CampaignId != 'string' ||
+		!ObjectId.isValid(req.body.CampaignId) ||
 		(req.body.skip && typeof req.body.skip != 'number') ||
 		(req.body.limit && typeof req.body.limit != 'number')
 	) {

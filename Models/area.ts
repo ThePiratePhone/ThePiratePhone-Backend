@@ -2,8 +2,7 @@ import mongoose from 'mongoose';
 const AreaModel = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true,
-		unique: true
+		required: true
 	},
 	CampaignList: {
 		type: Array<typeof mongoose.Schema.ObjectId>(),
@@ -15,7 +14,11 @@ const AreaModel = new mongoose.Schema({
 		required: true,
 		unique: true
 	},
-
+	ClientList: {
+		type: Array<typeof mongoose.Schema.ObjectId>(),
+		ref: 'Client',
+		required: true
+	},
 	adminPhone: {
 		type: String,
 		required: true,
@@ -23,13 +26,11 @@ const AreaModel = new mongoose.Schema({
 		maxlength: 13,
 		unique: true
 	},
-
 	campaignInProgress: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Campaign',
 		default: null
 	},
-
 	createdAt: {
 		type: Date,
 		default: Date.now()

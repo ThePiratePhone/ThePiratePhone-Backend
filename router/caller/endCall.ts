@@ -14,7 +14,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		typeof req.body.area != 'string' ||
+		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.timeInCall != 'number' ||
 		typeof req.body.satisfaction != 'number'
 	) {
@@ -35,7 +35,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const caller = await checkCredentials(req.body.phone, req.body.area, req.body.pinCode);
+	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from ` + ip, 'ERROR', 'endCall.ts');
