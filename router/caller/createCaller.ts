@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Caller } from '../../Models/Caller';
+import phoneNumberCheck from '../../tools/phoneNumberCheck';
 
 export default async function createCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -16,6 +17,28 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', 'createCaller.ts');
+		return;
+	}
+
+	if (req.body.pinCode.length != 4) {
+		res.status(400).send({ message: 'Invalid pin code', OK: false });
+		log(`Invalid pin code from: ` + ip, 'WARNING', 'createCaller.ts');
+		return;
+	}
+
+	if (req.body.phone.startsWith('0')) {
+		req.body.phone = req.body.phone.replace('0', '+33');
+	}
+
+	if (!phoneNumberCheck(req.body.phone)) {
+		res.status(400).send({ message: 'Wrong phone number', OK: false });
+		log('Wrong phone number', 'WARNING', 'createCaller.ts');
+		return;
+	}
+
+	if ((await Caller.findOne({ phone: req.body.phone })) || (await Caller.findOne({ name: req.body.name }))) {
+		res.status(400).send({ message: 'caller already exist', OK: false });
+		log('caller already exist', 'WARNING', 'createCaller.ts');
 		return;
 	}
 

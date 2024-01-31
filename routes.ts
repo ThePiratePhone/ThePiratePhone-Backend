@@ -19,6 +19,7 @@ import numberOfClients from './router/stats/numberOfClients';
 import callePerClient from './router/stats/callPerClient';
 import validatePhoneNumber from './router/caller/validatePhoneNumber';
 import joinCampaign from './router/caller/joinCampaign';
+import changePassword from './router/caller/changePassword';
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router.post('/stats/numberOfClients', numberOfClients);
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/numberOfCalls', numberOfCalls);
 
+router.post('/changePassword', changePassword);
 router.post('/createCaller', createCaller);
 router.post('/joinCampaign', joinCampaign);
 router.post('/validatePhoneNumber', validatePhoneNumber);

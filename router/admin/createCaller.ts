@@ -18,6 +18,12 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
+	if (req.body.pinCode.length != 4) {
+		res.status(400).send({ message: 'Invalid pin code', OK: false });
+		log(`Invalid pin code from: ` + ip, 'WARNING', 'createCaller.ts');
+		return;
+	}
+
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
@@ -36,8 +42,8 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	}
 
 	if ((await Caller.findOne({ phone: req.body.phone })) || (await Caller.findOne({ name: req.body.name }))) {
-		res.status(400).send({ message: 'User already exist', OK: false });
-		log('User already exist', 'WARNING', 'createCaller.ts');
+		res.status(400).send({ message: 'caller already exist', OK: false });
+		log('caller already exist', 'WARNING', 'createCaller.ts');
 		return;
 	}
 

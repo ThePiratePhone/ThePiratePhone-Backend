@@ -8,6 +8,7 @@ const CallerSchema = new mongoose.Schema({
 	phone: {
 		type: String,
 		required: true,
+		unique: true,
 		minlength: 12,
 		maxlength: 13
 	},
