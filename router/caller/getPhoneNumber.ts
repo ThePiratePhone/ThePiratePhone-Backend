@@ -42,9 +42,9 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (campaign.area != area._id && !campaign.callerList.includes(caller._id)) {
+	if (campaign.area != area._id || !campaign.callerList.includes(caller._id)) {
 		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
-		log(`Caller not allowed to call this campaign from: ` + ip, 'CRITICAL', 'getPhoneNumber.ts');
+		log(`Caller not allowed to call this campaign from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
@@ -94,7 +94,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		const clientCampaign = client.data.get(campaign._id);
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Error while getting client campaign`, 'CRITICAL', 'getPhoneNumber.ts');
+			log(`Error while getting client campaign`, 'WARNING', 'getPhoneNumber.ts');
 			return;
 		}
 
