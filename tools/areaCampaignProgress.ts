@@ -1,17 +1,17 @@
 import { Campaign } from '../Models/Campaign';
 
-async function AreaCampaignProgress(area): Promise<typeof Campaign | null> {
+async function AreaCampaignProgress(area): Promise<typeof Campaign | undefined> {
 	if (!area || !area.id) {
-		return null;
+		return undefined;
 	}
 	let campaign: any;
 	if (!area.campaignInProgress) {
 		campaign = await Campaign.findOne({
-			dateStart: { $lte: new Date() }
-			// dateEnd: { $gte: new Date() }
+			dateStart: { $lte: new Date() },
+			dateEnd: { $gte: new Date() }
 		});
 		if (!campaign) {
-			return null;
+			return undefined;
 		}
 		area.campaignInProgress = campaign._id;
 		await area.save();

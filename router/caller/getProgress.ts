@@ -30,16 +30,17 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 
 	const area = await Area.findOne({ _id: req.body.area });
 	if (!area) {
-		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting area`, 'CRITICAL', 'getProgress.ts');
+		res.status(404).send({ message: 'area not found', OK: false });
+		log(`Area not found from: ` + ip, 'WARNING', 'getProgress.ts');
 		return;
 	}
 	const campaign = (await AreaCampaignProgress(area)) as any;
 	if (!campaign) {
-		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting campaign`, 'CRITICAL', 'getProgress.ts');
+		res.status(404).send({ message: 'campaign not found', OK: false });
+		log(`Campaign not found from: ` + ip, 'WARNING', 'getProgress.ts');
 		return;
 	}
+
 	const count = await Client.countDocuments({
 		_id: { $in: campaign.userList },
 		[`data.${campaign._id}.status`]: 'called'
