@@ -42,7 +42,9 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (campaign.area != area._id || !campaign.callerList.includes(caller._id)) {
+	console.log(campaign.area.toString(), area._id.toString(), campaign.callerList, caller._id);
+
+	if (campaign.area.toString() != area._id.toString() && !campaign.callerList.includes(caller._id)) {
 		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
 		log(`Caller not allowed to call this campaign from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
