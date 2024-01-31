@@ -37,8 +37,14 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	const campaign = (await AreaCampaignProgress(area)) as any;
 
 	if (!campaign) {
-		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting campaign`, 'CRITICAL', 'getPhoneNumber.ts');
+		res.status(400).send({ message: 'no campaign in progress', OK: false });
+		log(`No campaign in progress from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+		return;
+	}
+
+	if (campaign.area != area._id && !campaign.callerList.includes(caller._id)) {
+		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
+		log(`Caller not allowed to call this campaign from: ` + ip, 'CRITICAL', 'getPhoneNumber.ts');
 		return;
 	}
 

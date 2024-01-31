@@ -58,13 +58,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return res.status(400).send({ message: 'Error in data', OK: false });
 	}
 
-	console.log(areaCombo);
 	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: areaCombo } });
 	log(`Login success for ${caller.name} from: ` + ip, 'INFORMATION', 'login.ts');
 	return;
 }
-
-// areaName: area.name,
-// areaId: area._id,
-// campaignName: campaign.name,
-// campaignId: campaign._id
