@@ -49,10 +49,29 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		return (call?.date?.getTime() ?? 0) > campaign.createdAt.getTime();
 	});
 
+	const CallInThisCampaign = callMake.filter(call => {
+		return campaign.userList.includes(call.client);
+	});
+
+	const timeInCall = callMake.reduce((acc, call) => {
+		return acc + (call.time ?? 0);
+	}, 0);
+
+	const timeInCallInThisCampaign = CallInThisCampaign.reduce((acc, call) => {
+		return acc + (call.time ?? 0);
+	}, 0);
+
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
-		data: { count: count, callerCall: callMake.length, total: campaign.userList.length }
+		data: {
+			count: count,
+			callerCall: callMake.length,
+			callInThisCampaign: CallInThisCampaign.length,
+			timeInCall: timeInCall,
+			timeInCallInThisCampaign: timeInCallInThisCampaign,
+			total: campaign.userList.length
+		}
 	});
 	log(`Get progress from: ` + ip, 'INFORMATION', 'getProgress.ts');
 }
