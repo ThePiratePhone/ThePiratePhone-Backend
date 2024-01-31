@@ -11,8 +11,6 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		typeof req.body.script != 'string' ||
 		typeof req.body.dateStart != 'string' ||
 		typeof req.body.dateEnd != 'string' ||
-		typeof req.body.userList != 'object' ||
-		typeof req.body.callerList != 'object' ||
 		typeof req.body.adminCode != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -35,7 +33,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (await Campaign.findOne({ name: req.body.name, area: area._id })) {
+	if ((await Campaign.findOne({ name: req.body.name, area: area._id })) != null) {
 		res.status(400).send({ message: 'Campaign already exist', OK: false });
 		log('Campaign already exist', 'WARNING', 'CreateCampaign.ts');
 		return;
@@ -67,7 +65,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		trashUser: []
 	});
 	await campaign.save();
-	await area.updateOne({ $push: { campaignList: campaign._id } });
+	await area.updateOne({ $push: { CampaignList: campaign._id } });
 	res.status(200).send({ message: 'Campaign created', OK: true });
 	log('Campaign created from' + ip, 'INFORMATION', 'CreateCampaign.ts');
 }

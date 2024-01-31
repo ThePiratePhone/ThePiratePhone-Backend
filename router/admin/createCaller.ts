@@ -49,7 +49,7 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	});
 
 	try {
-		await Promise.all([caller.save(), area.updateOne({ $push: { callerList: caller._id } })]);
+		await caller.save();
 		res.status(200).send({ message: 'caller ' + caller.name + ' created', OK: true });
 		log('caller ' + caller.name + ' created from ' + ip, 'INFORMATION', 'createCaller.ts');
 	} catch (error: any) {

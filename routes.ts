@@ -10,7 +10,6 @@ import getPhoneNumber from './router/caller/getPhoneNumber';
 import getProgress from './router/caller/getProgress';
 import login from './router/caller/login';
 import endCall from './router/caller/endCall';
-import { log } from './tools/log';
 import listClientCampaign from './router/admin/listClientCampaign';
 import listCaller from './router/admin/listCaller';
 import listCallerCampaign from './router/admin/listCallerCampaign';

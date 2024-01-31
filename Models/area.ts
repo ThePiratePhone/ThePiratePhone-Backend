@@ -5,25 +5,11 @@ const AreaModel = new mongoose.Schema({
 		required: true,
 		unique: true
 	},
-
 	CampaignList: {
 		type: Array<typeof mongoose.Schema.ObjectId>(),
 		ref: 'Campaign',
 		required: true
 	},
-
-	ClientList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
-		ref: 'Client',
-		required: true
-	},
-
-	CallerList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
-		ref: 'Caller',
-		required: true
-	},
-
 	AdminPassword: {
 		type: String,
 		required: true,

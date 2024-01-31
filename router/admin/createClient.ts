@@ -35,9 +35,10 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		return;
 	}
 
+	console.log(await Client.findOne({ name: req.body.name, area: area._id }));
 	if (
-		(await Client.findOne({ phone: req.body.phone, area: area._id })) ||
-		(await Client.findOne({ name: req.body.name, area: area._id }))
+		(await Client.findOne({ phone: req.body.phone, area: area._id })) != null ||
+		(await Client.findOne({ name: req.body.name, area: area._id })) != null
 	) {
 		res.status(401).send({ message: 'User already exist', OK: false });
 		log('User already exist', 'WARNING', 'createClient.ts');
