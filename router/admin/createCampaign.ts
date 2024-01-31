@@ -11,7 +11,8 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		typeof req.body.script != 'string' ||
 		typeof req.body.dateStart != 'string' ||
 		typeof req.body.dateEnd != 'string' ||
-		typeof req.body.adminCode != 'string'
+		typeof req.body.adminCode != 'string' ||
+		typeof req.body.password != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log('Missing parameters', 'WARNING', 'CreateCampaign.ts');
@@ -62,7 +63,8 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		dateEnd: dateEnd,
 		userList: [],
 		callerList: [],
-		trashUser: []
+		trashUser: [],
+		password: req.body.password
 	});
 	await campaign.save();
 	await area.updateOne({ $push: { CampaignList: campaign._id } });

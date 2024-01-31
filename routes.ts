@@ -27,6 +27,7 @@ router.post('/stats/numberOfClients', numberOfClients);
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/numberOfCalls', numberOfCalls);
 
+router.post('/createCaller', createCaller);
 router.post('/joinCampaign', joinCampaign);
 router.post('/validatePhoneNumber', validatePhoneNumber);
 router.post('/listCallerCampaign', listCallerCampaign);

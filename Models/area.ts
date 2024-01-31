@@ -4,6 +4,10 @@ const AreaModel = new mongoose.Schema({
 		type: String,
 		required: true
 	},
+	password: {
+		type: String,
+		required: true
+	},
 	CampaignList: {
 		type: Array<typeof mongoose.Schema.ObjectId>(),
 		ref: 'Campaign',
