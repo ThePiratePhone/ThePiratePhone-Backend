@@ -27,14 +27,22 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const campaignAvaible = await Campaign.find({ area: caller.area, callerList: caller._id });
+	const campaignAvaible = await Campaign.find({
+		$or: [
+			{
+				area: caller.area
+			},
+			{
+				callerList: caller._id
+			}
+		]
+	});
 	let error = false;
-	const area = campaignAvaible.map(async campaign => {
+	const areaComboPromises = campaignAvaible.map(async campaign => {
 		const area = await Area.findById(campaign.area);
 		if (!area) {
-			res.status(500).send({ message: 'Internal error in login check area', OK: false });
 			error = true;
-			return;
+			return null;
 		}
 		return {
 			areaName: area.name,
@@ -43,8 +51,20 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			campaignId: campaign._id
 		};
 	});
-	if (error) return;
-	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: area } });
+
+	const areaCombo = await Promise.all(areaComboPromises);
+
+	if (error) {
+		return res.status(400).send({ message: 'Error in data', OK: false });
+	}
+
+	console.log(areaCombo);
+	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: areaCombo } });
 	log(`Login success for ${caller.name} from: ` + ip, 'INFORMATION', 'login.ts');
 	return;
 }
+
+// areaName: area.name,
+// areaId: area._id,
+// campaignName: campaign.name,
+// campaignId: campaign._id

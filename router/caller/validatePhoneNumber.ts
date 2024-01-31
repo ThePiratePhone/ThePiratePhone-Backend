@@ -16,7 +16,6 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
 		!ObjectId.isValid(req.body.userArea) ||
 		typeof req.body.phoneNumber != 'string' ||
 		typeof req.body.satisfaction != 'number'
