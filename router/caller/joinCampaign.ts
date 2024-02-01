@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb';
 import checkCredentials from '../../tools/checkCredentials';
 import getCurentCampaign from '../../tools/getCurentCampaign';
 import { Campaign } from '../../Models/Campaign';
+import { Area } from '../../Models/area';
 
 export default async function joinCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -41,11 +42,28 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	if (curentCampaign.callers.includes(caller._id)) {
+	if (curentCampaign.callerList.includes(caller._id)) {
 		res.status(403).send({ message: 'Caller already in campaign', OK: false });
 		log(`Caller already in campaign from: ` + ip, 'WARNING', 'joinCampaign.ts');
 		return;
 	}
 
-	await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { callers: caller._id } });
+	const area = await Area.findById(curentCampaign.area);
+	if (!area) {
+		res.status(404).send({ message: 'Area not found', OK: false });
+		log(`Area not found from: ` + ip, 'ERROR', 'joinCampaign.ts');
+		return;
+	}
+
+	await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { callerList: caller._id } });
+	res.status(200).send({
+		message: 'Caller added to campaign',
+		OK: true,
+		data: {
+			campaignName: curentCampaign.name,
+			CampaignId: curentCampaign._id,
+			areaName: area.name,
+			areaId: area._id
+		}
+	});
 }

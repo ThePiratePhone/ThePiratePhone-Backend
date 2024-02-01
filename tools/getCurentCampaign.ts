@@ -3,6 +3,7 @@ import { Campaign } from '../Models/Campaign';
 import { Area } from '../Models/area';
 async function getCurentCampaign(area: ObjectId): Promise<typeof Campaign | null> {
 	const CampaignArea = await Area.findOne({ _id: area });
+	console.log(CampaignArea);
 	if (!CampaignArea) {
 		return null;
 	}
@@ -10,7 +11,8 @@ async function getCurentCampaign(area: ObjectId): Promise<typeof Campaign | null
 	if (!CampaignArea.campaignInProgress) {
 		campaign = await Campaign.findOne({
 			dateStart: { $lte: new Date() },
-			dateEnd: { $gte: new Date() }
+			dateEnd: { $gte: new Date() },
+			area: CampaignArea._id
 		});
 		if (!campaign) {
 			return null;
