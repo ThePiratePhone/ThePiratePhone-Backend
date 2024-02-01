@@ -67,7 +67,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		password: req.body.password
 	});
 	await campaign.save();
-	await area.updateOne({ $push: { CampaignList: campaign._id } });
+	await Area.updateOne({ _id: area._id }, { $push: { CampaignList: campaign._id } });
 	res.status(200).send({ message: 'Campaign created', OK: true });
 	log('Campaign created from' + ip, 'INFORMATION', 'CreateCampaign.ts');
 }
