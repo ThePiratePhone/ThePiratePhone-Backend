@@ -42,6 +42,6 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		return;
 	}
 
-	res.status(200).send({ message: 'password chnaged', OK: true });
+	res.status(200).send({ message: 'password changed', OK: true });
 	log(`user ${req.body.phone} password chnaged from: ` + ip, 'INFORMATION', 'changePassword.ts');
 }
