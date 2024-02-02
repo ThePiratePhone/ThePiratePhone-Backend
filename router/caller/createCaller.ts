@@ -37,12 +37,6 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	if ((await Caller.findOne({ phone: req.body.phone })) || (await Caller.findOne({ name: req.body.name }))) {
-		res.status(400).send({ message: 'caller already exist', OK: false });
-		log('caller already exist', 'WARNING', 'createCaller.ts');
-		return;
-	}
-
 	const area = await Area.findOne({ _id: req.body.area });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid area', OK: false });
@@ -53,6 +47,12 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	if (area.password != req.body.AreaPassword) {
 		res.status(400).send({ message: 'Invalid area password', OK: false });
 		log(`Invalid area password from: ` + ip, 'WARNING', 'createCaller.ts');
+		return;
+	}
+
+	if ((await Caller.findOne({ phone: req.body.phone })) || (await Caller.findOne({ name: req.body.name }))) {
+		res.status(400).send({ message: 'caller already exist', OK: false });
+		log('caller already exist', 'WARNING', 'createCaller.ts');
 		return;
 	}
 
