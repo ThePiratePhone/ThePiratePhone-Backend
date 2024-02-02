@@ -31,6 +31,10 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		return;
 	}
 
+	if (req.body.phone.startsWith('0')) {
+		req.body.phone = req.body.phone.replace('0', '+33');
+	}
+
 	const result = await Caller.updateOne(
 		{ phone: req.body.phone, area: area._id, pinCode: req.body.pinCode },
 		{ pinCode: req.body.newPin }
