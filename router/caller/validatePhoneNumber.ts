@@ -16,7 +16,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.userArea) ||
+		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.phoneNumber != 'string' ||
 		typeof req.body.satisfaction != 'number'
 	) {
@@ -38,20 +38,23 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		return;
 	}
 
-	const curentCampaign: any = await getCurentCampaign(req.body.userArea);
+	const curentCampaign: any = await getCurentCampaign(req.body.area);
 	if (!curentCampaign) {
-		res.status(400).send({ message: 'no actual Camaing', OK: false });
+		res.status(404).send({ message: 'no actual Camaing', OK: false });
 		log(`no actual Camaing from ` + ip, 'ERROR', 'validatePhoneNumber.ts');
 		return;
 	}
 
-	if (!curentCampaign.callers.includes(caller._id)) {
+	if (curentCampaign.area.toString() != caller.area.toString() && !curentCampaign.callerList.includes(caller._id)) {
 		res.status(403).send({ message: 'Caller not in campaign', OK: false });
 		log(`Caller not in campaign from: ` + ip, 'WARNING', 'validatePhoneNumber.ts');
 		return;
 	}
 
-	const client = await Client.findOne({ phoneNumber: req.body.phoneNumber, _id: { $in: curentCampaign.userList } });
+	if (req.body.phoneNumber.startsWith('0')) {
+		req.body.phoneNumber = req.body.phoneNumber.replace('0', '+33');
+	}
+	const client = await Client.findOne({ phone: req.body.phoneNumber, _id: { $in: curentCampaign.userList } });
 	if (!client) {
 		res.status(404).send({ message: 'Client not found', OK: false });
 		log(`Client not found from: ` + ip, 'WARNING', 'validatePhoneNumber.ts');
@@ -80,7 +83,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 			return;
 		}
 		clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
-		clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
+		clientCampaign.startCall = new Date();
 		clientCampaign.endCall = new Date();
 		clientCampaign.satisfaction = req.body.satisfaction;
 	} else if (req.body.satisfaction == -2) {

@@ -23,9 +23,16 @@ const CallerSchema = new mongoose.Schema({
 		required: true
 	},
 	curentCall: {
-		type: mongoose.Schema.ObjectId,
-		ref: 'Client',
-		required: false
+		campaign: {
+			type: mongoose.Schema.ObjectId,
+			ref: 'Campaign',
+			required: false
+		},
+		client: {
+			type: mongoose.Schema.ObjectId,
+			ref: 'Client',
+			required: false
+		}
 	},
 	area: {
 		type: mongoose.Schema.ObjectId,

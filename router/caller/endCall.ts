@@ -56,7 +56,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 
 	const curentCampaign: any = await getCurentCampaign(req.body.area);
 	if (!curentCampaign) {
-		res.status(400).send({ message: 'no actual Camaing', OK: false });
+		res.status(404).send({ message: 'no actual Camaing', OK: false });
 		log(`no actual Camaing from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}

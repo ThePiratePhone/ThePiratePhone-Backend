@@ -6,6 +6,7 @@ import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
 import { ObjectId } from 'mongodb';
+import { Campaign } from '../../Models/Campaign';
 
 export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -42,25 +43,43 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (campaign.area != area._id && !campaign.callerList.includes(caller._id)) {
+	if (campaign.area.toString() != area._id.toString() && !campaign.callerList.includes(caller._id)) {
 		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
-		log(`Caller not allowed to call this campaign from: ` + ip, 'CRITICAL', 'getPhoneNumber.ts');
+		log(`Caller not allowed to call this campaign from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
 	if (typeof caller.curentCall == 'object') {
-		const client = await Client.findOne({ _id: caller.curentCall });
+		const client = await Client.findOne({ _id: caller.curentCall?.client });
 		if (!client) {
 			caller.curentCall = null;
 		} else {
-			res.status(400).send({
-				message: 'Already in a call',
-				OK: true,
-				client: client,
-				script: campaign.script[campaign.script.length - 1]
-			});
-			log(`Already in a call from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
-			return;
+			//if client is in the same campaign
+			if (caller.curentCall?.campaign?.toString() == campaign._id.toString()) {
+				res.status(400).send({
+					message: 'Already in a call',
+					OK: true,
+					client: client,
+					script: campaign.script[campaign.script.length - 1]
+				});
+				log(`Already in a call from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+				return;
+			} else {
+				//if client is in another campaign
+				const callCampaign = await Campaign.findOne({ _id: caller.curentCall?.campaign });
+				if (!callCampaign) {
+					caller.curentCall = null;
+				} else {
+					res.status(400).send({
+						message: 'Already in a call',
+						OK: true,
+						client: client,
+						script: callCampaign.script[callCampaign.script.length - 1]
+					});
+					log(`Already in a call from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+					return;
+				}
+			}
 		}
 	}
 
@@ -94,12 +113,12 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		const clientCampaign = client.data.get(campaign._id);
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Error while getting client campaign`, 'CRITICAL', 'getPhoneNumber.ts');
+			log(`Error while getting client campaign`, 'WARNING', 'getPhoneNumber.ts');
 			return;
 		}
 
 		const last = clientCampaign.length - 1;
-		caller.curentCall = client._id;
+		caller.curentCall = { client: client._id, campaign: campaign._id };
 		clientCampaign[last].status = 'inprogress';
 		clientCampaign[last].caller = caller._id;
 		clientCampaign[last].scriptVersion = campaign.script.length - 1;

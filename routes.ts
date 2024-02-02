@@ -2,7 +2,6 @@ import { Router } from 'express';
 
 import addCallerCampaign from './router/admin/addCallerCampaign';
 import addClientCampaign from './router/admin/addClientCampaign';
-import createCaller from './router/admin/createCaller';
 import createCampaign from './router/admin/createCampaign';
 import createClient from './router/admin/createClient';
 import getArea from './router/getArea';
@@ -20,6 +19,8 @@ import callePerClient from './router/stats/callPerClient';
 import validatePhoneNumber from './router/caller/validatePhoneNumber';
 import joinCampaign from './router/caller/joinCampaign';
 import changePassword from './router/caller/changePassword';
+import createCallerByAdmin from './router/admin/createCallerByAdmin';
+import createCaller from './router/caller/createCaller';
 
 const router = Router();
 
@@ -37,7 +38,7 @@ router.post('/listCaller', listCaller);
 router.post('/listClientCampaign', listClientCampaign);
 router.post('/createClient', createClient);
 router.post('/endCall', endCall);
-router.post('/createCaller', createCaller);
+router.post('/createCallerByAdmin', createCallerByAdmin);
 router.post('/createCampaign', createCampaign);
 router.post('/addClientCampaign', addClientCampaign);
 router.post('/addCallerCampaign', addCallerCampaign);

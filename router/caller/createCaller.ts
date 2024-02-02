@@ -7,6 +7,7 @@ import phoneNumberCheck from '../../tools/phoneNumberCheck';
 
 export default async function createCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
+	console.log(req.body);
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||
