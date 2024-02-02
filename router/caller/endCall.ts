@@ -67,7 +67,14 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		nbCall = 1;
 	}
 
-	if (req.body.satisfaction != -2) {
+	if (req.body.satisfaction == -2) {
+		await Campaign.updateOne(
+			{ _id: curentCampaign._id },
+			{ $pull: { userList: client._id }, $push: { trashUser: client._id } }
+		);
+		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
+		log(`delete ${client.phone} client from ${caller.name} ` + ip, 'INFORMATION', 'endCall.ts');
+	} else {
 		const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[
 			nbCall - 1
 		];
@@ -85,13 +92,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
 		clientCampaign.endCall = new Date();
 		clientCampaign.satisfaction = req.body.satisfaction;
-	} else if (req.body.satisfaction == -2) {
-		await Campaign.updateOne(
-			{ _id: curentCampaign._id },
-			{ $pull: { userList: client._id }, $push: { trashUser: client._id } }
-		);
-		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
-		log(`delete ${client.phone} client from ${caller.name} ` + ip, 'INFORMATION', 'endCall.ts');
 	}
 	caller.curentCall = null;
 	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
