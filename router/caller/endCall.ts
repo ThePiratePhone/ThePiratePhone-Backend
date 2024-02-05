@@ -41,13 +41,13 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`Invalid credential from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}
-	if (!caller.curentCall) {
+	if (!caller.curentCall || !caller.curentCall.client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
 		log(`Not in a call from ` + ip, 'ERROR', 'endCall.ts');
 		return;
 	}
 
-	const client = await Client.findOne({ _id: caller.curentCall.toString() });
+	const client = await Client.findOne({ _id: caller.curentCall.client.toString() });
 	if (!client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
 		log(`Not in a call from ` + ip, 'ERROR', 'endCall.ts');
