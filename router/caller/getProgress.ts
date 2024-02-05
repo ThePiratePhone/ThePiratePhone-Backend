@@ -54,7 +54,6 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	const clientInThisCampaign = await Client.find({
 		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } }
 	});
-	console.log(clientInThisCampaign);
 
 	const callInThisCampaign = clientInThisCampaign.reduce((acc, client) => {
 		acc += client.data.get(campaign._id)?.length ?? 0;
