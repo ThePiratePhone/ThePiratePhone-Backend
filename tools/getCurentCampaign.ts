@@ -3,7 +3,6 @@ import { Campaign } from '../Models/Campaign';
 import { Area } from '../Models/area';
 async function getCurentCampaign(area: ObjectId): Promise<typeof Campaign | null> {
 	const CampaignArea = await Area.findOne({ _id: area });
-	console.log(CampaignArea);
 	if (!CampaignArea) {
 		return null;
 	}
