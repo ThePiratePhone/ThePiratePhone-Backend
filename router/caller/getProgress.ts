@@ -47,12 +47,14 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			$elemMatch: {
 				status: 'called'
 			}
-		}
+		},
+		_id: { $nin: campaign.trashUser }
 	});
 
 	//overflow ???
 	const clientInThisCampaign = await Client.find({
-		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } }
+		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
+		_id: { $nin: campaign.trashUser }
 	});
 
 	const callInThisCampaign = clientInThisCampaign.reduce((acc, client) => {

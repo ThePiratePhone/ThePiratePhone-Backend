@@ -97,13 +97,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 						endCall: { $lte: new Date(Date.now() - 10_800_000) }
 					}
 				},
-				campaign: { $nin: campaign.trashUser }
+				_id: { $nin: campaign.trashUser }
 			},
 			{
 				area: area._id,
 				[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
 				[`data.${campaign._id}`]: { $elemMatch: { status: 'not called' } },
-				campaign: { $nin: campaign.trashUser }
+				_id: { $nin: campaign.trashUser }
 			}
 		]
 	});
