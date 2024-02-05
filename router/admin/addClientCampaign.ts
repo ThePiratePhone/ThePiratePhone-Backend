@@ -36,7 +36,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ name: req.body.campaign, area: area._id });
+	const campaign = await Campaign.findOne({ _id: req.body.campaign, area: area._id });
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log('Campaign not found', 'WARNING', 'addClientCampaign.ts');
