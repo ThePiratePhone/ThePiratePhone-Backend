@@ -31,8 +31,8 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 
 	const curentCampaign: any = await getCurentCampaign(req.body.area);
 	if (!curentCampaign) {
-		res.status(400).send({ message: 'no actual Camaing', OK: false });
-		log(`no actual Camaing from ` + ip, 'ERROR', 'joinCampaign.ts');
+		res.status(400).send({ message: 'no actual campaign', OK: false });
+		log(`no actual campaign from ` + ip, 'WARNING', 'joinCampaign.ts');
 		return;
 	}
 

@@ -8,7 +8,8 @@ async function AreaCampaignProgress(area): Promise<typeof Campaign | undefined> 
 	if (!area.campaignInProgress) {
 		campaign = await Campaign.findOne({
 			dateStart: { $lte: new Date() },
-			dateEnd: { $gte: new Date() }
+			dateEnd: { $gte: new Date() },
+			area: area.id
 		});
 		if (!campaign) {
 			return undefined;
