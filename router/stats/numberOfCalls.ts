@@ -26,7 +26,7 @@ export default async function numberOfCalls(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const clients = await Client.find({ _id: { $in: campaign.userList } });
+	const clients = await Client.find({ data: { $elemMatch: { $eq: campaign._id.toString() } } });
 	let numberOfCalls = 0;
 	clients.forEach(client => {
 		if (client.data.has(campaign._id.toString()))

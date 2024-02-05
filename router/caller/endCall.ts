@@ -68,10 +68,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 
 	if (req.body.satisfaction == -2) {
-		await Campaign.updateOne(
-			{ _id: curentCampaign._id },
-			{ $pull: { userList: client._id }, $push: { trashUser: client._id } }
-		);
+		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
 		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} ` + ip, 'INFORMATION', 'endCall.ts');
 	} else {

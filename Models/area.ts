@@ -18,11 +18,6 @@ const AreaModel = new mongoose.Schema({
 		required: true,
 		unique: true
 	},
-	ClientList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
-		ref: 'Client',
-		required: true
-	},
 	adminPhone: {
 		type: String,
 		required: true,

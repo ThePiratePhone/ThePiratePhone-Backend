@@ -7,6 +7,7 @@ import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
 import { ObjectId } from 'mongodb';
+import { Caller } from '../../Models/Caller';
 
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -42,24 +43,31 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	}
 
 	const count = await Client.countDocuments({
-		_id: { $in: campaign.userList },
-		[`data.${campaign._id}.status`]: 'called'
+		[`data.${campaign._id}`]: {
+			$elemMatch: {
+				status: 'called'
+			}
+		}
 	});
 
-	const callMake = caller.timeInCall.filter(call => {
-		return (call?.date?.getTime() ?? 0) > campaign.createdAt.getTime();
+	//overflow ???
+	const clientInThisCampaign = await Client.find({
+		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } }
 	});
+	console.log(clientInThisCampaign);
 
-	const CallInThisCampaign = callMake.filter(call => {
-		return campaign.userList.includes(call.client);
-	});
-
-	const timeInCall = callMake.reduce((acc, call) => {
-		return acc + (call.time ?? 0);
+	const callInThisCampaign = clientInThisCampaign.reduce((acc, client) => {
+		acc += client.data.get(campaign._id)?.length ?? 0;
+		return acc;
 	}, 0);
 
-	const timeInCallInThisCampaign = CallInThisCampaign.reduce((acc, call) => {
-		return acc + (call.time ?? 0);
+	const callMake = clientInThisCampaign.filter(
+		call => call.data[campaign._id]?.caller.toString() ?? '' == caller._id.toString()
+	);
+
+	const totalTime = callMake.reduce((acc, call) => {
+		acc += (call.data[campaign._id].endCall - call.data[campaign._id].startCall) / 1000;
+		return acc;
 	}, 0);
 
 	res.status(200).send({
@@ -68,10 +76,9 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		data: {
 			count: count,
 			callerCall: callMake.length,
-			callInThisCampaign: CallInThisCampaign.length,
-			timeInCall: timeInCall,
-			timeInCallInThisCampaign: timeInCallInThisCampaign,
-			total: campaign.userList.length
+			callInThisCampaign: callInThisCampaign,
+			total: clientInThisCampaign.length,
+			totalTime: totalTime
 		}
 	});
 	log(`Get progress from: ` + ip, 'INFORMATION', 'getProgress.ts');

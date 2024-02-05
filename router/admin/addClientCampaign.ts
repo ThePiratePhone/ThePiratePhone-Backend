@@ -43,7 +43,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	if (campaign.userList.includes(client._id) || client.data.has(campaign._id.toString())) {
+	if (client.data.has(campaign._id.toString())) {
 		res.status(200).send({ message: 'User already in campaign', OK: true });
 		log('User already in campaign', 'WARNING', 'addClientCampaign.ts');
 		return;
@@ -51,7 +51,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 
 	const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
 	client.data.set(campaign._id.toString(), newData);
-	await Promise.all([client.save(), campaign.updateOne({ $push: { userList: client._id } })]);
+	await client.save();
 
 	res.status(200).send({ message: 'User added to campaign', OK: true });
 	log('User added to campaign', 'INFORMATION', 'addClientCampaign.ts');

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Campaign } from '../../Models/Campaign';
+import { Client } from '../../Models/Client';
 
 export default async function numberOfClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -25,10 +26,12 @@ export default async function numberOfClients(req: Request<any>, res: Response<a
 		return;
 	}
 
+	const totalClient = await Client.countDocuments({ data: { $elemMatch: { $eq: campaign._id.toString() } } });
+
 	res.status(200).send({
-		message: 'in this campaign ' + campaign.userList.length + ' client was added',
+		message: 'in this campaign ' + totalClient + ' client was added',
 		OK: true,
-		data: { numberOfClient: campaign.userList.length }
+		data: { numberOfClient: totalClient }
 	});
 	log('number of client get by ' + area.name + ' admin', 'INFORMATION', 'numberOfClients.ts');
 }

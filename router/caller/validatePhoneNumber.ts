@@ -54,7 +54,10 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 	if (req.body.phoneNumber.startsWith('0')) {
 		req.body.phoneNumber = req.body.phoneNumber.replace('0', '+33');
 	}
-	const client = await Client.findOne({ phone: req.body.phoneNumber, _id: { $in: curentCampaign.userList } });
+	const client = await Client.findOne({
+		phone: req.body.phoneNumber,
+		data: { $elemMatch: { $eq: curentCampaign._id } }
+	});
 	if (!client) {
 		res.status(404).send({ message: 'Client not found', OK: false });
 		log(`Client not found from: ` + ip, 'WARNING', 'validatePhoneNumber.ts');
@@ -87,11 +90,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		clientCampaign.endCall = new Date();
 		clientCampaign.satisfaction = req.body.satisfaction;
 	} else if (req.body.satisfaction == -2) {
-		await Campaign.updateOne(
-			{ _id: curentCampaign._id },
-			{ $pull: { userList: client._id }, $push: { trashUser: client._id } }
-		);
-		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
+		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} ` + ip, 'INFORMATION', 'endCall.ts');
 	}
 	caller.curentCall = null;

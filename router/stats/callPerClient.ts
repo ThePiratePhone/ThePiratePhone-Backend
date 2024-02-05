@@ -4,6 +4,7 @@ import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Area } from '../../Models/area';
 import { log } from '../../tools/log';
+import { Client } from '../../Models/Client';
 
 export default async function callePerClient(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -38,15 +39,17 @@ export default async function callePerClient(req: Request<any>, res: Response<an
 		return accumulator.concat((current as any).timeInCall);
 	}, []);
 
+	const totalClient = await Client.countDocuments({ data: { $elemMatch: { $eq: campaign._id.toString() } } });
+
 	res.status(200).send({
 		OK: true,
 		data: {
 			totalOfCall: allTimeInCall.length,
-			totalOfClient: campaign.userList.length,
+			totalOfClient: totalClient,
 			totalOfKickUser: campaign.trashUser.length,
-			callPerClient: allTimeInCall.length / campaign.userList.length
+			callPerClient: allTimeInCall.length / totalClient
 		},
-		message: 'call per client: ' + allTimeInCall.length / campaign.userList.length
+		message: 'call per client: ' + allTimeInCall.length / totalClient
 	});
 	log('number of caller get by ' + area.name + ' admin', 'INFORMATION', 'callePerClient.ts');
 }

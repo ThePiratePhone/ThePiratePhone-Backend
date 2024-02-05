@@ -33,7 +33,7 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
-	const clients = await Client.find({ _id: { $in: campaign.userList } })
+	const clients = await Client.find({ data: { $elemMatch: { $eq: campaign._id.toString() } } })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!clients) {

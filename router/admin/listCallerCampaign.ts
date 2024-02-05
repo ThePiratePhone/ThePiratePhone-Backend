@@ -33,7 +33,7 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
-	const callers = await Caller.find({ _id: { $in: campaign.userList } })
+	const callers = await Caller.find({ _id: { $in: campaign.callerList } })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!callers) {

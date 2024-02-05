@@ -52,7 +52,6 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		promotion: req.body.promotion ?? null,
 		institution: req.body.institution ?? null
 	});
-	await Area.updateOne({ _id: area._id }, { $push: { ClientList: user._id } });
 	try {
 		await user.save();
 		res.status(200).send({ message: 'user ' + user.name + ' created', OK: true });
