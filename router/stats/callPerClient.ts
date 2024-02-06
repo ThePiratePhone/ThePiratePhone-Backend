@@ -15,20 +15,20 @@ export default async function callePerClient(req: Request<any>, res: Response<an
 		!ObjectId.isValid(req.body.campaign)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters', 'WARNING', 'callePerClient.ts');
+		log(`Missing parameters from ${ip}`, 'WARNING', 'callePerClient.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'callePerClient.ts');
+		log(`Wrong admin code from ${ip}`, 'WARNING', 'callePerClient.ts');
 		return;
 	}
 	const campaign = await Campaign.findOne({ _id: req.body.campaign });
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log('Wrong campaign id from ' + ip, 'WARNING', 'callePerClient.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'callePerClient.ts');
 		return;
 	}
 	const call = await Caller.find({ _id: { $in: campaign.callerList } })
@@ -51,5 +51,5 @@ export default async function callePerClient(req: Request<any>, res: Response<an
 		},
 		message: 'call per client: ' + allTimeInCall.length / totalClient
 	});
-	log('number of caller get by ' + area.name + ' admin', 'INFORMATION', 'callePerClient.ts');
+	log(`number of caller get by ${area.name} (${ip})`, 'INFORMATION', 'callePerClient.ts');
 }

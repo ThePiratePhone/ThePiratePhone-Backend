@@ -59,6 +59,6 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: areaCombo } });
-	log(`Login success for ${caller.name} from: ` + ip, 'INFORMATION', 'login.ts');
+	log(`Login success for ${caller.name} from: ${caller.name} (${ip})`, 'INFORMATION', 'login.ts');
 	return;
 }

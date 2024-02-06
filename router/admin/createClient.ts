@@ -15,14 +15,14 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		typeof req.body.adminCode != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters', 'WARNING', 'createClient.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', 'createClient.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'createClient.ts');
+		log(`Wrong admin code from ${ip}`, 'WARNING', 'createClient.ts');
 		return;
 	}
 
@@ -31,13 +31,13 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	}
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log('Wrong phone number', 'WARNING', 'createClient.ts');
+		log(`Wrong phone number from ${area.name} (${ip})`, 'WARNING', 'createClient.ts');
 		return;
 	}
 
 	if ((await Client.findOne({ phone: req.body.phone, area: area._id })) != null) {
 		res.status(401).send({ message: 'User already exist', OK: false });
-		log('User already exist', 'WARNING', 'createClient.ts');
+		log(`User already exist from ${area.name} (${ip})`, 'WARNING', 'createClient.ts');
 		return;
 	}
 
@@ -52,9 +52,9 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	try {
 		await user.save();
 		res.status(200).send({ message: 'user ' + user.name + ' created', OK: true });
-		log('user ' + user.name + ' created from ' + ip, 'INFORMATION', 'createClient.ts');
+		log(`user ${user.name} created from ${area.name} (${ip})`, 'INFORMATION', 'createClient.ts');
 	} catch (error: any) {
 		res.status(500).send({ message: 'Internal server error', OK: false });
-		log('Internal server error: ' + error.message, 'ERROR', 'createClient.ts');
+		log(`Internal server error: ${error.message} from ${area.name} (${ip})`, 'ERROR', 'createClient.ts');
 	}
 }

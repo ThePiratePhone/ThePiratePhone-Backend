@@ -33,5 +33,5 @@ export default async function numberOfClients(req: Request<any>, res: Response<a
 		OK: true,
 		data: { numberOfClient: totalClient }
 	});
-	log('number of client get by ' + area.name + ' admin', 'INFORMATION', 'numberOfClients.ts');
+	log(`number of client get by ${area.name} (${ip})`, 'INFORMATION', 'numberOfClients.ts');
 }

@@ -32,26 +32,26 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	const curentCampaign: any = await getCurentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(400).send({ message: 'no actual campaign', OK: false });
-		log(`no actual campaign from ` + ip, 'WARNING', 'joinCampaign.ts');
+		log(`no actual campaign from ${caller.name} (${ip})`, 'WARNING', 'joinCampaign.ts');
 		return;
 	}
 
 	if (curentCampaign.password != req.body.campaignPassword) {
 		res.status(403).send({ message: 'Wrong campaign password', OK: false });
-		log(`Wrong campaign password from: ` + ip, 'WARNING', 'joinCampaign.ts');
+		log(`Wrong campaign password from: ${caller.name} (${ip})`, 'WARNING', 'joinCampaign.ts');
 		return;
 	}
 
 	if (curentCampaign.callerList.includes(caller._id)) {
 		res.status(403).send({ message: 'Caller already in campaign', OK: false });
-		log(`Caller already in campaign from: ` + ip, 'WARNING', 'joinCampaign.ts');
+		log(`Caller already in campaign from: ${caller.name} (${ip})`, 'WARNING', 'joinCampaign.ts');
 		return;
 	}
 
 	const area = await Area.findById(curentCampaign.area);
 	if (!area) {
 		res.status(404).send({ message: 'Area not found', OK: false });
-		log(`Area not found from: ` + ip, 'ERROR', 'joinCampaign.ts');
+		log(`Area not found from: ${caller.name} (${ip})`, 'ERROR', 'joinCampaign.ts');
 		return;
 	}
 
@@ -66,4 +66,5 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 			areaId: area._id
 		}
 	});
+	log(`Caller added to campaign from: ${caller.name} (${ip})`, 'INFORMATION', 'joinCampaign.ts');
 }

@@ -12,21 +12,21 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 		(req.body.limit && typeof req.body.limit != 'number')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters from: ' + ip, 'WARNING', 'listCampaign.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', 'listCampaign.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'listCampaign.ts');
+		log(`Wrong admin code from ` + ip, 'WARNING', 'listCampaign.ts');
 		return;
 	}
 
 	const campaign = await Campaign.find({ Area: area._id });
 	if (!campaign) {
 		res.status(401).send({ message: 'no campaign', OK: false });
-		log('no campaign from ' + ip, 'WARNING', 'listCampaign.ts');
+		log(`no campaign from ${area.name} (${ip})`, 'WARNING', 'listCampaign.ts');
 		return;
 	}
 

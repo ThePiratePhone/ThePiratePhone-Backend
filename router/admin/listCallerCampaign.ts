@@ -15,21 +15,21 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		(req.body.limit && typeof req.body.limit != 'number')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters from: ' + ip, 'WARNING', 'listCallerCampaign.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', 'listCallerCampaign.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'listCallerCampaign.ts');
+		log(`Wrong admin code from ` + ip, 'WARNING', 'listCallerCampaign.ts');
 		return;
 	}
 
 	const campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log('Wrong campaign id from ' + ip, 'WARNING', 'listCallerCampaign.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'listCallerCampaign.ts');
 		return;
 	}
 
@@ -38,7 +38,7 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!callers) {
 		res.status(401).send({ message: 'No callers found', OK: false });
-		log('No callers found from ' + ip, 'WARNING', 'listCallerCampaign.ts');
+		log(`No callers found from ${area.name} (${ip})`, 'WARNING', 'listCallerCampaign.ts');
 		return;
 	}
 

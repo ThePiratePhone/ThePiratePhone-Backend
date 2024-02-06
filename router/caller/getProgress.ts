@@ -32,13 +32,13 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	const area = await Area.findOne({ _id: req.body.area });
 	if (!area) {
 		res.status(404).send({ message: 'area not found', OK: false });
-		log(`Area not found from: ` + ip, 'WARNING', 'getProgress.ts');
+		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'getProgress.ts');
 		return;
 	}
 	const campaign = (await AreaCampaignProgress(area)) as any;
 	if (!campaign) {
 		res.status(404).send({ message: 'campaign not found', OK: false });
-		log(`Campaign not found from: ` + ip, 'WARNING', 'getProgress.ts');
+		log(`Campaign not found from: ${caller.name} (${ip})`, 'WARNING', 'getProgress.ts');
 		return;
 	}
 
@@ -82,5 +82,5 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			totalTime: totalTime
 		}
 	});
-	log(`Get progress from: ` + ip, 'INFORMATION', 'getProgress.ts');
+	log(`Get progress from: ${caller.name} (${ip})`, 'INFORMATION', 'getProgress.ts');
 }

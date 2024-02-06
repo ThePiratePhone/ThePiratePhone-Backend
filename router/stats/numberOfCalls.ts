@@ -37,5 +37,5 @@ export default async function numberOfCalls(req: Request<any>, res: Response<any
 		OK: true,
 		data: { numberOfCalls: numberOfCalls }
 	});
-	log('number of call get by ' + area.name + ' admin', 'INFORMATION', 'numberOfCall.ts');
+	log(`number of call get by ${area.name} (${ip})`, 'INFORMATION', 'numberOfCall.ts');
 }

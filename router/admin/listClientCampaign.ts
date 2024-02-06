@@ -15,21 +15,21 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		(req.body.limit && typeof req.body.limit != 'number')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters from: ' + ip, 'WARNING', 'listClientCampaign.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', 'listClientCampaign.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'listClientCampaign.ts');
+		log(`Wrong admin code from ` + ip, 'WARNING', 'listClientCampaign.ts');
 		return;
 	}
 
 	const campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log('Wrong campaign id from ' + ip, 'WARNING', 'listClientCampaign.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'listClientCampaign.ts');
 		return;
 	}
 
@@ -38,9 +38,10 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!clients) {
 		res.status(401).send({ message: 'No clients found', OK: false });
-		log('No clients found from ' + ip, 'WARNING', 'listClientCampaign.ts');
+		log(`No clients found from${area.name} (${ip})`, 'WARNING', 'listClientCampaign.ts');
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: { clients: clients } });
+	log(`client list campaign send to ${area.name} (${ip})`, 'INFORMATION', 'listClientCampaign.ts');
 }

@@ -15,14 +15,14 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		typeof req.body.password != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters', 'WARNING', 'CreateCampaign.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'CreateCampaign.ts');
+		log(`Wrong admin code from ${ip}`, 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
@@ -30,13 +30,13 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 	const dateStart = new Date(req.body.dateStart);
 	if (isNaN(dateEnd.getTime()) || isNaN(dateStart.getTime()) || dateEnd < dateStart) {
 		res.status(400).send({ message: 'dateEnd < dateStart', OK: false });
-		log('dateEnd < dateStart', 'WARNING', 'CreateCampaign.ts');
+		log(`dateEnd < dateStart from ${area.name} (${ip})`, 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
 	if ((await Campaign.findOne({ name: req.body.name, area: area._id })) != null) {
 		res.status(400).send({ message: 'Campaign already exist', OK: false });
-		log('Campaign already exist', 'WARNING', 'CreateCampaign.ts');
+		log(`Campaign already exist from ${area.name} (${ip})`, 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
@@ -51,7 +51,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 
 	if (existingCampaign) {
 		res.status(400).send({ message: 'Campaign overlaps with an existing campaign', OK: false });
-		log('Campaign overlaps with an existing campaign', 'WARNING', 'CreateCampaign.ts');
+		log(`Campaign overlaps with an existing campaign from ${area.name} (${ip})`, 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
@@ -68,5 +68,5 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 	await campaign.save();
 	await Area.updateOne({ _id: area._id }, { $push: { CampaignList: campaign._id } });
 	res.status(200).send({ message: 'Campaign created', OK: true });
-	log('Campaign created from' + ip, 'INFORMATION', 'CreateCampaign.ts');
+	log(`Campaign created from ${area.name} (${ip})`, 'INFORMATION', 'CreateCampaign.ts');
 }

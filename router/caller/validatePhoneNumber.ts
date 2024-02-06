@@ -41,13 +41,13 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 	const curentCampaign: any = await getCurentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(404).send({ message: 'no actual Camaing', OK: false });
-		log(`no actual Camaing from ` + ip, 'ERROR', 'validatePhoneNumber.ts');
+		log(`no actual Camaing from ${caller.name} (${ip})`, 'ERROR', 'validatePhoneNumber.ts');
 		return;
 	}
 
 	if (curentCampaign.area.toString() != caller.area.toString() && !curentCampaign.callerList.includes(caller._id)) {
 		res.status(403).send({ message: 'Caller not in campaign', OK: false });
-		log(`Caller not in campaign from: ` + ip, 'WARNING', 'validatePhoneNumber.ts');
+		log(`Caller not in campaign from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
 		return;
 	}
 
@@ -60,7 +60,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 	});
 	if (!client) {
 		res.status(404).send({ message: 'Client not found', OK: false });
-		log(`Client not found from: ` + ip, 'WARNING', 'validatePhoneNumber.ts');
+		log(`Client not found from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
 		return;
 	}
 
@@ -77,12 +77,12 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		];
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Internal error from ` + ip, 'ERROR', 'endCall.ts');
+			log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 			return;
 		}
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Internal error from ` + ip, 'ERROR', 'endCall.ts');
+			log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 			return;
 		}
 		clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
@@ -91,7 +91,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		clientCampaign.satisfaction = req.body.satisfaction;
 	} else if (req.body.satisfaction == -2) {
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
-		log(`delete ${client.phone} client from ${caller.name} ` + ip, 'INFORMATION', 'endCall.ts');
+		log(`delete ${client.phone} client from ${caller.name} ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 	}
 	caller.curentCall = null;
 	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
@@ -100,5 +100,5 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 	else await caller.save();
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`end virtual call from ` + ip, 'INFORMATION', 'endCall.ts');
+	log(`end virtual call from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 }

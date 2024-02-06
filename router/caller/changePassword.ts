@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Caller } from '../../Models/Caller';
+import checkCredentials from '../../tools/checkCredentials';
 
 export default async function changePassword(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -35,6 +36,13 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		req.body.phone = req.body.phone.replace('0', '+33');
 	}
 
+	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
+	if (!caller) {
+		res.status(403).send({ message: 'Invalid credential', OK: false });
+		log(`Invalid credential from: ${req.body.phone} (${ip})`, 'WARNING', 'changePassword.ts');
+		return;
+	}
+
 	const result = await Caller.updateOne(
 		{ phone: req.body.phone, area: area._id, pinCode: req.body.pinCode },
 		{ pinCode: req.body.newPin }
@@ -42,10 +50,10 @@ export default async function changePassword(req: Request<any>, res: Response<an
 
 	if (result.modifiedCount == 0) {
 		res.status(400).send({ message: 'Invalid credentials', OK: false });
-		log(`Invalid credentials from: ` + ip, 'WARNING', 'changePassword.ts');
+		log(`Invalid credentials from: ${caller.name} (${ip})`, 'WARNING', 'changePassword.ts');
 		return;
 	}
 
 	res.status(200).send({ message: 'password changed', OK: true });
-	log(`user ${req.body.phone} password chnaged from: ` + ip, 'INFORMATION', 'changePassword.ts');
+	log(`user ${req.body.phone} password chnaged from: ${caller.name} (${ip})`, 'INFORMATION', 'changePassword.ts');
 }

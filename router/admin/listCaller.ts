@@ -12,14 +12,14 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 		(req.body.limit && typeof req.body.limit != 'number')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters from: ' + ip, 'WARNING', 'listCaller.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', 'listCaller.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'listCaller.ts');
+		log(`Wrong admin code from ` + ip, 'WARNING', 'listCaller.ts');
 		return;
 	}
 
@@ -28,10 +28,10 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!callers) {
 		res.status(404).send({ message: 'No caller found', OK: false });
-		log('No caller found from ' + ip, 'WARNING', 'listCaller.ts');
+		log(`No caller found from ${area.name} (${ip})`, 'WARNING', 'listCaller.ts');
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: { callers: callers } });
-	log('caller list send to ' + ip, 'INFORMATION', 'listCaller.ts');
+	log(`caller list send to ${area.name} (${ip})`, 'INFORMATION', 'listCaller.ts');
 }

@@ -24,14 +24,14 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+		log(`Invalid credential from:  ${req.body.phone} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ _id: req.body.area });
 	if (!area) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting area`, 'CRITICAL', 'getPhoneNumber.ts');
+		log(`Error while getting area from ${caller.name} (${ip})`, 'CRITICAL', 'getPhoneNumber.ts');
 		return;
 	}
 
@@ -39,13 +39,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 
 	if (!campaign || campaign == null) {
 		res.status(200).send({ message: 'no campaign in progress', OK: false });
-		log(`No campaign in progress from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+		log(`No campaign in progress from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
 	if (campaign.area.toString() != area._id.toString() && !campaign.callerList.includes(caller._id)) {
 		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
-		log(`Caller not allowed to call this campaign from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+		log(`Caller not allowed to call this campaign from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
@@ -62,7 +62,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 					client: client,
 					script: campaign.script[campaign.script.length - 1]
 				});
-				log(`Already in a call from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+				log(`Already in a call from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
 				return;
 			} else {
 				//if client is in another campaign
@@ -76,7 +76,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 						client: client,
 						script: callCampaign.script[callCampaign.script.length - 1]
 					});
-					log(`Already in a call from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+					log(`Already in a call from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
 					return;
 				}
 			}

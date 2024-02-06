@@ -7,7 +7,7 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (!req.body || typeof req.body.campaign != 'string' || typeof req.body.adminCode != 'string') {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters', 'WARNING', 'numberOfCallers.ts');
+		log('Missing parameters from ' + ip, 'WARNING', 'numberOfCallers.ts');
 		return;
 	}
 
@@ -21,7 +21,7 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 	const campaign = await Campaign.findOne({ _id: req.body.campaign });
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log('Wrong campaign id from ' + ip, 'WARNING', 'numberOfCallers.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'numberOfCallers.ts');
 		return;
 	}
 
@@ -30,5 +30,5 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 		OK: true,
 		data: { numberOfCallers: campaign.callerList.length }
 	});
-	log('number of caller get by ' + area.name + ' admin', 'INFORMATION', 'numberOfCallers.ts');
+	log(`number of caller get by ${area.name} (${ip})`, 'INFORMATION', 'numberOfCallers.ts');
 }

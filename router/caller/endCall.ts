@@ -43,21 +43,21 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 	if (!caller.curentCall || !caller.curentCall.client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
-		log(`Not in a call from ` + ip, 'ERROR', 'endCall.ts');
+		log(`Not in a call from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 		return;
 	}
 
 	const client = await Client.findOne({ _id: caller.curentCall.client.toString() });
 	if (!client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
-		log(`Not in a call from ` + ip, 'ERROR', 'endCall.ts');
+		log(`Not in a call from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 		return;
 	}
 
 	const curentCampaign: any = await getCurentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(404).send({ message: 'no actual Camaing', OK: false });
-		log(`no actual Camaing from ` + ip, 'ERROR', 'endCall.ts');
+		log(`no actual Camaing from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 		return;
 	}
 	let nbCall = client.data.get(curentCampaign._id.toString())?.length;
@@ -70,19 +70,19 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	if (req.body.satisfaction == -2) {
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
 		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
-		log(`delete ${client.phone} client from ${caller.name} ` + ip, 'INFORMATION', 'endCall.ts');
+		log(`delete ${client.phone} client from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 	} else {
 		const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[
 			nbCall - 1
 		];
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Internal error from ` + ip, 'ERROR', 'endCall.ts');
+			log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 			return;
 		}
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Internal error from ` + ip, 'ERROR', 'endCall.ts');
+			log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 			return;
 		}
 		clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
@@ -96,5 +96,5 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	if (req.body.satisfaction != -2) await Promise.all([caller.save(), client.save()]);
 	else await caller.save();
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`end call from ` + ip, 'INFORMATION', 'endCall.ts');
+	log(`end call from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 }
