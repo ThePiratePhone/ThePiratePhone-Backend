@@ -18,11 +18,6 @@ async function AreaCampaignProgress(area): Promise<typeof Campaign | undefined> 
 		await area.save();
 	} else {
 		campaign = await Campaign.findOne({ _id: area.campaignInProgress });
-		if (!campaign) {
-			area.campaignInProgress = null;
-			await area.save();
-			return await AreaCampaignProgress(area);
-		}
 	}
 	return campaign;
 }
