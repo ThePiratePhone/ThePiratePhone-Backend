@@ -11,7 +11,6 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.newPin != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -22,13 +21,6 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
 		log(`Invalid pin code from: ` + ip, 'WARNING', 'createCaller.ts');
-		return;
-	}
-
-	const area = await Area.findOne({ _id: req.body.area });
-	if (!area) {
-		res.status(400).send({ message: 'Invalid area', OK: false });
-		log(`Invalid area from: ` + ip, 'WARNING', 'changePassword.ts');
 		return;
 	}
 
@@ -44,7 +36,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	}
 
 	const result = await Caller.updateOne(
-		{ phone: req.body.phone, area: area._id, pinCode: req.body.pinCode },
+		{ phone: req.body.phone, pinCode: req.body.pinCode },
 		{ pinCode: req.body.newPin }
 	);
 
