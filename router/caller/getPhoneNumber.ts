@@ -130,7 +130,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			OK: true,
 			data: { client: client, script: campaign.script[campaign.script.length - 1] }
 		});
-		log(`Get phone number success for ${caller.name} from: ` + ip, 'INFORMATION', 'getPhoneNumber.ts');
+		log(`Get phone number success for ${caller.name} (${ip})`, 'INFORMATION', 'getPhoneNumber.ts');
 		return;
 	}
 }
