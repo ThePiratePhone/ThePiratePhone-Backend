@@ -2,8 +2,7 @@ import mongoose from 'mongoose';
 const CallerSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true,
-		unique: true
+		required: true
 	},
 	phone: {
 		type: String,
