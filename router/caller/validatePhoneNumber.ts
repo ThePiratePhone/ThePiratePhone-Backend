@@ -7,7 +7,6 @@ import getCurentCampaign from '../../tools/getCurentCampaign';
 import { Client } from '../../Models/Client';
 import mongoose from 'mongoose';
 import { Campaign } from '../../Models/Campaign';
-import { Area } from '../../Models/area';
 
 export default async function validatePhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -55,8 +54,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		req.body.phoneNumber = req.body.phoneNumber.replace('0', '+33');
 	}
 	const client = await Client.findOne({
-		phone: req.body.phoneNumber,
-		data: { $elemMatch: { $eq: curentCampaign._id } }
+		phone: req.body.phoneNumber
 	});
 	if (!client) {
 		res.status(404).send({ message: 'Client not found', OK: false });
