@@ -37,8 +37,8 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 
 	const campaign = (await AreaCampaignProgress(area)) as any;
 
-	if (!campaign) {
-		res.status(400).send({ message: 'no campaign in progress', OK: false });
+	if (!campaign || campaign == null) {
+		res.status(200).send({ message: 'no campaign in progress', OK: false });
 		log(`No campaign in progress from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
