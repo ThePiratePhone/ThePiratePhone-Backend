@@ -23,11 +23,6 @@ async function AreaCampaignProgress(area): Promise<typeof Campaign | undefined> 
 			await area.save();
 			return await AreaCampaignProgress(area);
 		}
-		if (campaign.dateEnd < new Date() || campaign.dateStart > new Date()) {
-			area.campaignInProgress = null;
-			await area.save();
-			return await AreaCampaignProgress(area);
-		}
 	}
 	return campaign;
 }
