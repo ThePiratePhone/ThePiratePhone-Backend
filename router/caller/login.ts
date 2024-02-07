@@ -37,27 +37,24 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			}
 		]
 	});
-	let error = false;
-	const areaComboPromises = campaignAvaible.map(async campaign => {
-		const area = await Area.findById(campaign.area);
-		if (!area) {
-			error = true;
-			return null;
-		}
-		return {
-			areaName: area.name,
-			areaId: area._id,
-			campaignName: campaign.name,
-			campaignId: campaign._id
-		};
-	});
-
-	const areaCombo = await Promise.all(areaComboPromises);
-
-	if (error) {
-		return res.status(400).send({ message: 'Error in data', OK: false });
+	if (!campaignAvaible) {
+		res.status(400).send({ message: 'Campaign not found', OK: false });
+		log(`Campaign not found for ${caller.name} (${ip})`, 'WARNING', 'login.ts');
+		return;
+	}
+	const areaAvaible = await Area.findOne({ _id: caller.area });
+	if (!areaAvaible) {
+		res.status(400).send({ message: 'Area not found', OK: false });
+		log(`Area not found for ${caller.name} (${ip})`, 'WARNING', 'login.ts');
+		return;
 	}
 
+	const areaCombo = {
+		area: { name: areaAvaible.name },
+		campaignAvaible: campaignAvaible.map(c => {
+			return { name: c.name, _id: c._id, area: c.area };
+		})
+	};
 	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: areaCombo } });
 	log(`Login success for ${caller.name} (${ip})`, 'INFORMATION', 'login.ts');
 	return;
