@@ -27,7 +27,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const campaignAvaible = await Campaign.find({
+	const campaignAvailable = await Campaign.find({
 		$or: [
 			{
 				area: caller.area
@@ -37,7 +37,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			}
 		]
 	});
-	if (!campaignAvaible) {
+	if (!campaignAvailable) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found for ${caller.name} (${ip})`, 'WARNING', 'login.ts');
 		return;
@@ -50,9 +50,9 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	}
 
 	const areaCombo = {
-		area: { name: areaAvaible.name },
-		campaignAvaible: campaignAvaible.map(c => {
-			return { name: c.name, _id: c._id, area: c.area };
+		area: { name: areaAvaible.name, _id: areaAvaible._id },
+		campaignAvailable: campaignAvailable.map(c => {
+			return { name: c.name, _id: c._id, areaId: c.area };
 		})
 	};
 	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: areaCombo } });
