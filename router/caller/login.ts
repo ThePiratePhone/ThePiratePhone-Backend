@@ -4,6 +4,7 @@ import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Campaign } from '../../Models/Campaign';
+import { Types } from 'mongoose';
 
 export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -48,13 +49,28 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		log(`Area not found for ${caller.name} (${ip})`, 'WARNING', 'login.ts');
 		return;
 	}
-
-	const areaCombo = {
-		area: { name: areaAvaible.name, _id: areaAvaible._id },
-		campaignAvailable: campaignAvailable.map(c => {
-			return { name: c.name, _id: c._id, areaId: c.area };
-		})
+	let areaCombo: {
+		area: { name: string; _id: Types.ObjectId };
+		campaignAvailable: { name: string; _id: Types.ObjectId; areaId: Types.ObjectId; areaName: string }[];
 	};
+	try {
+		areaCombo = {
+			area: { name: areaAvaible.name, _id: areaAvaible._id },
+			campaignAvailable: await Promise.all(
+				campaignAvailable.map(async c => {
+					const cArea = await Area.findById(c.area);
+					if (!cArea) {
+						throw 'error';
+					}
+					return { name: c.name, _id: c._id, areaId: cArea?._id, areaName: cArea?.name };
+				})
+			)
+		};
+	} catch (error) {
+		res.status(500).send({ message: 'area of campaign not found', OK: false });
+		log(`area of campaign not found for ${caller.name} (${ip})`, 'ERROR', 'login.ts');
+		return;
+	}
 	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: areaCombo } });
 	log(`Login success for ${caller.name} (${ip})`, 'INFORMATION', 'login.ts');
 	return;
