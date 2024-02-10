@@ -1,11 +1,10 @@
 import { Caller } from '../Models/Caller';
+import clearPhone from './clearPhone';
 import phoneNumberCheck from './phoneNumberCheck';
 
 export default async function checkCredentials(phone: string, pinCode: string) {
 	if (!phone || !pinCode) return false;
-	if (phone.startsWith('0')) {
-		phone = phone.replace('0', '+33');
-	}
+	phone = clearPhone(phone);
 	if (!phoneNumberCheck(phone)) return false;
 	if (pinCode.length != 4) return false;
 

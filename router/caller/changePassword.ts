@@ -4,6 +4,7 @@ import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Caller } from '../../Models/Caller';
 import checkCredentials from '../../tools/checkCredentials';
+import clearPhone from '../../tools/clearPhone';
 
 export default async function changePassword(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -24,9 +25,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (req.body.phone.startsWith('0')) {
-		req.body.phone = req.body.phone.replace('0', '+33');
-	}
+	req.body.phone = clearPhone(req.body.phone);
 
 	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
 	if (!caller) {

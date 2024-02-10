@@ -4,6 +4,7 @@ import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Caller } from '../../Models/Caller';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
+import clearPhone from '../../tools/clearPhone';
 
 export default async function createCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -26,9 +27,7 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	if (req.body.phone.startsWith('0')) {
-		req.body.phone = req.body.phone.replace('0', '+33');
-	}
+	req.body.phone = clearPhone(req.body.phone);
 
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });

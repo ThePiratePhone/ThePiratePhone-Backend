@@ -3,6 +3,7 @@ import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
+import clearPhone from '../../tools/clearPhone';
 
 export default async function addCallerCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -24,9 +25,7 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	if (req.body.Phone.startsWith('0')) {
-		req.body.Phone = req.body.Phone.replace('0', '+33');
-	}
+	req.body.phone = clearPhone(req.body.phone);
 
 	const caller = await Caller.findOne({ phone: req.body.Phone, area: area._id });
 	if (!caller) {

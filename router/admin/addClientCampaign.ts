@@ -4,6 +4,7 @@ import { Area } from '../../Models/area';
 import { Client } from '../../Models/Client';
 import { Campaign } from '../../Models/Campaign';
 import mongoose from 'mongoose';
+import clearPhone from '../../tools/clearPhone';
 
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -25,9 +26,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	if (req.body.phone.startsWith('0')) {
-		req.body.phone = req.body.phone.replace('0', '+33');
-	}
+	req.body.phone = clearPhone(req.body.phone);
 
 	const client = await Client.findOne({ phone: req.body.phone, area: area._id });
 	if (!client) {
