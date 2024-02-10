@@ -3,7 +3,6 @@ import { Area } from '../../Models/area';
 import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
-import { createWriteStream } from 'fs';
 import * as csv from '@fast-csv/format';
 
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
@@ -39,9 +38,9 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
 	res.setHeader('Content-Type', 'text/csv');
 
-	const stream = createWriteStream('test.csv');
-	const csvStream = csv.format({ headers: true });
-	csvStream.pipe(stream);
+	const csvStream = csv.format({ headers: true, delimiter: ';' });
+	csvStream.pipe(res);
+
 	const numberOfClients = await Client.countDocuments(selector);
 	for (let i = 0; i < numberOfClients; i += 500) {
 		const clients = await Client.find(selector).limit(500).skip(i);
@@ -95,7 +94,6 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		});
 	}
 	csvStream.end();
-	stream.on('finish', () => {
-		res.end();
-	});
+	res.end();
+	log(`Exported ${numberOfClients} clients from ${ip}`, 'INFORMATION', 'exportClientCsv.ts');
 }
