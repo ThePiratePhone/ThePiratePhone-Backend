@@ -21,6 +21,7 @@ import joinCampaign from './router/caller/joinCampaign';
 import changePassword from './router/caller/changePassword';
 import createCallerByAdmin from './router/admin/createCallerByAdmin';
 import createCaller from './router/caller/createCaller';
+import exportClientCsv from './router/admin/exportClientCsv';
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.post('/stats/numberOfClients', numberOfClients);
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/numberOfCalls', numberOfCalls);
 
+router.post('/exportClientCsv', exportClientCsv);
 router.post('/changePassword', changePassword);
 router.post('/createCaller', createCaller);
 router.post('/joinCampaign', joinCampaign);
