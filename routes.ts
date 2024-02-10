@@ -22,31 +22,35 @@ import changePassword from './router/caller/changePassword';
 import createCallerByAdmin from './router/admin/createCallerByAdmin';
 import createCaller from './router/caller/createCaller';
 import exportClientCsv from './router/admin/exportClientCsv';
+import chnageCallerPassword from './router/admin/chanageCallerPassword';
 
 const router = Router();
-
+//stats
 router.post('/stats/callPerClient', callePerClient);
 router.post('/stats/numberOfClients', numberOfClients);
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/numberOfCalls', numberOfCalls);
-
+//admin
 router.post('/exportClientCsv', exportClientCsv);
-router.post('/changePassword', changePassword);
 router.post('/createCaller', createCaller);
-router.post('/joinCampaign', joinCampaign);
-router.post('/validatePhoneNumber', validatePhoneNumber);
 router.post('/listCallerCampaign', listCallerCampaign);
 router.post('/listCaller', listCaller);
 router.post('/listClientCampaign', listClientCampaign);
-router.post('/createClient', createClient);
-router.post('/endCall', endCall);
 router.post('/createCallerByAdmin', createCallerByAdmin);
 router.post('/createCampaign', createCampaign);
 router.post('/addClientCampaign', addClientCampaign);
 router.post('/addCallerCampaign', addCallerCampaign);
+router.post('/changeCallerPassword', chnageCallerPassword);
+//caller
+router.post('/changePassword', changePassword);
+router.post('/joinCampaign', joinCampaign);
+router.post('/validatePhoneNumber', validatePhoneNumber);
+router.post('/createClient', createClient);
+router.post('/endCall', endCall);
 router.post('/getProgress', getProgress);
 router.post('/getPhoneNumber', getPhoneNumber);
 router.post('/login', login);
+
 router.get('/getArea', getArea);
 
 export default router;

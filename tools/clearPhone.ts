@@ -1,9 +1,9 @@
 export default function clearPhone(phoneNumber: string) {
 	if (phoneNumber.startsWith('0')) {
-		return phoneNumber.replace('0', '+33');
+		phoneNumber = phoneNumber.replace('0', '+33');
 	}
-	if (!phoneNumber.includes(' ')) {
-		return phoneNumber.replace(' ', '');
+	if (phoneNumber.includes(' ')) {
+		phoneNumber = phoneNumber.replaceAll(' ', '');
 	}
 	return phoneNumber;
 }
