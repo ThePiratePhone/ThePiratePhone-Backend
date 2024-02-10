@@ -4,3 +4,4 @@ log/
 
 *.http
 *.env
+*.csv

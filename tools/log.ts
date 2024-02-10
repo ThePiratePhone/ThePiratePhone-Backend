@@ -50,8 +50,7 @@ export async function log(text: string, impact: WarningLevel = 'DEBUG', location
 			break;
 	}
 
-	const message = `(${date}) ${location ? '[' + location + ']' : ''}> ${coloredImpact} ${text}\n`;
-	console.log(message);
+	console.log(`(${date}) ${location ? '[' + location + ']' : ''}> ${coloredImpact} ${text}\n`);
 	// append log in file
-	fs.appendFile(logFilePath, message, err => {});
+	fs.appendFile(logFilePath, `(${date}) ${location ? '[' + location + ']' : ''}> ${text}\n`, err => {});
 }

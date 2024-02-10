@@ -17,7 +17,8 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		typeof req.body.pinCode != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.phoneNumber != 'string' ||
-		typeof req.body.satisfaction != 'number'
+		typeof req.body.satisfaction != 'number' ||
+		(req.body.comment && typeof req.body.comment != 'string')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', 'validatePhoneNumber.ts');
@@ -87,6 +88,9 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		clientCampaign.startCall = new Date();
 		clientCampaign.endCall = new Date();
 		clientCampaign.satisfaction = req.body.satisfaction;
+		if (req.body.comment) {
+			clientCampaign.comment = req.body.comment;
+		}
 	} else if (req.body.satisfaction == -2) {
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');

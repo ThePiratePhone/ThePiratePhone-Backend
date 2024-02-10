@@ -50,6 +50,10 @@ const ClientSchema = new mongoose.Schema({
 					min: -1,
 					max: 2,
 					required: false
+				},
+				comment: {
+					type: String,
+					required: false
 				}
 			}
 		]

@@ -16,7 +16,8 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		typeof req.body.pinCode != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.timeInCall != 'number' ||
-		typeof req.body.satisfaction != 'number'
+		typeof req.body.satisfaction != 'number' ||
+		(req.body.comment && typeof req.body.comment != 'string')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters`, 'ERROR', 'endCall.ts');
@@ -89,6 +90,9 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
 		clientCampaign.endCall = new Date();
 		clientCampaign.satisfaction = req.body.satisfaction;
+		if (req.body.comment) {
+			clientCampaign.comment = req.body.comment;
+		}
 	}
 	caller.curentCall = null;
 	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
