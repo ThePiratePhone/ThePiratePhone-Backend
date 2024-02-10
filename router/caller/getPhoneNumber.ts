@@ -30,8 +30,8 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 
 	const area = await Area.findOne({ _id: req.body.area });
 	if (!area) {
-		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting area from ${caller.name} (${ip})`, 'CRITICAL', 'getPhoneNumber.ts');
+		res.status(404).send({ message: 'area not found', OK: false });
+		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
@@ -90,7 +90,11 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		$or: [
 			{
 				area: area._id,
-				[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
+				[`data.${campaign._id}`]: {
+					$exists: true,
+					$not: { $size: 0 },
+					$expr: { $lte: [{ $size: `$data.${campaign._id}` }, 5] }
+				},
 				[`data.${campaign._id}`]: {
 					$elemMatch: {
 						status: 'not answered',
@@ -101,7 +105,11 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			},
 			{
 				area: area._id,
-				[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
+				[`data.${campaign._id}`]: {
+					$exists: true,
+					$not: { $size: 0 },
+					$expr: { $lte: [{ $size: `$data.${campaign._id}` }, 4] }
+				},
 				[`data.${campaign._id}`]: { $elemMatch: { status: 'not called' } },
 				_id: { $nin: campaign.trashUser }
 			}
