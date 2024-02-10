@@ -3,6 +3,8 @@ import { Area } from '../../Models/area';
 import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
+import { createWriteStream } from 'fs';
+import * as csv from '@fast-csv/format';
 
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -36,40 +38,64 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
 	res.setHeader('Content-Type', 'text/csv');
-	res.write(
-		'name;phone;institution;promotion;data.0.status;data.0.caller;data.0.scriptVersion;data.0.startCall;data.0.endCall;data.0.satisfaction;data.1.status;data.1.caller;data.1.scriptVersion;data.1.startCall;data.1.endCall;data.1.satisfaction;data.2.status;data.2.caller;data.2.scriptVersion;data.2.startCall;data.2.endCall;data.2.satisfaction;data.3.status;data.3.caller;data.3.scriptVersion;data.3.startCall;data.3.endCall;data.3.satisfaction\n'
-	);
 
+	const stream = createWriteStream('test.csv');
+	const csvStream = csv.format({ headers: true });
+	csvStream.pipe(stream);
 	const numberOfClients = await Client.countDocuments(selector);
-	for (let i = 0; i < numberOfClients; i += 1000) {
-		const clients = await Client.find(selector).limit(1000).skip(i);
+	for (let i = 0; i < numberOfClients; i += 500) {
+		const clients = await Client.find(selector).limit(500).skip(i);
+		if (!clients) {
+			return;
+		}
 		clients.forEach(client => {
 			if (req.body.curentCamaign) {
-				const data = client.data.get(campaign._id);
-				if (!data) return;
-				res.write(`${client.name};${client.phone};${client.institution ?? ''};${client.promotion ?? ''};`);
-				for (let j = 0; j < 4; j++) {
-					if (data.length > j) {
-						res.write(
-							`${data[j].status ?? ''};${data[j].caller ?? ''};${data[j].scriptVersion ?? ''};${
-								data[j].startCall ?? ''
-							};${data[j].endCall ?? ''};${data[j].satisfaction ?? ''};`
-						);
-					} else {
-						res.write(';;;;;;');
-					}
-				}
-				res.write('\n');
+				csvStream.write({
+					name: client.name,
+					phone: client.phone,
+					institution: client.institution,
+					promotion: client.promotion,
+					'data1.status': client?.data.get(campaign._id)?.[0]?.status ?? '',
+					'data2.status': client?.data.get(campaign._id)?.[1]?.status ?? '',
+					'data3.status': client?.data.get(campaign._id)?.[2]?.status ?? '',
+					'data4.status': client?.data.get(campaign._id)?.[3]?.status ?? '',
+					'data1.caller': client?.data.get(campaign._id)?.[0]?.caller ?? '',
+					'data2.caller': client?.data.get(campaign._id)?.[1]?.caller ?? '',
+					'data3.caller': client?.data.get(campaign._id)?.[2]?.caller ?? '',
+					'data4.caller': client?.data.get(campaign._id)?.[3]?.caller ?? '',
+					'data1.scriptVersion': client?.data.get(campaign._id)?.[0]?.scriptVersion ?? '',
+					'data2.scriptVersion': client?.data.get(campaign._id)?.[1]?.scriptVersion ?? '',
+					'data3.scriptVersion': client?.data.get(campaign._id)?.[2]?.scriptVersion ?? '',
+					'data4.scriptVersion': client?.data.get(campaign._id)?.[3]?.scriptVersion ?? '',
+					'data1.startCall': client?.data.get(campaign._id)?.[0]?.startCall ?? '',
+					'data2.startCall': client?.data.get(campaign._id)?.[1]?.startCall ?? '',
+					'data3.startCall': client?.data.get(campaign._id)?.[2]?.startCall ?? '',
+					'data4.startCall': client?.data.get(campaign._id)?.[3]?.startCall ?? '',
+					'data1.endCall': client?.data.get(campaign._id)?.[0]?.endCall ?? '',
+					'data2.endCall': client?.data.get(campaign._id)?.[1]?.endCall ?? '',
+					'data3.endCall': client?.data.get(campaign._id)?.[2]?.endCall ?? '',
+					'data4.endCall': client?.data.get(campaign._id)?.[3]?.endCall ?? '',
+					'data1.satisfaction': client?.data.get(campaign._id)?.[0]?.satisfaction ?? '',
+					'data2.satisfaction': client?.data.get(campaign._id)?.[1]?.satisfaction ?? '',
+					'data3.satisfaction': client?.data.get(campaign._id)?.[2]?.satisfaction ?? '',
+					'data4.satisfaction': client?.data.get(campaign._id)?.[3]?.satisfaction ?? '',
+					'data1.comment': client?.data.get(campaign._id)?.[0]?.comment ?? '',
+					'data2.comment': client?.data.get(campaign._id)?.[1]?.comment ?? '',
+					'data3.comment': client?.data.get(campaign._id)?.[2]?.comment ?? '',
+					'data4.comment': client?.data.get(campaign._id)?.[3]?.comment ?? ''
+				});
 			} else {
-				res.write(`${client.name};${client.phone};${client.institution ?? ''};${client.promotion ?? ''}\n`);
+				csvStream.write({
+					name: client.name,
+					phone: client.phone,
+					institution: client.institution,
+					promotion: client.promotion
+				});
 			}
 		});
 	}
-	res.end();
-	log(
-		`Exported ${numberOfClients} clients from ${ip} ` +
-			(req.body.curentCamaign ? `for campaign ${campaign.name}(${area.name})` : ''),
-		'INFORMATION',
-		'exportClientCsv.ts'
-	);
+	csvStream.end();
+	stream.on('finish', () => {
+		res.end();
+	});
 }
