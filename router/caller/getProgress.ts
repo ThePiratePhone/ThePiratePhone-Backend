@@ -51,11 +51,11 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		_id: { $nin: campaign.trashUser }
 	});
 
-	//overflow ???
+	//invalid if more of 20 000
 	const clientInThisCampaign = await Client.find({
 		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
 		_id: { $nin: campaign.trashUser }
-	});
+	}).limit(20_000);
 
 	const callInThisCampaign = clientInThisCampaign.reduce((acc, client) => {
 		acc += client.data.get(campaign._id)?.length ?? 0;
@@ -65,6 +65,16 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	const callMake = clientInThisCampaign.filter(
 		call => call.data[campaign._id]?.caller.toString() ?? '' == caller._id.toString()
 	);
+
+	const convertion = callMake.reduce((acc, call) => {
+		acc += call.data[campaign._id].status == 'called' && call.data[campaign._id].satisfaction == 1 ? 1 : 0;
+		return acc;
+	}, 0);
+
+	const totalConvertion = clientInThisCampaign.reduce((acc, call) => {
+		acc += call.data[campaign._id].status == 'called' && call.data[campaign._id].satisfaction == 1 ? 1 : 0;
+		return acc;
+	}, 0);
 
 	const totalTime = callMake.reduce((acc, call) => {
 		acc += (call.data[campaign._id].endCall - call.data[campaign._id].startCall) / 1000;
@@ -76,10 +86,12 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		OK: true,
 		data: {
 			count: count,
-			callerCall: callMake.length,
+			callerUniqueCall: callMake.length,
 			callInThisCampaign: callInThisCampaign,
 			total: clientInThisCampaign.length,
-			totalTime: totalTime
+			totalTime: totalTime,
+			convertion: convertion,
+			totalConvertion: totalConvertion
 		}
 	});
 	log(`Get progress from: ${caller.name} (${ip})`, 'INFORMATION', 'getProgress.ts');
