@@ -23,7 +23,9 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const campaign = await Campaign.find({ Area: area._id });
+	const campaign = await Campaign.find({ Area: area._id })
+		.skip(req.body.skip ? req.body.skip : 0)
+		.limit(req.body.limit ? req.body.limit : 50);
 	if (!campaign) {
 		res.status(401).send({ message: 'no campaign', OK: false });
 		log(`no campaign from ${area.name} (${ip})`, 'WARNING', 'listCampaign.ts');
