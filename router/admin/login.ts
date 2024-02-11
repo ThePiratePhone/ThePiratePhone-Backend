@@ -11,7 +11,7 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 		return;
 	}
 
-	if (!Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode })) {
+	if (!(await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode }))) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', 'exportCallerCsv.ts');
 		return;
