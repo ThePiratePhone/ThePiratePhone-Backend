@@ -20,50 +20,45 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		(req.body.comment && typeof req.body.comment != 'string')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters`, 'ERROR', 'endCall.ts');
+		log(`Missing parameters`, 'WARNING', 'endCall.ts');
 		return;
 	}
 
 	if (isNaN(req.body.timeInCall)) {
 		res.status(400).send({ message: 'timeInCall is not a number', OK: false });
-		log(`timeInCall is not a number from ` + ip, 'ERROR', 'endCall.ts');
+		log(`timeInCall is not a number from ` + ip, 'WARNING', 'endCall.ts');
 		return;
 	}
 
-	if (
-		isNaN(req.body.satisfaction) ||
-		[-2, -1, 0, 1, 2].includes(req.body.satisfaction) ||
-		req.body.satisfaction < -2 ||
-		req.body.satisfaction > 2
-	) {
+	if (isNaN(req.body.satisfaction) || ![-2, -1, 0, 1, 2].includes(req.body.satisfaction)) {
 		res.status(400).send({ message: 'satisfaction is not a valid number', OK: false });
-		log(`satisfaction is not a valid number from ` + ip, 'ERROR', 'endCall.ts');
+		log(`satisfaction is not a valid number from ` + ip, 'WARNING', 'endCall.ts');
 		return;
 	}
 
 	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from ` + ip, 'ERROR', 'endCall.ts');
+		log(`Invalid credential from ` + ip, 'WARNING', 'endCall.ts');
 		return;
 	}
 	if (!caller.curentCall || !caller.curentCall.client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
-		log(`Not in a call from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
+		log(`Not in a call from ${caller.name} (${ip})`, 'WARNING', 'endCall.ts');
 		return;
 	}
 
 	const client = await Client.findOne({ _id: caller.curentCall.client.toString() });
 	if (!client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
-		log(`Not in a call from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
+		log(`Not in a call from ${caller.name} (${ip})`, 'WARNING', 'endCall.ts');
 		return;
 	}
 
 	const curentCampaign: any = await getCurentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(404).send({ message: 'no actual Camaing', OK: false });
-		log(`no actual Camaing from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
+		log(`no actual Camaing from ${caller.name} (${ip})`, 'WARNING', 'endCall.ts');
 		return;
 	}
 	let nbCall = client.data.get(curentCampaign._id.toString())?.length;
