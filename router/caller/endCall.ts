@@ -32,7 +32,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 
 	if (
 		isNaN(req.body.satisfaction) ||
-		Number.isInteger(req.body.satisfaction) ||
+		[-2, -1, 0, 1, 2].includes(req.body.satisfaction) ||
 		req.body.satisfaction < -2 ||
 		req.body.satisfaction > 2
 	) {

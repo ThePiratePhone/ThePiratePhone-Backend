@@ -51,39 +51,26 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		}
 		clients.forEach(client => {
 			if (req.body.curentCamaign) {
+				const csvData = {};
+				for (let i = 1; i <= 4; i++) {
+					const dataKeyPrefix = `data${i}`;
+					csvData[`${dataKeyPrefix}.status`] = client?.data.get(campaign._id)?.[i - 1]?.status ?? '';
+					csvData[`${dataKeyPrefix}.caller`] = client?.data.get(campaign._id)?.[i - 1]?.caller ?? '';
+					csvData[`${dataKeyPrefix}.scriptVersion`] =
+						client?.data.get(campaign._id)?.[i - 1]?.scriptVersion ?? '';
+					csvData[`${dataKeyPrefix}.startCall`] = client?.data.get(campaign._id)?.[i - 1]?.startCall ?? '';
+					csvData[`${dataKeyPrefix}.endCall`] = client?.data.get(campaign._id)?.[i - 1]?.endCall ?? '';
+					csvData[`${dataKeyPrefix}.satisfaction`] =
+						client?.data.get(campaign._id)?.[i - 1]?.satisfaction ?? '';
+					csvData[`${dataKeyPrefix}.comment`] = client?.data.get(campaign._id)?.[i - 1]?.comment ?? '';
+				}
+
 				csvStream.write({
 					name: client.name,
 					phone: client.phone,
 					institution: client.institution,
 					promotion: client.promotion,
-					'data1.status': client?.data.get(campaign._id)?.[0]?.status ?? '',
-					'data2.status': client?.data.get(campaign._id)?.[1]?.status ?? '',
-					'data3.status': client?.data.get(campaign._id)?.[2]?.status ?? '',
-					'data4.status': client?.data.get(campaign._id)?.[3]?.status ?? '',
-					'data1.caller': client?.data.get(campaign._id)?.[0]?.caller ?? '',
-					'data2.caller': client?.data.get(campaign._id)?.[1]?.caller ?? '',
-					'data3.caller': client?.data.get(campaign._id)?.[2]?.caller ?? '',
-					'data4.caller': client?.data.get(campaign._id)?.[3]?.caller ?? '',
-					'data1.scriptVersion': client?.data.get(campaign._id)?.[0]?.scriptVersion ?? '',
-					'data2.scriptVersion': client?.data.get(campaign._id)?.[1]?.scriptVersion ?? '',
-					'data3.scriptVersion': client?.data.get(campaign._id)?.[2]?.scriptVersion ?? '',
-					'data4.scriptVersion': client?.data.get(campaign._id)?.[3]?.scriptVersion ?? '',
-					'data1.startCall': client?.data.get(campaign._id)?.[0]?.startCall ?? '',
-					'data2.startCall': client?.data.get(campaign._id)?.[1]?.startCall ?? '',
-					'data3.startCall': client?.data.get(campaign._id)?.[2]?.startCall ?? '',
-					'data4.startCall': client?.data.get(campaign._id)?.[3]?.startCall ?? '',
-					'data1.endCall': client?.data.get(campaign._id)?.[0]?.endCall ?? '',
-					'data2.endCall': client?.data.get(campaign._id)?.[1]?.endCall ?? '',
-					'data3.endCall': client?.data.get(campaign._id)?.[2]?.endCall ?? '',
-					'data4.endCall': client?.data.get(campaign._id)?.[3]?.endCall ?? '',
-					'data1.satisfaction': client?.data.get(campaign._id)?.[0]?.satisfaction ?? '',
-					'data2.satisfaction': client?.data.get(campaign._id)?.[1]?.satisfaction ?? '',
-					'data3.satisfaction': client?.data.get(campaign._id)?.[2]?.satisfaction ?? '',
-					'data4.satisfaction': client?.data.get(campaign._id)?.[3]?.satisfaction ?? '',
-					'data1.comment': client?.data.get(campaign._id)?.[0]?.comment ?? '',
-					'data2.comment': client?.data.get(campaign._id)?.[1]?.comment ?? '',
-					'data3.comment': client?.data.get(campaign._id)?.[2]?.comment ?? '',
-					'data4.comment': client?.data.get(campaign._id)?.[3]?.comment ?? ''
+					...csvData
 				});
 			} else {
 				csvStream.write({
