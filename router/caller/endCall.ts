@@ -30,7 +30,12 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (isNaN(req.body.satisfaction) || req.body.satisfaction < -2 || req.body.satisfaction > 2) {
+	if (
+		isNaN(req.body.satisfaction) ||
+		Number.isInteger(req.body.satisfaction) ||
+		req.body.satisfaction < -2 ||
+		req.body.satisfaction > 2
+	) {
 		res.status(400).send({ message: 'satisfaction is not a valid number', OK: false });
 		log(`satisfaction is not a valid number from ` + ip, 'ERROR', 'endCall.ts');
 		return;

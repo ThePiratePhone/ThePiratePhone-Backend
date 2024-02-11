@@ -9,6 +9,14 @@ import { log } from '../../tools/log';
 import { ObjectId } from 'mongodb';
 import { Caller } from '../../Models/Caller';
 
+type data = {
+	status: 'called' | 'not called' | 'not answered' | 'inprogress';
+	caller: ObjectId;
+	startCall: Date;
+	endCall: Date;
+	satisfaction: -1 | 0 | 1 | 2;
+};
+
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -58,31 +66,43 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	}).limit(20_000);
 
 	const callInThisCampaign = clientInThisCampaign.reduce((acc, client) => {
-		acc += client.data.get(campaign._id)?.length ?? 0;
+		const data = client.data.get(campaign._id);
+		if (data && data.length == 1) {
+			if (data[0].status != 'not called') acc += data.length;
+		} else {
+			acc += client.data.get(campaign._id)?.length ?? 0;
+		}
 		return acc;
 	}, 0);
 
-	const callMake = clientInThisCampaign.filter(
-		call => call.data[campaign._id]?.caller.toString() ?? '' == caller._id.toString()
-	);
+	const callMake: Array<data> = [];
+	clientInThisCampaign.forEach(client => {
+		client.data.get(campaign._id)?.forEach(call => {
+			if (call?.caller?.toString() ?? '' == caller._id.toString()) {
+				callMake.push({
+					status: call.status,
+					caller: call.caller ?? new ObjectId(),
+					startCall: call.startCall ?? new Date(),
+					endCall: call.endCall ?? new Date(),
+					satisfaction: (call.satisfaction as -1 | 0 | 1 | 2) ?? 0
+				});
+			}
+		});
+	});
 
 	const convertion = callMake.reduce((acc, call) => {
-		acc += call.data[campaign._id].status == 'called' && call.data[campaign._id].satisfaction == 2 ? 1 : 0;
+		acc += call.status == 'called' && call.satisfaction == 2 ? 1 : 0;
 		return acc;
 	}, 0);
 
 	const totalConvertion = clientInThisCampaign.reduce((acc, call) => {
-		const length = call.data[campaign._id]?.length ?? 0;
-		acc +=
-			call.data.get(campaign._id)?.[length]?.status == 'called' &&
-			call.data.get(campaign._id)?.[length]?.satisfaction == 2
-				? 1
-				: 0;
+		const data = call.data.get(campaign._id);
+		if (data) acc += data[data.length - 1]?.status == 'called' && data[data.length - 1]?.satisfaction == 2 ? 1 : 0;
 		return acc;
 	}, 0);
 
-	const totalTime = callMake.reduce((acc, call) => {
-		acc += (call.data[campaign._id].endCall - call.data[campaign._id].startCall) / 1000;
+	const Time = callMake.reduce((acc, call) => {
+		acc += (call.endCall.getTime() - call.startCall.getTime()) / 1000;
 		return acc;
 	}, 0);
 
@@ -94,7 +114,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			callerUniqueCall: callMake.length,
 			callInThisCampaign: callInThisCampaign,
 			total: clientInThisCampaign.length,
-			totalTime: totalTime,
+			Time: Time,
 			convertion: convertion,
 			totalConvertion: totalConvertion
 		}
