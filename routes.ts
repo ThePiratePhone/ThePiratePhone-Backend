@@ -38,7 +38,6 @@ router.post('/admin/changePassword', changePasswordAdmin);
 router.post('/admin/login', loginAdmin);
 router.post('/admin/exportCallerCsv', exportCallerCsv);
 router.post('/admin/exportClientCsv', exportClientCsv);
-router.post('/admin/createCaller', createCaller);
 router.post('/admin/listCallerCampaign', listCallerCampaign);
 router.post('/admin/listCaller', listCaller);
 router.post('/admin/Campaign', listCampaign);
@@ -49,6 +48,7 @@ router.post('/admin/addClientCampaign', addClientCampaign);
 router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/changeCallerPassword', chnageCallerPassword);
 //caller/
+router.post('/createCaller', createCaller);
 router.post('/changePassword', changePassword);
 router.post('/joinCampaign', joinCampaign);
 router.post('/validatePhoneNumber', validatePhoneNumber);
