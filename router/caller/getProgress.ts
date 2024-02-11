@@ -67,12 +67,17 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	);
 
 	const convertion = callMake.reduce((acc, call) => {
-		acc += call.data[campaign._id].status == 'called' && call.data[campaign._id].satisfaction == 1 ? 1 : 0;
+		acc += call.data[campaign._id].status == 'called' && call.data[campaign._id].satisfaction == 2 ? 1 : 0;
 		return acc;
 	}, 0);
 
 	const totalConvertion = clientInThisCampaign.reduce((acc, call) => {
-		acc += call.data[campaign._id].status == 'called' && call.data[campaign._id].satisfaction == 1 ? 1 : 0;
+		const length = call.data[campaign._id]?.length ?? 0;
+		acc +=
+			call.data.get(campaign._id)?.[length]?.status == 'called' &&
+			call.data.get(campaign._id)?.[length]?.satisfaction == 2
+				? 1
+				: 0;
 		return acc;
 	}, 0);
 
