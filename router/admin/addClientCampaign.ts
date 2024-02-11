@@ -5,6 +5,7 @@ import { Client } from '../../Models/Client';
 import { Campaign } from '../../Models/Campaign';
 import mongoose from 'mongoose';
 import clearPhone from '../../tools/clearPhone';
+import { ObjectId } from 'mongodb';
 
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -12,14 +13,15 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		!req.body ||
 		typeof req.body.campaign != 'string' ||
 		typeof req.body.phone != 'string' ||
-		typeof req.body.adminCode != 'string'
+		typeof req.body.adminCode != 'string' ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'addClientCampaign.ts');
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', 'addClientCampaign.ts');

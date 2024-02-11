@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Campaign } from '../../Models/Campaign';
 import { Area } from '../../Models/area';
 import { log } from '../../tools/log';
+import { ObjectId } from 'mongodb';
 
 export default async function createCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -12,14 +13,15 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		typeof req.body.dateStart != 'string' ||
 		typeof req.body.dateEnd != 'string' ||
 		typeof req.body.adminCode != 'string' ||
-		typeof req.body.password != 'string'
+		typeof req.body.password != 'string' ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'CreateCampaign.ts');
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', 'CreateCampaign.ts');

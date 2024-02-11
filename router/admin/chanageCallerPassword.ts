@@ -4,6 +4,7 @@ import phoneNumberCheck from '../../tools/phoneNumberCheck';
 import { Caller } from '../../Models/Caller';
 import { Area } from '../../Models/area';
 import clearPhone from '../../tools/clearPhone';
+import { ObjectId } from 'mongodb';
 
 export default async function chnageCallerPassword(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -11,14 +12,15 @@ export default async function chnageCallerPassword(req: Request<any>, res: Respo
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
 		typeof req.body.newPassword != 'string' ||
-		typeof req.body.Callerphone != 'string'
+		typeof req.body.Callerphone != 'string' ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'addClientCampaign.ts');
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', 'addClientCampaign.ts');

@@ -4,6 +4,7 @@ import { Area } from '../../Models/area';
 import { Caller } from '../../Models/Caller';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
 import clearPhone from '../../tools/clearPhone';
+import { ObjectId } from 'mongodb';
 
 export default async function createCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -12,7 +13,8 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		typeof req.body.name != 'string' ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		typeof req.body.adminCode != 'string'
+		typeof req.body.adminCode != 'string' ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'createCaller.ts');
@@ -25,7 +27,7 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', 'createCaller.ts');

@@ -25,6 +25,7 @@ import exportClientCsv from './router/admin/exportClientCsv';
 import chnageCallerPassword from './router/admin/chanageCallerPassword';
 import exportCallerCsv from './router/admin/exportCallerCsv';
 import loginAdmin from './router/admin/login';
+import listCampaign from './router/admin/listCampaign';
 
 const router = Router();
 //stats
@@ -39,6 +40,7 @@ router.post('/admin/exportClientCsv', exportClientCsv);
 router.post('/admin/createCaller', createCaller);
 router.post('/admin/listCallerCampaign', listCallerCampaign);
 router.post('/admin/listCaller', listCaller);
+router.post('/admin/Campaign', listCampaign);
 router.post('/admin/listClientCampaign', listClientCampaign);
 router.post('/admin/createCaller', createCallerByAdmin);
 router.post('/admin/createCampaign', createCampaign);

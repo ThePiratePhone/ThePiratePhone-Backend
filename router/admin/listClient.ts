@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { log } from '../../tools/log';
 import { Area } from '../../Models/area';
 import { Client } from '../../Models/Client';
+import { ObjectId } from 'mongodb';
 
 export default async function listClient(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -9,14 +10,15 @@ export default async function listClient(req: Request<any>, res: Response<any>) 
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
 		(req.body.skip && typeof req.body.skip != 'number') ||
-		(req.body.limit && typeof req.body.limit != 'number')
+		(req.body.limit && typeof req.body.limit != 'number') ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', 'listClient.ts');
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', 'listClient.ts');

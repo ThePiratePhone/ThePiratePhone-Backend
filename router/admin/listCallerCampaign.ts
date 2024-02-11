@@ -12,14 +12,15 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		typeof req.body.adminCode != 'string' ||
 		!ObjectId.isValid(req.body.CampaignId) ||
 		(req.body.skip && typeof req.body.skip != 'number') ||
-		(req.body.limit && typeof req.body.limit != 'number')
+		(req.body.limit && typeof req.body.limit != 'number') ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', 'listCallerCampaign.ts');
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', 'listCallerCampaign.ts');
