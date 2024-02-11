@@ -31,10 +31,14 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	const campaignAvailable = await Campaign.find({
 		$or: [
 			{
-				area: caller.area
+				area: caller.area,
+				dateStart: { $lte: new Date() },
+				dateEnd: { $gte: new Date() }
 			},
 			{
-				callerList: caller._id
+				callerList: caller._id,
+				dateStart: { $lte: new Date() },
+				dateEnd: { $gte: new Date() }
 			}
 		]
 	});
