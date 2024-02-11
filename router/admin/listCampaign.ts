@@ -25,6 +25,7 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
+	const numberOfCampaign = await Campaign.countDocuments({ Area: area._id });
 	const campaign = await Campaign.find({ Area: area._id })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
@@ -34,5 +35,5 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	res.status(200).send({ message: 'OK', OK: true, data: { campaign: campaign } });
+	res.status(200).send({ message: 'OK', OK: true, data: { campaign: campaign, numberOfCampaign: numberOfCampaign } });
 }

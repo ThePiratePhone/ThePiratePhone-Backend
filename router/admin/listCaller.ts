@@ -25,6 +25,8 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
+	const numberOfCallers = await Caller.countDocuments({ area: area._id });
+
 	const callers = await Caller.find({ area: area._id })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
@@ -34,6 +36,6 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	res.status(200).send({ message: 'OK', OK: true, data: { callers: callers } });
+	res.status(200).send({ message: 'OK', OK: true, data: { callers: callers, numberOfCallers: numberOfCallers } });
 	log(`caller list send to ${area.name} (${ip})`, 'INFORMATION', 'listCaller.ts');
 }

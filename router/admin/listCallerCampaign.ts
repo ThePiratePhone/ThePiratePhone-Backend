@@ -34,6 +34,8 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
+	const numberOfCallers = await Caller.countDocuments({ _id: { $in: campaign.callerList } });
+
 	const callers = await Caller.find({ _id: { $in: campaign.callerList } })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
@@ -43,5 +45,5 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
-	res.status(200).send({ message: 'OK', OK: true, data: { callers: callers } });
+	res.status(200).send({ message: 'OK', OK: true, data: { callers: callers, numberOfCallers: numberOfCallers } });
 }

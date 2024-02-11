@@ -52,5 +52,5 @@ export async function log(text: string, impact: WarningLevel = 'DEBUG', location
 
 	console.log(`(${date}) ${location ? '[' + location + ']' : ''}> ${coloredImpact} ${text}\n`);
 	// append log in file
-	fs.appendFile(logFilePath, `(${date}) ${location ? '[' + location + ']' : ''}> ${text}\n`, err => {});
+	fs.appendFile(logFilePath, `(${date}) ${location ? '[' + location + ']' : ''}> ${impact} ${text}\n`, err => {});
 }

@@ -24,9 +24,11 @@ export default async function listClient(req: Request<any>, res: Response<any>) 
 		log(`Wrong admin code from ` + ip, 'WARNING', 'listClient.ts');
 		return;
 	}
+
+	const numberOfClients = await Client.countDocuments({ area: area._id });
 	const users = await Client.find({ area: area._id })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
-	res.status(200).send({ message: 'OK', OK: true, data: { users: users } });
+	res.status(200).send({ message: 'OK', OK: true, data: { users: users, numberOfClients: numberOfClients } });
 	log(`client list send to ${area.name} (${ip})`, 'INFORMATION', 'listClient.ts');
 }
