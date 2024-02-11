@@ -95,5 +95,5 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	}
 	csvStream.end();
 	res.end();
-	log(`Exported ${numberOfClients} clients from ${ip}`, 'INFORMATION', 'exportClientCsv.ts');
+	log(`Exported ${numberOfClients} clients from ${ip} (${area.name})`, 'INFORMATION', 'exportClientCsv.ts');
 }

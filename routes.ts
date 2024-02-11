@@ -33,18 +33,18 @@ router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/numberOfCalls', numberOfCalls);
 //admin
 
-router.post('/exportCallerCsv', exportCallerCsv);
-router.post('/exportClientCsv', exportClientCsv);
-router.post('/createCaller', createCaller);
-router.post('/listCallerCampaign', listCallerCampaign);
-router.post('/listCaller', listCaller);
-router.post('/listClientCampaign', listClientCampaign);
-router.post('/createCallerByAdmin', createCallerByAdmin);
-router.post('/createCampaign', createCampaign);
-router.post('/addClientCampaign', addClientCampaign);
-router.post('/addCallerCampaign', addCallerCampaign);
-router.post('/changeCallerPassword', chnageCallerPassword);
-//caller
+router.post('/admin/exportCallerCsv', exportCallerCsv);
+router.post('/admin/exportClientCsv', exportClientCsv);
+router.post('/admin/createCaller', createCaller);
+router.post('/admin/listCallerCampaign', listCallerCampaign);
+router.post('/admin/listCaller', listCaller);
+router.post('/admin/listClientCampaign', listClientCampaign);
+router.post('/admin/createCaller', createCallerByAdmin);
+router.post('/admin/createCampaign', createCampaign);
+router.post('/admin/addClientCampaign', addClientCampaign);
+router.post('/admin/addCallerCampaign', addCallerCampaign);
+router.post('/admin/changeCallerPassword', chnageCallerPassword);
+//caller/
 router.post('/changePassword', changePassword);
 router.post('/joinCampaign', joinCampaign);
 router.post('/validatePhoneNumber', validatePhoneNumber);

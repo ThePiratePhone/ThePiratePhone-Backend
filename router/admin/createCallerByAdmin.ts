@@ -5,7 +5,7 @@ import { Caller } from '../../Models/Caller';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
 import clearPhone from '../../tools/clearPhone';
 
-export default async function createCallerByAdmin(req: Request<any>, res: Response<any>) {
+export default async function createCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
@@ -15,20 +15,20 @@ export default async function createCallerByAdmin(req: Request<any>, res: Respon
 		typeof req.body.adminCode != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'createCallerByAdmin.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ` + ip, 'WARNING', 'createCallerByAdmin.ts');
+		log(`Invalid pin code from: ` + ip, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ` + ip, 'WARNING', 'createCallerByAdmin.ts');
+		log(`Wrong admin code from ` + ip, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
@@ -36,13 +36,13 @@ export default async function createCallerByAdmin(req: Request<any>, res: Respon
 
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from ${area.name} (${ip})`, 'WARNING', 'createCallerByAdmin.ts');
+		log(`Wrong phone number from ${area.name} (${ip})`, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
 	if ((await Caller.findOne({ phone: req.body.phone })) || (await Caller.findOne({ name: req.body.name }))) {
 		res.status(400).send({ message: 'caller already exist', OK: false });
-		log(`caller already exist from ${area.name} (${ip})`, 'WARNING', 'createCallerByAdmin.ts');
+		log(`caller already exist from ${area.name} (${ip})`, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
@@ -56,9 +56,9 @@ export default async function createCallerByAdmin(req: Request<any>, res: Respon
 	try {
 		await caller.save();
 		res.status(200).send({ message: 'caller ' + caller.name + ' created', OK: true });
-		log(`caller ${caller.name} created from ${area.name} (${ip})`, 'INFORMATION', 'createCallerByAdmin.ts');
+		log(`caller ${caller.name} created from ${area.name} (${ip})`, 'INFORMATION', 'createCaller.ts');
 	} catch (error: any) {
 		res.status(500).send({ message: 'Internal server error', OK: false });
-		log(`Internal server error: from ${area.name} (${ip})` + error.message, 'ERROR', 'createCallerByAdmin.ts');
+		log(`Internal server error: from ${area.name} (${ip})` + error.message, 'ERROR', 'createCaller.ts');
 	}
 }

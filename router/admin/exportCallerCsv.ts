@@ -32,7 +32,8 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 			log(`No campaign in progress from ${ip}`, 'WARNING', 'exportCallerCsv.ts');
 			return;
 		}
-		selector = { _id: { $in: campaign.callerList } };
+		console.log(campaign.callerList);
+		selector = { $or: [{ _id: { $in: campaign.callerList } }, { area: area._id }] };
 	}
 
 	const csvStream = csv.format({ headers: true, delimiter: ';' });
@@ -42,8 +43,8 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 	res.setHeader('Content-Type', 'text/csv');
 
 	const numberOfCaller = await Caller.countDocuments(selector);
-	for (let i = 0; i < numberOfCaller; i += 1000) {
-		const callers = await Caller.find(selector).limit(1000).skip(i);
+	for (let i = 0; i < numberOfCaller; i += 500) {
+		const callers = await Caller.find(selector).limit(500).skip(i);
 		callers.forEach(caller => {
 			csvStream.write({
 				name: caller.name,
@@ -54,5 +55,5 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 	}
 	csvStream.end();
 	res.end();
-	log(`Exported ${numberOfCaller} callers from ${ip}`, 'INFORMATION', 'exportCallerCsv.ts');
+	log(`Exported ${numberOfCaller} callers from ${ip} (${area.name})`, 'INFORMATION', 'exportCallerCsv.ts');
 }
