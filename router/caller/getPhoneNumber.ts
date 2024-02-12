@@ -105,18 +105,11 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				dataSize: { $lte: 4 }
 			}
 		},
-		{
-			$unset: 'lastElement'
-		},
-		{
-			$unset: 'dataSize'
-		},
-		{
-			$limit: 1
-		}
+		{ $unset: 'lastElement' },
+		{ $unset: 'dataSize' },
+		{ $limit: 1 }
 	]);
 
-	console.log(client);
 	if (!client || client.length == 0) {
 		res.status(400).send({ message: 'No client available', OK: false });
 		log(`No client available from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
