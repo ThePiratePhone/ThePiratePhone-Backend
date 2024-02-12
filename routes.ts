@@ -27,6 +27,7 @@ import exportCallerCsv from './router/admin/exportCallerCsv';
 import loginAdmin from './router/admin/login';
 import listCampaign from './router/admin/listCampaign';
 import changePasswordAdmin from './router/admin/changePassword';
+import giveUp from './router/caller/giveUp';
 const router = Router();
 //stats
 router.post('/stats/callPerClient', callePerClient);
@@ -48,6 +49,7 @@ router.post('/admin/addClientCampaign', addClientCampaign);
 router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/changeCallerPassword', chnageCallerPassword);
 //caller/
+router.post('/giveUp', giveUp);
 router.post('/createCaller', createCaller);
 router.post('/changePassword', changePassword);
 router.post('/joinCampaign', joinCampaign);

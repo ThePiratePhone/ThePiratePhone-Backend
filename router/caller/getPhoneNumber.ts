@@ -86,57 +86,68 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	//find first client with status not called
 	const threeHoursAgo = new Date();
 	threeHoursAgo.setHours(threeHoursAgo.getHours() - 3);
-	let client = await Client.findOne({
-		$or: [
-			{
-				area: area._id,
-				[`data.${campaign._id}`]: {
-					$exists: true,
-					$not: { $size: 0 },
-					$expr: { $lte: [{ $size: `$data.${campaign._id}` }, 5] }
-				},
-				[`data.${campaign._id}`]: {
-					$elemMatch: {
-						status: 'not answered',
-						endCall: { $lte: new Date(Date.now() - 10_800_000) }
-					}
-				},
-				_id: { $nin: campaign.trashUser }
-			},
-			{
-				area: area._id,
-				[`data.${campaign._id}`]: {
-					$exists: true,
-					$not: { $size: 0 },
-					$expr: { $lte: [{ $size: `$data.${campaign._id}` }, 4] }
-				},
-				[`data.${campaign._id}`]: { $elemMatch: { status: 'not called' } },
-				_id: { $nin: campaign.trashUser }
+	let client: any = await Client.aggregate([
+		{
+			$addFields: {
+				lastElement: { $arrayElemAt: ['$data.' + campaign._id, -1] },
+				dataSize: { $size: '$data.' + campaign._id }
 			}
-		]
-	});
-	if (!client) {
+		},
+		{
+			$match: {
+				$or: [
+					{
+						'lastElement.status': 'not answered',
+						'lastElement.endCall': { $lte: new Date(Date.now() - 10_800_000) }
+					},
+					{ 'lastElement.status': 'not called' }
+				],
+				dataSize: { $lte: 4 }
+			}
+		},
+		{
+			$unset: 'lastElement'
+		},
+		{
+			$unset: 'dataSize'
+		},
+		{
+			$limit: 1
+		}
+	]);
+
+	console.log(client);
+	if (!client || client.length == 0) {
 		res.status(400).send({ message: 'No client available', OK: false });
 		log(`No client available from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	} else {
-		const clientCampaign = client.data.get(campaign._id);
+		const clientCampaign = client[0].data[campaign._id];
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
 			log(`Error while getting client campaign`, 'WARNING', 'getPhoneNumber.ts');
 			return;
 		}
 
-		const last = clientCampaign.length - 1;
-		caller.curentCall = { client: client._id, campaign: campaign._id };
-		clientCampaign[last].status = 'inprogress';
-		clientCampaign[last].caller = caller._id;
-		clientCampaign[last].scriptVersion = campaign.script.length - 1;
-		await Promise.all([caller.save(), client.save()]);
+		caller.curentCall = { client: client[0]._id, campaign: campaign._id };
+		if (clientCampaign.length <= 1 && clientCampaign[0].status == 'not called') {
+			const last = clientCampaign.length - 1;
+			clientCampaign[last].status = 'inprogress';
+			clientCampaign[last].caller = caller._id;
+			clientCampaign[last].scriptVersion = campaign.script.length - 1;
+		} else {
+			clientCampaign.push({
+				status: 'inprogress',
+				caller: caller._id,
+				scriptVersion: campaign.script.length - 1,
+				startCall: new Date()
+			});
+		}
+		await Promise.all([caller.save(), Client.updateOne({ _id: client[0]._id }, { data: client[0].data })]);
 		res.status(200).send({
 			message: 'OK',
 			OK: true,
-			data: { client: client, script: campaign.script[campaign.script.length - 1] }
+			data: { client: client[0], script: campaign.script[campaign.script.length - 1] }
 		});
 		log(`Get phone number success for ${caller.name} (${ip})`, 'INFORMATION', 'getPhoneNumber.ts');
 		return;
