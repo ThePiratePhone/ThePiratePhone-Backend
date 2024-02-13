@@ -48,13 +48,13 @@ router.post('/admin/createCampaign', createCampaign);
 router.post('/admin/addClientCampaign', addClientCampaign);
 router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/changeCallerPassword', chnageCallerPassword);
+router.post('/admin/createClient', createClient);
 //caller/
 router.post('/giveUp', giveUp);
 router.post('/createCaller', createCaller);
 router.post('/changePassword', changePassword);
 router.post('/joinCampaign', joinCampaign);
 router.post('/validatePhoneNumber', validatePhoneNumber);
-router.post('/createClient', createClient);
 router.post('/endCall', endCall);
 router.post('/getProgress', getProgress);
 router.post('/getPhoneNumber', getPhoneNumber);
