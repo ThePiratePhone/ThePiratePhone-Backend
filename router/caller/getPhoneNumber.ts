@@ -98,11 +98,11 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				$or: [
 					{
 						'lastElement.status': 'not answered',
-						'lastElement.endCall': { $lte: new Date(Date.now() - 10_800_000) }
+						'lastElement.endCall': { $lte: new Date(Date.now() - campaign.timeBetweenCall) }
 					},
 					{ 'lastElement.status': 'not called' }
 				],
-				dataSize: { $lte: 4 }
+				dataSize: { $lte: campaign.nbMaxCallCampaign }
 			}
 		},
 		{ $unset: 'lastElement' },

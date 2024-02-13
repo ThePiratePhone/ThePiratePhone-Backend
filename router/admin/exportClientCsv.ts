@@ -52,7 +52,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		clients.forEach(client => {
 			if (req.body.curentCamaign) {
 				const csvData = {};
-				for (let i = 1; i <= 4; i++) {
+				for (let i = 1; i <= campaign.nbMaxCallCampaign; i++) {
 					const dataKeyPrefix = `data${i}`;
 					csvData[`${dataKeyPrefix}.status`] = client?.data.get(campaign._id)?.[i - 1]?.status ?? '';
 					csvData[`${dataKeyPrefix}.caller`] = client?.data.get(campaign._id)?.[i - 1]?.caller ?? '';

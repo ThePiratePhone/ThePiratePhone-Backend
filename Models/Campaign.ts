@@ -38,6 +38,16 @@ const CampaignSchema = new mongoose.Schema({
 	password: {
 		type: String,
 		required: true
+	},
+	nbMaxCallCampaign: {
+		type: Number,
+		required: true,
+		default: 4
+	},
+	timeBetweenCall: {
+		type: Number,
+		required: true,
+		default: 10_800_000
 	}
 });
 
