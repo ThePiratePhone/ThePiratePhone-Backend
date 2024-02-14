@@ -90,8 +90,8 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
 		clientCampaign.endCall = new Date();
 		clientCampaign.satisfaction = req.body.satisfaction;
-		if (req.body.comment) {
-			clientCampaign.comment = req.body.comment;
+		if (req.body.comment && req.body.comment.trim().length > 0) {
+			clientCampaign.comment = req.body.comment.trim();
 		}
 	}
 	caller.curentCall = null;
