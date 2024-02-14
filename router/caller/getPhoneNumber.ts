@@ -86,29 +86,40 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	//find first client with status not called
 	const threeHoursAgo = new Date();
 	threeHoursAgo.setHours(threeHoursAgo.getHours() - 3);
-	let client: any = await Client.aggregate([
-		{
-			$addFields: {
-				lastElement: { $arrayElemAt: ['$data.' + campaign._id, -1] },
-				dataSize: { $size: '$data.' + campaign._id }
-			}
-		},
-		{
-			$match: {
-				$or: [
-					{
-						'lastElement.status': 'not answered',
-						'lastElement.endCall': { $lte: new Date(Date.now() - campaign.timeBetweenCall) }
-					},
-					{ 'lastElement.status': 'not called' }
-				],
-				dataSize: { $lte: campaign.nbMaxCallCampaign }
-			}
-		},
-		{ $unset: 'lastElement' },
-		{ $unset: 'dataSize' },
-		{ $limit: 1 }
-	]);
+	let client: any;
+	try {
+		client = await Client.aggregate([
+			{
+				$match: {
+					['data.' + campaign._id]: { $exists: true, $ne: [] }
+				}
+			},
+			{
+				$addFields: {
+					lastElement: { $arrayElemAt: ['$data.' + campaign._id, -1] },
+					dataSize: { $size: '$data.' + campaign._id }
+				}
+			},
+			{
+				$match: {
+					$or: [
+						{
+							'lastElement.status': 'not answered',
+							'lastElement.endCall': { $lte: new Date(Date.now() - campaign.timeBetweenCall) }
+						},
+						{ 'lastElement.status': 'not called' }
+					],
+					dataSize: { $lte: campaign.nbMaxCallCampaign }
+				}
+			},
+			{ $unset: 'lastElement' },
+			{ $unset: 'dataSize' },
+			{ $limit: 1 }
+		]);
+	} catch (e) {
+		res.status(500).send({ message: 'Internal error', OK: false });
+		log(`Error while getting client`, 'ERROR', 'getPhoneNumber.ts');
+	}
 
 	if (!client || client.length == 0) {
 		res.status(400).send({ message: 'No client available', OK: false });
