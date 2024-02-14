@@ -88,8 +88,8 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		clientCampaign.startCall = new Date();
 		clientCampaign.endCall = new Date();
 		clientCampaign.satisfaction = req.body.satisfaction;
-		if (req.body.comment) {
-			clientCampaign.comment = req.body.comment;
+		if (req.body.comment && req.body.comment.trim().length > 0) {
+			clientCampaign.comment = req.body.comment.trim();
 		}
 	} else if (req.body.satisfaction == -2) {
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
