@@ -39,6 +39,7 @@ const CampaignSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
+	//personalisation
 	nbMaxCallCampaign: {
 		type: Number,
 		required: true,
@@ -48,6 +49,12 @@ const CampaignSchema = new mongoose.Schema({
 		type: Number,
 		required: true,
 		default: 10_800_000
+	},
+	callHoursStart: {
+		type: Date
+	},
+	callHoursEnd: {
+		type: Date
 	}
 });
 

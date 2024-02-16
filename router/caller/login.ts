@@ -66,7 +66,14 @@ export default async function login(req: Request<any>, res: Response<any>) {
 					if (!cArea) {
 						throw 'error';
 					}
-					return { name: c.name, _id: c._id, areaId: cArea?._id, areaName: cArea?.name };
+					return {
+						name: c.name,
+						_id: c._id,
+						callHoursStart: c.callHoursStart,
+						callHoursEnd: c.callHoursEnd,
+						areaId: cArea?._id,
+						areaName: cArea?.name
+					};
 				})
 			)
 		};
