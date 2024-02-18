@@ -70,6 +70,26 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		nbCall = 1;
 	}
 
+	if (client.data[nbCall - 1].status == 'inprogress') {
+		res.status(403).send({ message: 'Client already in call', OK: false });
+		log(`Client already in call from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
+		return;
+	}
+
+	if (client.data[nbCall - 1].status == 'called') {
+		res.status(403).send({ message: 'Client already validate', OK: false });
+		log(`Client already validate from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
+		return;
+	}
+
+	if (
+		!client.data.get(curentCampaign._id.toString())?.find(call => call?.caller?.toString() == caller._id.toString())
+	) {
+		res.status(403).send({ message: 'you dont call this client', OK: false });
+		log(`you dont call this client from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
+		return;
+	}
+
 	if (req.body.satisfaction != -2) {
 		const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[
 			nbCall - 1
