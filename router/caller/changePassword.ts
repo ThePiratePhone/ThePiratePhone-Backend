@@ -34,6 +34,12 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		return;
 	}
 
+	if (req.body.newPin.length != 4) {
+		res.status(400).send({ message: 'Invalid new pin code', OK: false });
+		log(`Invalid new pin code from: ` + ip, 'WARNING', 'createCaller.ts');
+		return;
+	}
+
 	const result = await Caller.updateOne(
 		{ phone: req.body.phone, pinCode: req.body.pinCode },
 		{ pinCode: req.body.newPin }
