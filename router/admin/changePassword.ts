@@ -6,7 +6,12 @@ import { log } from '../../tools/log';
 
 export default async function changePasword(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (!req.body || typeof req.body.adminCode != 'string' || !ObjectId.isValid(req.body.area)) {
+	if (
+		!req.body ||
+		typeof req.body.adminCode != 'string' ||
+		req.body.newAdminCode ||
+		!ObjectId.isValid(req.body.area)
+	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'changePasword.ts');
 		return;
@@ -21,9 +26,9 @@ export default async function changePasword(req: Request<any>, res: Response<any
 
 	const output = await Area.updateOne({ _id: area._id }, { AdminPassword: req.body.newAdminCode });
 
-	if (output.modifiedCount != 1) {
-		res.status(400).send({ message: 'Area not found or badPassword', OK: false });
-		log(`Area not found from ${ip}`, 'WARNING', 'changePasword.ts');
+	if (output.modifiedCount == 0) {
+		res.status(400).send({ message: 'Wrong admin code', OK: false });
+		log(`Wrong admin code from ${ip}`, 'WARNING', 'changePasword.ts');
 		return;
 	}
 
