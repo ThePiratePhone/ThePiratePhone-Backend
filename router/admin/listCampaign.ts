@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { log } from '../../tools/log';
-import { Area } from '../../Models/area';
+import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import { ObjectId } from 'mongodb';
 

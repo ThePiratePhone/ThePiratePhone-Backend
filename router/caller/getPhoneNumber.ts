@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
 import { Client } from '../../Models/Client';
-import { Area } from '../../Models/area';
+import { Area } from '../../Models/Area';
 import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';

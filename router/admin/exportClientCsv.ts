@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Area } from '../../Models/area';
+import { Area } from '../../Models/Area';
 import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
-import { Area } from '../../Models/area';
+import { Area } from '../../Models/Area';
 import { log } from '../../tools/log';
 import { Client } from '../../Models/Client';
 

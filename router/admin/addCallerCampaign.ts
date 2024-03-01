@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { log } from '../../tools/log';
-import { Area } from '../../Models/area';
+import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import clearPhone from '../../tools/clearPhone';

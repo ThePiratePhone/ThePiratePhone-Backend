@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
 import { log } from '../../tools/log';
-import { Area } from '../../Models/area';
+import { Area } from '../../Models/Area';
 import { Client } from '../../Models/Client';
 import clearPhone from '../../tools/clearPhone';
 import { ObjectId } from 'mongodb';
