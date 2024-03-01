@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
 
-import { Client } from '../../Models/Client';
 import { Area } from '../../Models/Area';
+import { Campaign } from '../../Models/Campaign';
+import { Client } from '../../Models/Client';
 import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
-import { ObjectId } from 'mongodb';
-import { Campaign } from '../../Models/Campaign';
 
 export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

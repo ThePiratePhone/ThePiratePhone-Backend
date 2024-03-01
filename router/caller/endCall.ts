@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
 import { Client } from '../../Models/Client';
-import getCurentCampaign from '../../tools/getCurentCampaign';
+import getCurentCampaign from '../../tools/getCurrentCampaign';
 import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { Campaign } from '../../Models/Campaign';

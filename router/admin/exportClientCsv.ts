@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
-import { Area } from '../../Models/Area';
-import AreaCampaignProgress from '../../tools/areaCampaignProgress';
-import { Client } from '../../Models/Client';
-import { log } from '../../tools/log';
 import * as csv from '@fast-csv/format';
+import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+
+import { Area } from '../../Models/Area';
+import { Client } from '../../Models/Client';
+import AreaCampaignProgress from '../../tools/areaCampaignProgress';
+import { log } from '../../tools/log';
 
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

@@ -1,10 +1,11 @@
+import * as csv from '@fast-csv/format';
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
+
 import { Area } from '../../Models/Area';
+import { Caller } from '../../Models/Caller';
 import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import { log } from '../../tools/log';
-import { Caller } from '../../Models/Caller';
-import * as csv from '@fast-csv/format';
-import { ObjectId } from 'mongodb';
 
 export default async function exportCallerCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

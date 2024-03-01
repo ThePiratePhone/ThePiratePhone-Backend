@@ -1,6 +1,6 @@
 import { Campaign } from '../Models/Campaign';
 
-async function AreaCampaignProgress(area): Promise<typeof Campaign | undefined> {
+async function AreaCampaignProgress(area: any): Promise<typeof Campaign | undefined> {
 	if (!area || !area.id) {
 		return undefined;
 	}

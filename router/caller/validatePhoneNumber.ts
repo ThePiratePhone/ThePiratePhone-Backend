@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-
 import { ObjectId } from 'mongodb';
-import checkCredentials from '../../tools/checkCredentials';
-import { log } from '../../tools/log';
-import getCurentCampaign from '../../tools/getCurentCampaign';
-import { Client } from '../../Models/Client';
-import mongoose from 'mongoose';
+import { Types } from 'mongoose';
+
 import { Campaign } from '../../Models/Campaign';
+import { Client } from '../../Models/Client';
+import checkCredentials from '../../tools/checkCredentials';
+import getCurentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
 
 export default async function validatePhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -65,7 +65,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 
 	let nbCall = client.data.get(curentCampaign._id.toString())?.length;
 	if (!nbCall) {
-		const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
+		const newData = new Types.DocumentArray([{ status: 'not called' }]) as any;
 		client.data.set(curentCampaign._id.toString(), newData);
 		nbCall = 1;
 	}

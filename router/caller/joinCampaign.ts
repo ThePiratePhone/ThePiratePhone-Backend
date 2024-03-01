@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-
-import { log } from '../../tools/log';
 import { ObjectId } from 'mongodb';
-import checkCredentials from '../../tools/checkCredentials';
-import getCurentCampaign from '../../tools/getCurentCampaign';
-import { Campaign } from '../../Models/Campaign';
+
 import { Area } from '../../Models/Area';
+import { Campaign } from '../../Models/Campaign';
+import checkCredentials from '../../tools/checkCredentials';
+import getCurentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
 
 export default async function joinCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

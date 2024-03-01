@@ -1,6 +1,8 @@
 import { ObjectId } from 'mongodb';
-import { Campaign } from '../Models/Campaign';
+
 import { Area } from '../Models/Area';
+import { Campaign } from '../Models/Campaign';
+
 async function getCurentCampaign(area: ObjectId): Promise<typeof Campaign | null> {
 	const CampaignArea = await Area.findOne({ _id: area });
 	if (!CampaignArea) {

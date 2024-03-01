@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
-import checkCredentials from '../../tools/checkCredentials';
-import getCurentCampaign from '../../tools/getCurentCampaign';
+
 import { Client } from '../../Models/Client';
+import checkCredentials from '../../tools/checkCredentials';
+import getCurentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
 
 export default async function giveUp(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

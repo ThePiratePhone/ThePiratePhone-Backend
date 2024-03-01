@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
+
+import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
-import { Area } from '../../Models/Area';
 import { log } from '../../tools/log';
 
 export default async function numberOfCalls(req: Request<any>, res: Response<any>) {

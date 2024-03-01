@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { log } from '../../tools/log';
+
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
+import { log } from '../../tools/log';
 
 export default async function numberOfCallers(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

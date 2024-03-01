@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import { log } from '../../tools/log';
+import { ObjectId } from 'mongodb';
+
 import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
-import { ObjectId } from 'mongodb';
+import { log } from '../../tools/log';
 
 export default async function listCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

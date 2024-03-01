@@ -1,6 +1,6 @@
-import path from 'path';
-import fs from 'fs';
 import { bgRed, blue, gray, red, yellow } from 'chalk';
+import fs from 'fs';
+import path from 'path';
 
 type WarningLevel = 'DEBUG' | 'INFORMATION' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
