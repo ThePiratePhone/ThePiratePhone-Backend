@@ -7,12 +7,13 @@ import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import clearPhone from '../../tools/clearPhone';
 import { log } from '../../tools/log';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
-		typeof req.body.campaign != 'string' ||
+		(req.body.campaign && !ObjectId.isValid(req.body.campaign)) ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.adminCode != 'string' ||
 		!ObjectId.isValid(req.body.area)
@@ -38,7 +39,13 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: req.body.campaign, area: area._id });
+	let campaign: any;
+
+	if (req.body.campaign) {
+		campaign = await Campaign.findOne({ _id: req.body.campaign, area: area._id });
+	} else {
+		campaign = await getCurrentCampaign(area._id);
+	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', 'addClientCampaign.ts');
