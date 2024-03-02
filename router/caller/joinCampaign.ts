@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import checkCredentials from '../../tools/checkCredentials';
-import getCurentCampaign from '../../tools/getCurrentCampaign';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
 
 export default async function joinCampaign(req: Request<any>, res: Response<any>) {
@@ -29,7 +29,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const curentCampaign: any = await getCurentCampaign(req.body.area);
+	const curentCampaign: any = await getCurrentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(400).send({ message: 'no actual campaign', OK: false });
 		log(`no actual campaign from ${caller.name} (${ip})`, 'WARNING', 'joinCampaign.ts');

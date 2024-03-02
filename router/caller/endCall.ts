@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
 import { Client } from '../../Models/Client';
-import getCurentCampaign from '../../tools/getCurrentCampaign';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { Campaign } from '../../Models/Campaign';
@@ -55,7 +55,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const curentCampaign: any = await getCurentCampaign(req.body.area);
+	const curentCampaign: any = await getCurrentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(404).send({ message: 'no actual Camaing', OK: false });
 		log(`no actual Camaing from ${caller.name} (${ip})`, 'WARNING', 'endCall.ts');

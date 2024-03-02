@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../Models/Area';
 import { Campaign } from '../Models/Campaign';
 
-async function getCurentCampaign(area: ObjectId): Promise<typeof Campaign | null> {
+async function getCurrentCampaign(area: ObjectId): Promise<typeof Campaign | null> {
 	const CampaignArea = await Area.findOne({ _id: area });
 	if (!CampaignArea) {
 		return null;
@@ -25,4 +25,4 @@ async function getCurentCampaign(area: ObjectId): Promise<typeof Campaign | null
 	}
 	return campaign;
 }
-export default getCurentCampaign;
+export default getCurrentCampaign;

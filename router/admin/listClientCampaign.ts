@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
-import getCurentCampaign from '../../tools/getCurrentCampaign';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
 
 export default async function listClientCampaign(req: Request<any>, res: Response<any>) {
@@ -34,7 +34,7 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 	if (req.body.CampaignId) {
 		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
 	} else {
-		campaign = getCurentCampaign(req.body.area);
+		campaign = await getCurrentCampaign(area._id);
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });

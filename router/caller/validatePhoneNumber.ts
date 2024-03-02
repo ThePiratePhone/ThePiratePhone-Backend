@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import checkCredentials from '../../tools/checkCredentials';
-import getCurentCampaign from '../../tools/getCurrentCampaign';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
 
 export default async function validatePhoneNumber(req: Request<any>, res: Response<any>) {
@@ -38,7 +38,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		return;
 	}
 
-	const curentCampaign: any = await getCurentCampaign(req.body.area);
+	const curentCampaign: any = await getCurrentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(404).send({ message: 'no actual Camaing', OK: false });
 		log(`no actual Camaing from ${caller.name} (${ip})`, 'ERROR', 'validatePhoneNumber.ts');
