@@ -42,8 +42,8 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
-	const numberOfClients = await Client.countDocuments({ data: { $elemMatch: { $eq: campaign._id.toString() } } });
-	const clients = await Client.find({ data: { $elemMatch: { $eq: campaign._id.toString() } } })
+	const numberOfClients = await Client.countDocuments({ ['data.' + campaign._id.toString()]: { $exists: true } });
+	const clients = await Client.find({ ['data.' + campaign._id.toString()]: { $exists: true } })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!clients) {
