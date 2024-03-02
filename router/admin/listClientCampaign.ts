@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
+import getCurentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
 
 export default async function listClientCampaign(req: Request<any>, res: Response<any>) {
@@ -11,7 +12,7 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.CampaignId) ||
+		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId)) ||
 		(req.body.skip && typeof req.body.skip != 'number') ||
 		(req.body.limit && typeof req.body.limit != 'number') ||
 		!ObjectId.isValid(req.body.area)
@@ -28,7 +29,13 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+	let campaign: any;
+
+	if (req.body.CampaignId) {
+		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+	} else {
+		campaign = getCurentCampaign(req.body.area);
+	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
 		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'listClientCampaign.ts');
