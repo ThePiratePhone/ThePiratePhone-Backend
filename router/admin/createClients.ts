@@ -6,12 +6,14 @@ import { Client } from '../../Models/Client';
 import clearPhone from '../../tools/clearPhone';
 import { log } from '../../tools/log';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import mongoose from 'mongoose';
 
 export default async function createClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
-		req.body.data instanceof Array ||
+		!(req.body.data instanceof Array) ||
 		typeof req.body.adminCode != 'string' ||
 		!ObjectId.isValid(req.body.area)
 	) {
@@ -33,28 +35,26 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	}
 
-	req.body.phone = clearPhone(req.body.phone);
-	if (!phoneNumberCheck(req.body.phone)) {
-		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from ${area.name} (${ip})`, 'WARNING', 'createClient.ts');
-		return;
-	}
-
-	if ((await Client.findOne({ phone: req.body.phone, area: area._id })) != null) {
-		res.status(401).send({ message: 'User already exist', OK: false });
-		log(`User already exist from ${area.name} (${ip})`, 'WARNING', 'createClient.ts');
-		return;
-	}
+	const campaign = await getCurrentCampaign(area._id);
 
 	const errors: Array<[string, string, string]> = [];
 	const sleep = req.body.data.map(async (usr: [string, string]) => {
-		if (phoneNumberCheck(usr[1])) {
-			errors.push([usr[0], usr[1], 'Wrong phone number']);
+		const phone = clearPhone(usr[1]);
+
+		if (!phoneNumberCheck(phone)) {
+			errors.push([usr[0], phone, 'Wrong phone number']);
+			return false;
+		}
+		const data = new Map();
+		if (campaign) {
+			data.set((campaign as any)._id, {
+				status: 'not called'
+			});
 		}
 		const user = new Client({
 			area: area._id,
-			name: req.body.name,
-			phone: req.body.phone,
+			name: usr[0] ?? null,
+			phone: phone,
 			data: new Map(),
 			promotion: req.body.promotion ?? null,
 			institution: req.body.institution ?? null
@@ -64,7 +64,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 			return true;
 		} catch (error: any) {
 			if (error.code != 11000) {
-				errors.push([usr[0], usr[1], error.message]);
+				errors.push([usr[0], phone, error.message]);
 			}
 		}
 	});

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const ClientSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true
+		required: false
 	},
 	institution: {
 		type: String,
@@ -16,6 +16,7 @@ const ClientSchema = new mongoose.Schema({
 	phone: {
 		type: String,
 		required: true,
+		unique: true,
 		minlength: 12,
 		maxlength: 13
 	},

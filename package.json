@@ -5,7 +5,8 @@
 	"main": "index.ts",
 	"scripts": {
 		"dev": "npx nodemon index.ts",
-		"start": "ts-node ."
+		"start": "ts-node .",
+		"deploy": "ssh Eve cd /opt/Callsphere-backend/ && git pull && sudo systemctl restart CSB"
 	},
 	"repository": {
 		"type": "git",

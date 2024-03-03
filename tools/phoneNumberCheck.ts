@@ -1,4 +1,5 @@
 function phoneNumberCheck(phone: string) {
+	if (typeof phone != 'string') return false;
 	if (!phone.startsWith('+')) return false;
 
 	const phoneArray = phone.split('');
