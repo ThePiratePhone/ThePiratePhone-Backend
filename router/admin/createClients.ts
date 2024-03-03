@@ -36,7 +36,6 @@ export default async function createClients(req: Request<any>, res: Response<any
 	}
 
 	const campaign = await getCurrentCampaign(area._id);
-
 	const errors: Array<[string, string, string]> = [];
 	const sleep = req.body.data.map(async (usr: [string, string]) => {
 		const phone = clearPhone(usr[1]);
@@ -55,7 +54,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 			area: area._id,
 			name: usr[0] ?? null,
 			phone: phone,
-			data: new Map(),
+			data: data,
 			promotion: req.body.promotion ?? null,
 			institution: req.body.institution ?? null
 		});
@@ -65,9 +64,41 @@ export default async function createClients(req: Request<any>, res: Response<any
 		} catch (error: any) {
 			if (error.code != 11000) {
 				errors.push([usr[0], phone, error.message]);
+			} else {
+				if (!(await addClientCampaign(phone, (campaign as any)._id))) {
+					errors.push([usr[0], phone, 'internal error']);
+					log(
+						`Internal error from ${area.name} (${ip}) for adding user to camaign. ${usr[0]}, ${usr[1]}`,
+						'WARNING',
+						'createClient.ts'
+					);
+				}
 			}
 		}
 	});
 	await Promise.all(sleep);
+	log(
+		`Created ${req.body.data.length - errors.length} users from ${area.name} (${ip})`,
+		'INFORMATION',
+		'createClient.ts'
+	);
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
+}
+
+async function addClientCampaign(phone: String, campaignId: string) {
+	const client = await Client.findOne({ phone: phone });
+	if (!client) {
+		return false;
+	}
+	if (client.data.has(campaignId)) {
+		return true;
+	}
+	try {
+		const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
+		client.data.set(campaignId, newData);
+		await client.updateOne(phone, { data: client.data });
+		return true;
+	} catch (e) {
+		return false;
+	}
 }

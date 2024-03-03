@@ -32,7 +32,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 
 	req.body.phone = clearPhone(req.body.phone);
 
-	const client = await Client.findOne({ phone: req.body.phone, area: area._id });
+	const client = await Client.findOne({ phone: req.body.phone });
 	if (!client) {
 		res.status(404).send({ message: 'User not found', OK: false });
 		log(`User not found from ${area.name} (${ip})`, 'WARNING', 'addClientCampaign.ts');
@@ -59,7 +59,6 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	}
 
 	const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
-	client.data.set(campaign._id.toString(), newData);
 	await client.save();
 
 	res.status(200).send({ message: 'User added to campaign', OK: true });
