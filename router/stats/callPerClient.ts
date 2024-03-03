@@ -11,7 +11,7 @@ export default async function callePerClient(req: Request<any>, res: Response<an
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
-		typeof req.body.campaign != 'string' ||
+		!ObjectId.isValid(req.body.campaign) ||
 		typeof req.body.adminCode != 'string' ||
 		!ObjectId.isValid(req.body.campaign)
 	) {

@@ -3,10 +3,11 @@ import { Request, Response } from 'express';
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
+import { ObjectId } from 'mongodb';
 
 export default async function numberOfCallers(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (!req.body || typeof req.body.campaign != 'string' || typeof req.body.adminCode != 'string') {
+	if (!req.body || !ObjectId.isValid(req.body.campaign) || typeof req.body.adminCode != 'string') {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log('Missing parameters from ' + ip, 'WARNING', 'numberOfCallers.ts');
 		return;
