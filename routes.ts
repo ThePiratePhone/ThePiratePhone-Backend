@@ -41,13 +41,13 @@ router.post('/stats/numberOfCalls', numberOfCalls);
 //admin
 router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/addClientCampaign', addClientCampaign);
-router.post('/admin/createClients', createClients);
 router.post('/admin/campaign', listCampaign);
 router.post('/admin/changePassword', changePasswordAdmin);
 router.post('/admin/createCaller', createCallerByAdmin);
 router.post('/admin/changeCallerPassword', changeCallerPassword);
 router.post('/admin/createCampaign', createCampaign);
 router.post('/admin/createClient', createClient);
+router.post('/admin/createClients', createClients);
 router.post('/admin/exportCallerCsv', exportCallerCsv);
 router.post('/admin/exportClientCsv', exportClientCsv);
 router.post('/admin/listCaller', listCaller);
