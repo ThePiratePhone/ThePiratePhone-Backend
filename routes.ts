@@ -28,6 +28,7 @@ import callPerClient from './router/stats/callPerClient';
 import numberOfCallers from './router/stats/numberOfCallers';
 import numberOfCalls from './router/stats/numberOfCalls';
 import numberOfClients from './router/stats/numberOfClients';
+import createClients from './router/admin/createClients';
 
 const router = Router();
 
@@ -40,6 +41,7 @@ router.post('/stats/numberOfCalls', numberOfCalls);
 //admin
 router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/addClientCampaign', addClientCampaign);
+router.post('/admin/createClients', createClients);
 router.post('/admin/campaign', listCampaign);
 router.post('/admin/changePassword', changePasswordAdmin);
 router.post('/admin/createCaller', createCallerByAdmin);
