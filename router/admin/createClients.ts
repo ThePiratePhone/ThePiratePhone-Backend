@@ -68,6 +68,6 @@ export default async function createClients(req: Request<any>, res: Response<any
 			}
 		}
 	});
-
+	await Promise.all(sleep);
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
 }
