@@ -8,13 +8,18 @@ import { ObjectId } from 'mongodb';
 
 export default async function numberOfClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (!req.body || !ObjectId.isValid(req.body.campaign) || typeof req.body.adminCode != 'string') {
+	if (
+		!req.body ||
+		!ObjectId.isValid(req.body.campaign) ||
+		typeof req.body.adminCode != 'string' ||
+		!ObjectId.isValid(req.body.area)
+	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log('Missing parameters', 'WARNING', 'numberOfClients.ts');
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log('Wrong admin code from ' + ip, 'WARNING', 'numberOfClients.ts');
