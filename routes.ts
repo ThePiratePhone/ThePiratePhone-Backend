@@ -24,19 +24,15 @@ import joinCampaign from './router/caller/joinCampaign';
 import login from './router/caller/login';
 import validatePhoneNumber from './router/caller/validatePhoneNumber';
 import getArea from './router/getArea';
-import callPerClient from './router/stats/callPerClient';
 import numberOfCallers from './router/stats/numberOfCallers';
-import numberOfCalls from './router/stats/numberOfCalls';
 import numberOfClients from './router/stats/numberOfClients';
 import createClients from './router/admin/createClients';
 
 const router = Router();
 
 //stats
-router.post('/stats/callPerClient', callPerClient);
 router.post('/stats/numberOfClients', numberOfClients);
 router.post('/stats/numberOfCallers', numberOfCallers);
-router.post('/stats/numberOfCalls', numberOfCalls);
 
 //admin
 router.post('/admin/addCallerCampaign', addCallerCampaign);
