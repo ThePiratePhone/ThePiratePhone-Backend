@@ -21,8 +21,8 @@ export default async function numberOfClients(req: Request<any>, res: Response<a
 
 	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
 	if (!area) {
-		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log('Wrong admin code from ' + ip, 'WARNING', 'numberOfClients.ts');
+		res.status(401).send({ message: 'Wrong Creantial', OK: false });
+		log('Wrong Creantial from ' + ip, 'WARNING', 'numberOfClients.ts');
 		return;
 	}
 

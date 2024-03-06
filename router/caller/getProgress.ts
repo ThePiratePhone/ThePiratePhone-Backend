@@ -52,41 +52,40 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	const clientInThisCampaign = await Client.find({
 		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
 		_id: { $nin: campaign.trashUser }
-	}).limit(10_000);
+	}).cursor();
 
-	let callInThisCampaign = 0;
-	let totalCalled = 0;
+	let totalClientCalled = 0;
+	let totaldiscution = 0;
 	let totalCall = 0;
-	let convertion = 0;
+	let totalUser = 0;
 	let totalConvertion = 0;
-	let time = 0;
-	clientInThisCampaign.forEach(client => {
-		client.data.get(campaign._id)?.forEach(call => {
-			totalCall++;
-			if (call.status != 'not called') callInThisCampaign++;
+	let totalTime = 0;
+	await clientInThisCampaign.eachAsync(client => {
+		totalUser++;
+		const data = client.data.get(campaign._id);
+		data?.forEach(call => {
+			if (call.status == 'not called') return;
+
+			totalCall += data?.length ?? 0;
+			totalClientCalled++;
 			if (call?.caller?.toString() ?? '' == caller._id.toString()) {
-				if (call.status == 'called') totalCalled++;
-				time += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime();
-				if (call.status == 'called' && call.satisfaction == 2) convertion++;
+				if (call.status == 'called') totaldiscution++;
+				totalTime += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime();
+				if (call.status == 'called' && call.satisfaction == 2) totalConvertion++;
 			}
 		});
-
-		const data = client.data.get(campaign._id);
-		if (data && data[data.length - 1]?.status == 'called' && data[data.length - 1]?.satisfaction == 2)
-			totalConvertion++;
 	});
 
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
 		data: {
-			count: totalCalled,
-			callerUniqueCall: totalCall,
-			callInThisCampaign: callInThisCampaign,
-			total: clientInThisCampaign.length,
-			msTime: time,
-			convertion: convertion,
-			totalConvertion: totalConvertion
+			totalClientCalled: totalClientCalled,
+			totaldiscution: totaldiscution,
+			totalCall: totalCall,
+			totalUser: totalUser,
+			totalConvertion: totalConvertion,
+			totalTime: totalTime
 		}
 	});
 	log(`Get progress from: ${caller.name} (${ip})`, 'INFORMATION', 'getProgress.ts');

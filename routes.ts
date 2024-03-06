@@ -27,12 +27,14 @@ import getArea from './router/getArea';
 import numberOfCallers from './router/stats/numberOfCallers';
 import numberOfClients from './router/stats/numberOfClients';
 import createClients from './router/admin/createClients';
+import numberOfCall from './router/stats/call/numberOfCall';
 
 const router = Router();
 
 //stats
 router.post('/stats/numberOfClients', numberOfClients);
 router.post('/stats/numberOfCallers', numberOfCallers);
+router.post('/stats/call/numberOfCall', numberOfCall);
 
 //admin
 router.post('/admin/addCallerCampaign', addCallerCampaign);
