@@ -7,6 +7,7 @@ import changePasswordAdmin from './router/admin/changePassword';
 import createCallerByAdmin from './router/admin/createCallerByAdmin';
 import createCampaign from './router/admin/createCampaign';
 import createClient from './router/admin/createClient';
+import createClients from './router/admin/createClients';
 import exportCallerCsv from './router/admin/exportCallerCsv';
 import exportClientCsv from './router/admin/exportClientCsv';
 import listCaller from './router/admin/listCaller';
@@ -26,15 +27,12 @@ import validatePhoneNumber from './router/caller/validatePhoneNumber';
 import getArea from './router/getArea';
 import numberOfCallers from './router/stats/numberOfCallers';
 import numberOfClients from './router/stats/numberOfClients';
-import createClients from './router/admin/createClients';
-import numberOfCall from './router/stats/call/numberOfCall';
 
 const router = Router();
 
 //stats
 router.post('/stats/numberOfClients', numberOfClients);
 router.post('/stats/numberOfCallers', numberOfCallers);
-router.post('/stats/call/numberOfCall', numberOfCall);
 
 //admin
 router.post('/admin/addCallerCampaign', addCallerCampaign);
