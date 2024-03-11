@@ -59,7 +59,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	let totalCall = 0;
 	let totalUser = 0;
 	let totalConvertion = 0;
-	let totalTime = 0;
+	let TimeInCall = 0;
 	await clientInThisCampaign.eachAsync(client => {
 		totalUser++;
 		const data = client.data.get(campaign._id);
@@ -70,7 +70,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			totalClientCalled++;
 			if (call?.caller?.toString() ?? '' == caller._id.toString()) {
 				if (call.status == 'called') totaldiscution++;
-				totalTime += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime();
+				TimeInCall += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime();
 				if (call.status == 'called' && call.satisfaction == 2) totalConvertion++;
 			}
 		});
@@ -85,7 +85,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			totalCall: totalCall,
 			totalUser: totalUser,
 			totalConvertion: totalConvertion,
-			totalTime: totalTime
+			TimeInCall: TimeInCall
 		}
 	});
 	log(`Get progress from: ${caller.name} (${ip})`, 'INFORMATION', 'getProgress.ts');
