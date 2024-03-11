@@ -6,39 +6,28 @@ import { Client } from '../../../Models/Client';
 import clearPhone from '../../../tools/clearPhone';
 import phoneNumberCheck from '../../../tools/phoneNumberCheck';
 
-export default async function removeClient(req: Request<any>, res: Response<any>) {
+export default async function removeAllClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
+	if (!req.body || typeof req.body.adminCode != 'string' || !ObjectId.isValid(req.body.area)) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'removeClient.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', 'removeAllClients.ts');
 		return;
-	}
-
-	req.body.phone = clearPhone(req.body.phone);
-	if (!phoneNumberCheck(req.body.phone)) {
-		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from ${ip}`, 'WARNING', 'removeClient.ts');
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', 'removeClient.ts');
+		log(`Wrong admin code from ${ip}`, 'WARNING', 'removeAllClients.ts');
 		return;
 	}
 
-	const output = await Client.deleteOne({ phone: req.body.phone });
-	if (output.deletedCount != 1) {
-		res.status(404).send({ message: 'Client not found', OK: false });
-		log(`Client not found from ${area.name} (${ip})`, 'WARNING', 'removeClient.ts');
+	try {
+		await Client.deleteMany({ area: req.body.area });
+	} catch (e) {
+		res.status(500).send({ message: 'Database error', OK: false });
+		log(`Database error from ${ip}`, 'ERROR', 'removeAllClients.ts');
 		return;
 	}
-
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Client removed from ${ip} (${area.name})`, 'INFORMATION', 'removeClient.ts');
+	log(`Clients removed from ${ip} (${area.name})`, 'INFORMATION', 'removeAllClients.ts');
 }
