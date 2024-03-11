@@ -5,7 +5,7 @@ import { Client } from '../../Models/Client';
 import { Area } from '../../Models/Area';
 import getCurrentCampaign from '../../tools/getCurrentCampaign';
 
-export default async function callStats(req: Request<any>, res: Response<any>) {
+export default async function call(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 
 	if (
@@ -15,25 +15,25 @@ export default async function callStats(req: Request<any>, res: Response<any>) {
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters from ' + ip, 'WARNING', 'callStats.ts');
+		log('Missing parameters from ' + ip, 'WARNING', 'call.ts');
 		return;
 	}
 
 	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong Creantial', OK: false });
-		log('Wrong Creantial from ' + ip, 'WARNING', 'callStats.ts');
+		log('Wrong Creantial from ' + ip, 'WARNING', 'call.ts');
 		return;
 	}
 
 	const campaign = (await getCurrentCampaign(area._id)) as any;
 	if (!campaign) {
 		res.status(404).send({ message: 'campaign not found', OK: false });
-		log(`Campaign not found from: ${area.name} (${ip})`, 'WARNING', 'callStats.ts');
+		log(`Campaign not found from: ${area.name} (${ip})`, 'WARNING', 'call.ts');
 		return;
 	}
 
-	const clientInThisCampaign = await Client.find({
+	const clientInThisCampaign = Client.find({
 		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
 		_id: { $nin: campaign.trashUser }
 	}).cursor();
@@ -68,5 +68,5 @@ export default async function callStats(req: Request<any>, res: Response<any>) {
 		}
 	});
 
-	log(`call stats get by ${area.name} (${ip})`, 'INFORMATION', 'callStats.ts');
+	log(`call stats get by ${area.name} (${ip})`, 'INFORMATION', 'call.ts');
 }

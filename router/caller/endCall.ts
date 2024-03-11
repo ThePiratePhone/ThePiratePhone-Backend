@@ -72,33 +72,32 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
 		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
-	} else {
-		const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[
-			nbCall - 1
-		];
-		if (!clientCampaign) {
-			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
-			return;
-		}
-		if (!clientCampaign) {
-			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
-			return;
-		}
-		clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
-		clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
-		clientCampaign.endCall = new Date();
-		clientCampaign.satisfaction = req.body.satisfaction;
-		if (req.body.comment && req.body.comment.trim().length > 0) {
-			clientCampaign.comment = req.body.comment.trim();
-		}
 	}
+
+	const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[nbCall - 1];
+	if (!clientCampaign) {
+		res.status(500).send({ message: 'Internal error', OK: false });
+		log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
+		return;
+	}
+	if (!clientCampaign) {
+		res.status(500).send({ message: 'Internal error', OK: false });
+		log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
+		return;
+	}
+	clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
+	clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
+	clientCampaign.endCall = new Date();
+	clientCampaign.satisfaction = req.body.satisfaction;
+	if (req.body.comment && req.body.comment.trim().length > 0) {
+		clientCampaign.comment = req.body.comment.trim();
+	}
+
 	caller.curentCall = null;
 	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
 
-	if (req.body.satisfaction != -2) await Promise.all([caller.save(), client.save()]);
-	else await caller.save();
+	console.log(client);
+	await Promise.all([caller.save(), client.save()]);
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end call from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 }

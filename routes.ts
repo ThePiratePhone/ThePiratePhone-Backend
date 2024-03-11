@@ -26,13 +26,15 @@ import login from './router/caller/login';
 import validatePhoneNumber from './router/caller/validatePhoneNumber';
 import getArea from './router/getArea';
 import numberOfCallers from './router/stats/numberOfCallers';
-import callStats from './router/stats/callStats';
+import response from './router/stats/response';
+import call from './router/stats/call';
 
 const router = Router();
 
 //stats
 router.post('/stats/numberOfCallers', numberOfCallers);
-router.post('/stats/call', callStats);
+router.post('/stats/call', call);
+router.post('/stats/response', response);
 
 //admin
 router.post('/admin/addCallerCampaign', addCallerCampaign);
