@@ -3,7 +3,7 @@ import { Router } from 'express';
 import addCallerCampaign from './router/admin/addCallerCampaign';
 import addClientCampaign from './router/admin/addClientCampaign';
 import changeCallerPassword from './router/admin/changeCallerPassword';
-import changePasswordAdmin from './router/admin/changePassword';
+import changePasswordAdmin from './router/admin/management/changePassword';
 import createCallerByAdmin from './router/admin/createCallerByAdmin';
 import createCampaign from './router/admin/createCampaign';
 import createClient from './router/admin/createClient';
@@ -28,6 +28,7 @@ import getArea from './router/getArea';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
 import call from './router/stats/call';
+import changeNumberMaxCall from './router/admin/management/changeNumberMaxCall';
 
 const router = Router();
 
@@ -37,6 +38,7 @@ router.post('/stats/call', call);
 router.post('/stats/response', response);
 
 //admin
+router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
 router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/addClientCampaign', addClientCampaign);
 router.post('/admin/campaign', listCampaign);

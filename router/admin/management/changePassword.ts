@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
-import { Area } from '../../Models/Area';
-import { log } from '../../tools/log';
+import { Area } from '../../../Models/Area';
+import { log } from '../../../tools/log';
 
 export default async function changePasword(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
