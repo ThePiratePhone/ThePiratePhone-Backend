@@ -81,11 +81,11 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		OK: true,
 		data: {
 			totalClientCalled: totalClientCalled,
-			totaldiscution: totaldiscution,
+			totalDiscution: totaldiscution,
 			totalCall: totalCall,
 			totalUser: totalUser,
 			totalConvertion: totalConvertion,
-			TimeInCall: TimeInCall
+			timeInCall: TimeInCall
 		}
 	});
 	log(`Get progress from: ${caller.name} (${ip})`, 'INFORMATION', 'getProgress.ts');
