@@ -29,6 +29,7 @@ import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
 import call from './router/stats/call';
 import changeNumberMaxCall from './router/admin/management/changeNumberMaxCall';
+import changeTimeBetwenCall from './router/admin/management/changeTimeBetwenCall';
 
 const router = Router();
 
@@ -39,6 +40,7 @@ router.post('/stats/response', response);
 
 //admin
 router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
+router.post('/admin/changeTimeBetwenCall', changeTimeBetwenCall);
 router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/addClientCampaign', addClientCampaign);
 router.post('/admin/campaign', listCampaign);
