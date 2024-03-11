@@ -32,6 +32,6 @@
 		"fast-csv": "^5.0.1",
 		"https": "^1.0.0",
 		"mongodb": "^6.4.0",
-		"mongoose": "^8.2.0"
+		"mongoose": "^8.2.1"
 	}
 }

@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
 
 import { Area } from '../../Models/Area';
 import { Client } from '../../Models/Client';
 import clearPhone from '../../tools/clearPhone';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
-import mongoose from 'mongoose';
 
 export default async function createClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -94,7 +94,7 @@ async function addClientCampaign(phone: String, campaignId: string) {
 		return true;
 	}
 	try {
-		const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
+		const newData = new Types.DocumentArray([{ status: 'not called' }]) as any;
 		client.data.set(campaignId, newData);
 		await client.updateOne(phone, { data: client.data });
 		return true;
