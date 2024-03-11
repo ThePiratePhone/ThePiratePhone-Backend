@@ -6,8 +6,8 @@ import changeCallerPassword from './router/admin/changeCallerPassword';
 import changePasswordAdmin from './router/admin/management/changePassword';
 import createCallerByAdmin from './router/admin/createCallerByAdmin';
 import createCampaign from './router/admin/createCampaign';
-import createClient from './router/admin/createClient';
-import createClients from './router/admin/createClients';
+import createClient from './router/admin/client/createClient';
+import createClients from './router/admin/client/createClients';
 import exportCallerCsv from './router/admin/exportCallerCsv';
 import exportClientCsv from './router/admin/exportClientCsv';
 import listCaller from './router/admin/listCaller';
@@ -30,6 +30,7 @@ import response from './router/stats/response';
 import call from './router/stats/call';
 import changeNumberMaxCall from './router/admin/management/changeNumberMaxCall';
 import changeTimeBetwenCall from './router/admin/management/changeTimeBetwenCall';
+import removeClient from './router/admin/client/removeClients';
 
 const router = Router();
 
@@ -38,7 +39,11 @@ router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
 router.post('/stats/response', response);
 
-//admin
+//admin/client
+router.post('/admin/client/removeClient', removeClient);
+router.post('/admin/client/createClient', createClient);
+router.post('/admin/client/createClients', createClients);
+//admin/
 router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
 router.post('/admin/changeTimeBetwenCall', changeTimeBetwenCall);
 router.post('/admin/addCallerCampaign', addCallerCampaign);
@@ -48,8 +53,6 @@ router.post('/admin/changePassword', changePasswordAdmin);
 router.post('/admin/createCaller', createCallerByAdmin);
 router.post('/admin/changeCallerPassword', changeCallerPassword);
 router.post('/admin/createCampaign', createCampaign);
-router.post('/admin/createClient', createClient);
-router.post('/admin/createClients', createClients);
 router.post('/admin/exportCallerCsv', exportCallerCsv);
 router.post('/admin/exportClientCsv', exportClientCsv);
 router.post('/admin/listCaller', listCaller);

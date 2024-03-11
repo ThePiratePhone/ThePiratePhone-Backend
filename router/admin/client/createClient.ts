@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
-import { Area } from '../../Models/Area';
-import { Client } from '../../Models/Client';
-import clearPhone from '../../tools/clearPhone';
-import { log } from '../../tools/log';
-import phoneNumberCheck from '../../tools/phoneNumberCheck';
+import { Area } from '../../../Models/Area';
+import { Client } from '../../../Models/Client';
+import clearPhone from '../../../tools/clearPhone';
+import { log } from '../../../tools/log';
+import phoneNumberCheck from '../../../tools/phoneNumberCheck';
 
 export default async function createClient(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
