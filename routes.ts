@@ -32,6 +32,7 @@ import changeNumberMaxCall from './router/admin/management/changeNumberMaxCall';
 import changeTimeBetwenCall from './router/admin/management/changeTimeBetwenCall';
 import removeClient from './router/admin/client/removeClient';
 import removeAllClients from './router/admin/client/removeClients';
+import SearchByPhone from './router/admin/client/searchByPhone';
 
 const router = Router();
 
@@ -42,6 +43,7 @@ router.post('/stats/response', response);
 
 //admin/client
 router.post('/admin/client/removeClient', removeClient);
+router.post('/admin/client/searchByPhone', SearchByPhone);
 router.post('/admin/client/removeClients', removeAllClients);
 router.post('/admin/client/createClient', createClient);
 router.post('/admin/client/createClients', createClients);

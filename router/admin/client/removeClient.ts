@@ -23,6 +23,7 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
 		log(`Wrong phone number from ${ip}`, 'WARNING', 'removeClient.ts');
+		return;
 	}
 
 	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });

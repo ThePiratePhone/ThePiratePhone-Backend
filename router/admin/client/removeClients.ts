@@ -3,8 +3,6 @@ import { ObjectId } from 'mongodb';
 import { log } from '../../../tools/log';
 import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
-import clearPhone from '../../../tools/clearPhone';
-import phoneNumberCheck from '../../../tools/phoneNumberCheck';
 
 export default async function removeAllClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
