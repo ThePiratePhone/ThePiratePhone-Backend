@@ -31,7 +31,7 @@ import call from './router/stats/call';
 import changeNumberMaxCall from './router/admin/management/changeNumberMaxCall';
 import changeTimeBetwenCall from './router/admin/management/changeTimeBetwenCall';
 import removeClient from './router/admin/client/removeClient';
-import removeAllClients from './router/admin/client/removeClients';
+import removeAllClients from './router/admin/client/removeAllClients';
 import SearchByPhone from './router/admin/client/searchByPhone';
 
 const router = Router();
