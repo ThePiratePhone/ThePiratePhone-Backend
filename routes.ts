@@ -34,6 +34,7 @@ import removeClient from './router/admin/client/removeClient';
 import removeAllClients from './router/admin/client/removeAllClients';
 import SearchByPhone from './router/admin/client/searchByPhone';
 import SearchByName from './router/admin/client/searchByName';
+import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
 
 const router = Router();
 
@@ -42,6 +43,8 @@ router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
 router.post('/stats/response', response);
 
+//admin/campaign
+router.post('/admin/campaign/changeCampaignPassword', changeCampaingPassword);
 //admin/client
 router.post('/admin/client/removeClient', removeClient);
 router.post('/admin/client/searchByPhone', SearchByPhone);

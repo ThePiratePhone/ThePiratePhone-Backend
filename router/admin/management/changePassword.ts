@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
+import { Campaign } from '../../../Models/Campaign';
 
 export default async function changePasword(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -24,11 +25,11 @@ export default async function changePasword(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const output = await Area.updateOne({ _id: area._id }, { AdminPassword: req.body.newAdminCode });
+	const output = await Campaign.updateOne({ _id: area._id }, { AdminPassword: req.body.newAdminCode });
 
 	if (output.modifiedCount == 0) {
-		res.status(400).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', 'changePasword.ts');
+		res.status(404).send({ message: 'Campaign not found', OK: false });
+		log(`Campaign not found from ${ip}`, 'WARNING', 'changePasword.ts');
 		return;
 	}
 
