@@ -94,7 +94,12 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 
 	caller.curentCall = null;
-	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
+	caller.timeInCall.push({
+		date: new Date(),
+		client: client._id,
+		time: req.body.timeInCall,
+		campaign: curentCampaign._id
+	});
 
 	console.log(client);
 	await Promise.all([caller.save(), client.save()]);

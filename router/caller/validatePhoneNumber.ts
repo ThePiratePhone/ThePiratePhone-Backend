@@ -116,7 +116,12 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		log(`delete ${client.phone} client from ${caller.name} ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 	}
 	caller.curentCall = null;
-	caller.timeInCall.push({ date: new Date(), client: client._id, time: req.body.timeInCall });
+	caller.timeInCall.push({
+		date: new Date(),
+		client: client._id,
+		time: req.body.timeInCall,
+		campaign: curentCampaign._id
+	});
 
 	if (req.body.satisfaction != -2) await Promise.all([caller.save(), client.save()]);
 	else await caller.save();
