@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "npx nodemon index.ts",
 		"start": "ts-node .",
-		"deploy": "ssh Eve cd /opt/Callsphere-backend/ && git pull && sudo systemctl restart CSB"
+		"deploy": "ssh Eve sh /opt/updateCSB.sh"
 	},
 	"repository": {
 		"type": "git",
