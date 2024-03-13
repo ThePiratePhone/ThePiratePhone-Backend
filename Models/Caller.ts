@@ -18,9 +18,16 @@ const CallerSchema = new mongoose.Schema({
 		length: 4
 	},
 	timeInCall: {
-		type: [{ date: Date, client: mongoose.Schema.ObjectId, time: Number, campaign: mongoose.Schema.ObjectId }],
-		ref: 'Client',
-		required: true
+		required: true,
+		type: Array,
+		of: [
+			{
+				date: { type: Date, require: true },
+				client: { type: mongoose.Schema.ObjectId, ref: 'Client', required: true },
+				time: { type: Number, required: true },
+				campaign: { type: mongoose.Schema.ObjectId, ref: 'Campaign', required: true }
+			}
+		]
 	},
 	curentCall: {
 		campaign: {
