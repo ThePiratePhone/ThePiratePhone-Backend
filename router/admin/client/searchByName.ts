@@ -8,7 +8,7 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
-		typeof req.body.phone != 'string' ||
+		typeof req.body.name != 'string' ||
 		typeof req.body.adminCode != 'string' ||
 		!ObjectId.isValid(req.body.area)
 	) {
@@ -24,7 +24,7 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const output = await Client.find({ name: { $regex: req.body.phone, $options: 'i' } }).limit(10);
+	const output = await Client.find({ name: { $regex: req.body.name, $options: 'i' } }).limit(10);
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`Clients searched from ${ip} (${area.name})`, 'INFORMATION', 'searchByName.ts');
 }
