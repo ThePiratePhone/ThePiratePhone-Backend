@@ -25,7 +25,6 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 	}
 
 	const output = await Client.find({ name: { $regex: req.body.phone, $options: 'i' } }).limit(10);
-	console.log(output);
-	res.status(200).send({ message: 'OK', OK: true, output });
+	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`Clients searched from ${ip} (${area.name})`, 'INFORMATION', 'searchByName.ts');
 }
