@@ -59,7 +59,8 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	}
 
 	const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
-	await client.save();
+	client.data.set(campaign._id, newData);
+	await client.updateOne(req.body.phone, { data: client.data });
 
 	res.status(200).send({ message: 'User added to campaign', OK: true });
 	log(`User added to campaign from ${area.name} (${ip})`, 'INFORMATION', 'addClientCampaign.ts');
