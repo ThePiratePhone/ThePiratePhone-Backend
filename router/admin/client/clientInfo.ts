@@ -7,6 +7,7 @@ import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
 import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
+import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 
 export default async function clientInfo(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -15,7 +16,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		typeof req.body.adminCode != 'string' ||
 		typeof req.body.phone != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
-		!ObjectId.isValid(req.body.campaign)
+		(req.body.campaign && !ObjectId.isValid(req.body.campaign))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'clientInfo.ts');
@@ -35,7 +36,13 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const campaign = Campaign.find({ _id: req.body.campaign, area: req.body.area });
+	let campaign: any;
+
+	if (req.body.campaign) {
+		campaign = await Campaign.findOne({ _id: req.body.campaign, area: area._id });
+	} else {
+		campaign = await getCurrentCampaign(area._id);
+	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', 'clientInfo.ts');
