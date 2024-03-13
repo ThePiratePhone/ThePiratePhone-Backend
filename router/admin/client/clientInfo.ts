@@ -72,14 +72,12 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 	if (!callers) {
 		res.status(200).send({
 			OK: true,
-			client: client,
-			callers: []
+			data: { client: client, callers: [] }
 		});
 	} else {
 		res.status(200).send({
 			OK: true,
-			client: client,
-			callers: callers
+			data: { client: client, callers: callers }
 		});
 	}
 	log(`Client info got from ${area.name} (${ip})`, 'INFORMATION', 'clientInfo.ts');
