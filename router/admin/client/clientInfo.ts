@@ -56,19 +56,30 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
+	const timeCallClient = new Array();
+
 	const callers = client.data.get(campaign._id)?.map(async campaign => {
 		const caller = await Caller.findById(campaign.caller);
 		if (!caller) return null;
-		caller.timeInCall = caller.timeInCall.filter(
-			call => call.campaign.toString() == campaign._id && call.client.toString() == client._id.toString()
+		console.log(caller.timeInCall);
+		timeCallClient.push(
+			caller.timeInCall.filter(call => {
+				console.log(
+					call.campaign.toString(),
+					campaign?._id?.toString(),
+					call.campaign.toString() == campaign?._id?.toString()
+				);
+				call.campaign.toString() == (campaign?._id?.toString() ?? '') &&
+					call.client.toString() == client._id.toString();
+			})
 		);
 
 		return {
 			id: caller._id,
 			name: caller.name,
 			phone: caller.phone,
-			nbCall: caller.timeInCall.length,
-			calls: caller.timeInCall
+			nbCall: timeCallClient.length,
+			calls: timeCallClient
 		};
 	});
 	if (!callers) {

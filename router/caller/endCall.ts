@@ -101,7 +101,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		campaign: curentCampaign._id
 	});
 
-	console.log(client);
+	console.log(caller.timeInCall);
 	await Promise.all([caller.save(), client.save()]);
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end call from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');

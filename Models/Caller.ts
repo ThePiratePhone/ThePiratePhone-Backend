@@ -20,8 +20,7 @@ const CallerSchema = new mongoose.Schema({
 	},
 	timeInCall: {
 		required: true,
-		type: Array,
-		of: [
+		type: [
 			{
 				date: { type: Date, require: true },
 				client: { type: mongoose.Schema.ObjectId, ref: 'Client', required: true },
