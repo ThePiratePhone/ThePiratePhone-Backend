@@ -3,11 +3,13 @@ import mongoose from 'mongoose';
 const AreaModel = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true
+		required: true,
+		index: true
 	},
 	password: {
 		type: String,
-		required: true
+		required: true,
+		index: true
 	},
 	CampaignList: {
 		type: Array<typeof mongoose.Schema.ObjectId>(),

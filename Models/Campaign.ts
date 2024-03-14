@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const CampaignSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		required: true
+		required: true,
+		index: true
 	},
 	script: {
 		type: Array<String>(),
@@ -25,7 +26,8 @@ const CampaignSchema = new mongoose.Schema({
 	area: {
 		type: mongoose.Schema.ObjectId,
 		ref: 'Area',
-		required: true
+		required: true,
+		index: true
 	},
 	createdAt: {
 		type: Date,

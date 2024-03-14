@@ -1,8 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { SchemaType } from 'mongoose';
 
 const ClientSchema = new mongoose.Schema({
 	name: {
 		type: String,
+		index: 'text',
 		required: false
 	},
 	institution: {

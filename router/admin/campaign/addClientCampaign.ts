@@ -2,12 +2,12 @@ import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 
-import { Area } from '../../Models/Area';
-import { Campaign } from '../../Models/Campaign';
-import { Client } from '../../Models/Client';
-import clearPhone from '../../tools/clearPhone';
-import { log } from '../../tools/log';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { Area } from '../../../Models/Area';
+import { Campaign } from '../../../Models/Campaign';
+import { Client } from '../../../Models/Client';
+import clearPhone from '../../../tools/clearPhone';
+import { log } from '../../../tools/log';
+import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

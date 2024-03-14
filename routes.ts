@@ -1,19 +1,19 @@
 import { Router } from 'express';
 
-import addCallerCampaign from './router/admin/addCallerCampaign';
-import addClientCampaign from './router/admin/addClientCampaign';
-import changeCallerPassword from './router/admin/changeCallerPassword';
+import addCallerCampaign from './router/admin/campaign/addCallerCampaign';
+import addClientCampaign from './router/admin/campaign/addClientCampaign';
+import changeCallerPassword from './router/caller/changeCallerPassword';
 import changePasswordAdmin from './router/admin/management/changePassword';
-import createCallerByAdmin from './router/admin/createCallerByAdmin';
-import createCampaign from './router/admin/createCampaign';
+import createCallerByAdmin from './router/caller/createCallerByAdmin';
+import createCampaign from './router/admin/campaign/createCampaign';
 import createClient from './router/admin/client/createClient';
 import createClients from './router/admin/client/createClients';
-import exportCallerCsv from './router/admin/exportCallerCsv';
-import exportClientCsv from './router/admin/exportClientCsv';
-import listCaller from './router/admin/listCaller';
-import listCallerCampaign from './router/admin/listCallerCampaign';
-import listCampaign from './router/admin/listCampaign';
-import listClientCampaign from './router/admin/listClientCampaign';
+import exportCallerCsv from './router/admin/client/exportCallerCsv';
+import exportClientCsv from './router/admin/client/exportClientCsv';
+import listCaller from './router/caller/listCaller';
+import listCallerCampaign from './router/caller/listCallerCampaign';
+import listCampaign from './router/admin/campaign/listCampaign';
+import listClientCampaign from './router/admin/campaign/listClientCampaign';
 import loginAdmin from './router/admin/login';
 import changePassword from './router/caller/changePassword';
 import createCaller from './router/caller/createCaller';
@@ -32,10 +32,10 @@ import changeNumberMaxCall from './router/admin/management/changeNumberMaxCall';
 import changeTimeBetwenCall from './router/admin/management/changeTimeBetwenCall';
 import removeClient from './router/admin/client/removeClient';
 import removeAllClients from './router/admin/client/removeAllClients';
-import SearchByPhone from './router/admin/client/searchByPhone';
 import SearchByName from './router/admin/client/searchByName';
 import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
 import clientInfo from './router/admin/client/clientInfo';
+import SearchByPhone from './router/admin/client/searchByPhone';
 
 const router = Router();
 
