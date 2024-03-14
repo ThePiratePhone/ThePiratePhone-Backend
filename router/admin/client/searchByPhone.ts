@@ -1,8 +1,10 @@
-import { ObjectId } from 'mongodb';
-import { log } from '../../../tools/log';
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
+
 import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
+import clearPhone from '../../../tools/clearPhone';
+import { log } from '../../../tools/log';
 
 export default async function SearchByPhone(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -23,6 +25,8 @@ export default async function SearchByPhone(req: Request<any>, res: Response<any
 		log(`Wrong admin code from ${ip}`, 'WARNING', 'shearchByPhone.ts');
 		return;
 	}
+
+	req.body.phone = clearPhone(req.body.phone);
 
 	const output = await Client.find({ phone: { $regex: req.body.phone, $options: 'i' } }).limit(10);
 	res.status(200).send({ message: 'OK', OK: true, data: output });
