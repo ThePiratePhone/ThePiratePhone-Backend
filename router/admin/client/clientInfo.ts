@@ -56,11 +56,11 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const callers = client.data.get(req.body.campaign)?.map(async campaign => {
+	const callers = client.data.get(campaign._id)?.map(async campaign => {
 		const caller = await Caller.findById(campaign.caller);
 		if (!caller) return null;
 		caller.timeInCall = caller.timeInCall.filter(
-			call => call.campaign.toString() == req.body.campaign && call.client.toString() == client._id.toString()
+			call => call.campaign.toString() == campaign._id && call.client.toString() == client._id.toString()
 		);
 
 		return {
