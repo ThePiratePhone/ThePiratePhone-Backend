@@ -5,6 +5,10 @@ import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
 
+function escapeRegExp(input: string): string {
+	return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export default async function SearchByName(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -25,10 +29,11 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const output = await Client.find(
-		{ $text: { $search: req.body.name, $caseSensitive: false } },
-		{ score: { $meta: 'textScore' } }
-	).limit(10);
+	const escapedNameParts = (req.body.name as string).split(' ').map(escapeRegExp);
+	const regexParts = escapedNameParts.map(part => `(?=.*${part})`).join('');
+	const regex = new RegExp(`^${regexParts}`, 'i');
+	const output = await Client.find({ name: regex }).limit(10);
+
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`Clients searched from ${ip} (${area.name})`, 'INFORMATION', 'searchByName.ts');
 }
