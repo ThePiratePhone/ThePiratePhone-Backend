@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../../tools/log';
+
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
+import getCurrentCampaign from '../../../tools/getCurrentCampaign';
+import { log } from '../../../tools/log';
 
 export default async function changeCampaingPassword(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -11,7 +13,7 @@ export default async function changeCampaingPassword(req: Request<any>, res: Res
 		typeof req.body.adminCode != 'string' ||
 		typeof req.body.newCampaignCode != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
-		!ObjectId.isValid(req.body.campaign)
+		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'changeCampaingPassword.ts');
@@ -25,7 +27,20 @@ export default async function changeCampaingPassword(req: Request<any>, res: Res
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: req.body.campaign }, { password: req.body.newCampaignCode });
+	let campaign: any;
+
+	if (req.body.CampaignId) {
+		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+	} else {
+		campaign = await getCurrentCampaign(area._id);
+	}
+	if (!campaign) {
+		res.status(401).send({ message: 'Wrong campaign id', OK: false });
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'listClientCampaign.ts');
+		return;
+	}
+
+	const output = await Campaign.updateOne({ _id: campaign._id }, { password: req.body.newCampaignCode });
 	if (output.matchedCount != 1) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${ip}`, 'WARNING', 'changeCampaingPassword.ts');
