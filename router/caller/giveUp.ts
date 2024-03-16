@@ -24,7 +24,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 		log(`Invalid credential from ` + ip, 'WARNING', 'giveUp.ts');
 		return;
 	}
-	if (!caller.curentCall || !caller.curentCall.client) {
+	if (!caller.currentCall || !caller.currentCall.client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
 		log(`Not in a call from ${caller.name} (${ip})`, 'WARNING', 'giveUp.ts');
 		return;
@@ -37,7 +37,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const client = await Client.findOne({ _id: caller.curentCall.client.toString() });
+	const client = await Client.findOne({ _id: caller.currentCall.client.toString() });
 	if (!client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
 		log(`Not in a call from ${caller.name} (${ip})`, 'WARNING', 'giveUp.ts');
@@ -52,7 +52,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 	} else {
 		data?.pop();
 	}
-	caller.curentCall = null;
+	caller.currentCall = null;
 	await Promise.all([caller.save(), client.save()]);
 	res.status(200).send({ message: 'Call gived up', OK: true });
 	log(`Call gived up from ${caller.name} (${ip})`, 'INFORMATION', 'giveUp.ts');

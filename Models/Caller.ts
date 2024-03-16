@@ -29,7 +29,7 @@ const CallerSchema = new mongoose.Schema({
 			}
 		]
 	},
-	curentCall: {
+	currentCall: {
 		campaign: {
 			type: mongoose.Schema.ObjectId,
 			ref: 'Campaign',

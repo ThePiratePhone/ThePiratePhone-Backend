@@ -49,13 +49,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (typeof caller.curentCall == 'object') {
-		const client = await Client.findOne({ _id: caller.curentCall?.client });
+	if (typeof caller.currentCall == 'object') {
+		const client = await Client.findOne({ _id: caller.currentCall?.client });
 		if (!client) {
-			caller.curentCall = null;
+			caller.currentCall = null;
 		} else {
 			//if client is in the same campaign
-			if (caller.curentCall?.campaign?.toString() == campaign._id.toString()) {
+			if (caller.currentCall?.campaign?.toString() == campaign._id.toString()) {
 				res.status(400).send({
 					message: 'Already in a call',
 					OK: true,
@@ -66,9 +66,9 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				return;
 			} else {
 				//if client is in another campaign
-				const callCampaign = await Campaign.findOne({ _id: caller.curentCall?.campaign });
+				const callCampaign = await Campaign.findOne({ _id: caller.currentCall?.campaign });
 				if (!callCampaign) {
-					caller.curentCall = null;
+					caller.currentCall = null;
 				} else {
 					res.status(400).send({
 						message: 'Already in a call',
@@ -133,7 +133,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			return;
 		}
 
-		caller.curentCall = { client: client[0]._id, campaign: campaign._id };
+		caller.currentCall = { client: client[0]._id, campaign: campaign._id };
 		if (clientCampaign.length <= 1 && clientCampaign[0].status == 'not called') {
 			const last = clientCampaign.length - 1;
 			clientCampaign[last].status = 'inprogress';

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { Types } from 'mongoose';
 
+import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import checkCredentials from '../../tools/checkCredentials';
@@ -115,16 +116,23 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 	}
-	caller.curentCall = null;
-	caller.timeInCall.push({
-		date: new Date(),
-		client: client._id,
-		time: req.body.timeInCall,
-		campaign: curentCampaign._id
-	});
 
-	if (req.body.satisfaction != -2) await Promise.all([caller.save(), client.save()]);
-	else await caller.save();
+	await Caller.updateOne(
+		{ _id: caller._id },
+		{
+			$push: {
+				timeInCall: {
+					date: new Date(),
+					client: client._id,
+					time: req.body.timeInCall,
+					campaign: curentCampaign._id
+				}
+			},
+			currentCall: null
+		}
+	);
+
+	if (req.body.satisfaction != -2) await client.save();
 
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end virtual call from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');

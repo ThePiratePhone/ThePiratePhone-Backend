@@ -44,13 +44,13 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`Invalid credential from ` + ip, 'WARNING', 'endCall.ts');
 		return;
 	}
-	if (!caller.curentCall || !caller.curentCall.client) {
+	if (!caller.currentCall || !caller.currentCall.client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
 		log(`Not in a call from ${caller.name} (${ip})`, 'WARNING', 'endCall.ts');
 		return;
 	}
 
-	const client = await Client.findOne({ _id: caller.curentCall.client.toString() });
+	const client = await Client.findOne({ _id: caller.currentCall.client.toString() });
 	if (!client) {
 		res.status(400).send({ message: 'Not in a call', OK: false });
 		log(`Not in a call from ${caller.name} (${ip})`, 'WARNING', 'endCall.ts');
@@ -95,8 +95,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		clientCampaign.comment = req.body.comment.trim();
 	}
 
-	caller.curentCall = null;
-
 	await Caller.updateOne(
 		{ _id: caller._id },
 		{
@@ -107,11 +105,12 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 					time: req.body.timeInCall,
 					campaign: curentCampaign._id
 				}
-			}
+			},
+			currentCall: null
 		}
 	);
 
-	await Promise.all([caller.save(), client.save()]);
+	await client.save();
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end call from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 }
