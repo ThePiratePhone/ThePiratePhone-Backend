@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
-import checkCredentials from '../../tools/checkCredentials';
-import { log } from '../../tools/log';
-import { Client } from '../../Models/Client';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
-import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
-import { Campaign } from '../../Models/Campaign';
+import mongoose from 'mongoose';
+
 import { Area } from '../../Models/Area';
+import { Caller } from '../../Models/Caller';
+import { Campaign } from '../../Models/Campaign';
+import { Client } from '../../Models/Client';
+import checkCredentials from '../../tools/checkCredentials';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
 
 export default async function endCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -94,14 +96,21 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 
 	caller.curentCall = null;
-	caller.timeInCall.push({
-		date: new Date(),
-		client: client._id,
-		time: req.body.timeInCall,
-		campaign: curentCampaign._id
-	});
 
-	console.log(caller.timeInCall);
+	await Caller.updateOne(
+		{ _id: caller._id },
+		{
+			$push: {
+				timeInCall: {
+					date: new Date(),
+					client: client._id,
+					time: req.body.timeInCall,
+					campaign: curentCampaign._id
+				}
+			}
+		}
+	);
+
 	await Promise.all([caller.save(), client.save()]);
 	res.status(200).send({ message: 'OK', OK: true });
 	log(`end call from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
