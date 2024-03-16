@@ -36,7 +36,7 @@ export default async function changeCallHoursStart(req: Request<any>, res: Respo
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'listClientCampaign.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'changeCallHoursStart.ts');
 		return;
 	}
 
