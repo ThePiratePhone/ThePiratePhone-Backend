@@ -55,7 +55,14 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	}
 	let areaCombo: {
 		area: { name: string; _id: Types.ObjectId };
-		campaignAvailable: { name: string; _id: Types.ObjectId; areaId: Types.ObjectId; areaName: string }[];
+		campaignAvailable: {
+			name: string;
+			callHoursEnd: Date | null | undefined;
+			callHoursStart: Date | null | undefined;
+			_id: Types.ObjectId;
+			areaId: Types.ObjectId;
+			areaName: string;
+		}[];
 	};
 	try {
 		areaCombo = {
