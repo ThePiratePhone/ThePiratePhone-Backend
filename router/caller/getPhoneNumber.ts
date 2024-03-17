@@ -32,6 +32,12 @@ export default async function getPhoneNumber(
 		return;
 	}
 
+	if (aspirationDetector.get(caller._id) ?? 0 >= 5) {
+		res.status(429).send({ message: 'Too many error with call', OK: false });
+		log(`aspirator refused from ${caller.name} (${ip}) (${caller.phone})`, 'ERROR', 'getPhoneNumber.ts');
+		return;
+	}
+
 	const area = await Area.findOne({ _id: req.body.area });
 	if (!area) {
 		res.status(404).send({ message: 'area not found', OK: false });
