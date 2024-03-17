@@ -38,9 +38,10 @@ import getArea from './router/getArea';
 import call from './router/stats/call';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
+import { ObjectId } from 'mongodb';
 
 const router = Router();
-
+const aspirationDetector = new Map<ObjectId, number>();
 //stats
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
@@ -80,7 +81,7 @@ router.post('/admin/login', loginAdmin);
 router.post('/changePassword', changePassword);
 router.post('/createCaller', createCaller);
 router.post('/endCall', endCall);
-router.post('/getPhoneNumber', getPhoneNumber);
+router.post('/getPhoneNumber', (req, res) => getPhoneNumber(req, res, aspirationDetector));
 router.post('/getProgress', getProgress);
 router.post('/giveUp', giveUp);
 router.post('/joinCampaign', joinCampaign);

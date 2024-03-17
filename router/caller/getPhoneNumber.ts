@@ -8,7 +8,11 @@ import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
 
-export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
+export default async function getPhoneNumber(
+	req: Request<any>,
+	res: Response<any>,
+	aspirationDetector: Map<ObjectId, number>
+) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
@@ -90,8 +94,17 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	).length;
 
 	if (nbCallInMinutes >= 8) {
+		aspirationDetector.set(caller._id, (aspirationDetector.get(caller._id) ?? 0) + 1);
 		res.status(429).send({ message: 'Too many call in the last minute', OK: false });
-		log(`Too many call in the last minute from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
+		if (aspirationDetector.get(caller._id) ?? 0 >= 5)
+			log(`aspiration detected from: ${caller.name} (${ip}) (${caller.phone})`, 'ERROR', 'getPhoneNumber.ts');
+		else
+			log(
+				`Too many call in the last minute from: ${caller.name} (${ip}) (${caller.phone})`,
+				'WARNING',
+				'getPhoneNumber.ts'
+			);
+
 		return;
 	}
 
