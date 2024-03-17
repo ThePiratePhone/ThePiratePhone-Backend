@@ -11,7 +11,7 @@ import { log } from '../../tools/log';
 export default async function getPhoneNumber(
 	req: Request<any>,
 	res: Response<any>,
-	aspirationDetector: Map<ObjectId, number>
+	aspirationDetector: Map<String, number>
 ) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -32,7 +32,7 @@ export default async function getPhoneNumber(
 		return;
 	}
 
-	if (aspirationDetector.get(caller._id) ?? 0 >= 5) {
+	if (aspirationDetector.get(caller.phone) ?? 0 >= 5) {
 		res.status(429).send({ message: 'Too many error with call', OK: false });
 		log(`aspirator refused from ${caller.name} (${ip}) (${caller.phone})`, 'ERROR', 'getPhoneNumber.ts');
 		return;
@@ -100,9 +100,9 @@ export default async function getPhoneNumber(
 	).length;
 
 	if (nbCallInMinutes >= 8) {
-		aspirationDetector.set(caller._id, (aspirationDetector.get(caller._id) ?? 0) + 1);
+		aspirationDetector.set(caller.phone, (aspirationDetector.get(caller.phone) ?? 0) + 1);
 		res.status(429).send({ message: 'Too many call in the last minute', OK: false });
-		if (aspirationDetector.get(caller._id) ?? 0 >= 5)
+		if (aspirationDetector.get(caller.phone) ?? 0 >= 5)
 			log(`aspiration detected from: ${caller.name} (${ip}) (${caller.phone})`, 'ERROR', 'getPhoneNumber.ts');
 		else
 			log(

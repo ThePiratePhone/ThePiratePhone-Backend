@@ -38,10 +38,10 @@ import getArea from './router/getArea';
 import call from './router/stats/call';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
-import { ObjectId } from 'mongodb';
+import cleanAspiration from './router/admin/caller/cleanAspiration';
 
 const router = Router();
-const aspirationDetector = new Map<ObjectId, number>();
+const aspirationDetector = new Map<String, number>();
 //stats
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
@@ -59,6 +59,9 @@ router.post('/admin/client/removeClients', removeAllClients);
 router.post('/admin/client/createClient', createClient);
 router.post('/admin/client/createClients', createClients);
 router.post('/admin/client/clientInfo', clientInfo);
+
+//admin/caller
+router.post('/admin/caller/cleanAspiration', (req, res) => cleanAspiration(req, res, aspirationDetector));
 
 //admin/
 router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
