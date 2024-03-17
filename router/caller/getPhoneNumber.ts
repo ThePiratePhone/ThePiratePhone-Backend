@@ -83,6 +83,18 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		}
 	}
 
+	const nbCallInMinutes = caller.timeInCall.filter(
+		time =>
+			(time.date ?? new Date()).getMinutes() > new Date().getMinutes() - 1 &&
+			time.campaign.toString() == campaign._id.toString()
+	).length;
+
+	if (nbCallInMinutes >= 8) {
+		res.status(429).send({ message: 'Too many call in the last minute', OK: false });
+		log(`Too many call in the last minute from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
+		return;
+	}
+
 	//find first client with status not called
 	const threeHoursAgo = new Date();
 	threeHoursAgo.setHours(threeHoursAgo.getHours() - 3);
