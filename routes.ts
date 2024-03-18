@@ -39,6 +39,7 @@ import call from './router/stats/call';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
 import cleanAspiration from './router/admin/caller/cleanAspiration';
+import sendReset from './router/caller/resetPassword/sendReset';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();

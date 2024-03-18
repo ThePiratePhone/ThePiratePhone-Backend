@@ -1,5 +1,6 @@
 import axios from 'axios';
 import chalk from 'chalk';
+import { log } from './log';
 
 async function sendSms(phoneNumber: string, message: string) {
 	message = message.replaceAll('\n', '%0a');
@@ -11,15 +12,17 @@ async function sendSms(phoneNumber: string, message: string) {
 		phoneArray.unshift('+');
 		phoneNumber = phoneArray.join('');
 	} else if (phoneNumber[0] != '+') {
-		console.log('[' + chalk.red('ERROR') + '] Bad phoneNumber: ' + phoneNumber);
+		log(`Error sending sms to ${phoneNumber}: invalid phone number`, 'ERROR', 'sendSms.ts');
 		return;
 	}
-	console.log(`[>${chalk.green(phoneNumber)}>] ${message}`);
+	log(`Sending sms to ${phoneNumber}: ${message}`, 'INFORMATION', 'sendSms.ts');
 
 	const res = await axios.post(`http://${process.env.PHONE_IP}/send?message=${message}&phoneno=%2B${phoneNumber}`);
 	if (res?.data?.body?.success != true && typeof res?.data?.body?.success == undefined) {
-		console.log('[' + chalk.red('ERROR') + ']' + ' send error ' + res?.data?.body?.message);
+		log(`Error sending sms to ${phoneNumber}: ${res?.data?.body?.message}`, 'ERROR', 'sendSms.ts');
+		return false;
 	}
+	return true;
 }
 
 export default sendSms;
