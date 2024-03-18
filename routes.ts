@@ -21,7 +21,7 @@ import loginAdmin from './router/admin/login';
 import changeNumberMaxCall from './router/admin/management/changeNumberMaxCall';
 import changePasswordAdmin from './router/admin/management/changePassword';
 import changeTimeBetwenCall from './router/admin/management/changeTimeBetwenCall';
-import changeCallerPassword from './router/caller/changeCallerPassword';
+import changeCallerPassword from './router/admin/caller/changeCallerPassword';
 import changePassword from './router/caller/changePassword';
 import createCaller from './router/caller/createCaller';
 import createCallerByAdmin from './router/caller/createCallerByAdmin';
@@ -42,6 +42,7 @@ import cleanAspiration from './router/admin/caller/cleanAspiration';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
+const resetPassword = new Map<String, { date: Date; password: String; try: number }>();
 //stats
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
@@ -90,6 +91,7 @@ router.post('/giveUp', giveUp);
 router.post('/joinCampaign', joinCampaign);
 router.post('/login', login);
 router.post('/validatePhoneNumber', validatePhoneNumber);
+router.post('/resetPassword/sendReset', (req, res) => sendReset(req, res, resetPassword));
 
 router.get('/getArea', getArea);
 
