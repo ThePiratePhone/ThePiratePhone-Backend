@@ -40,6 +40,7 @@ import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
 import cleanAspiration from './router/admin/caller/cleanAspiration';
 import sendReset from './router/caller/resetPassword/sendReset';
+import resetCallerPassword from './router/caller/resetPassword/resetPassword';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -93,6 +94,7 @@ router.post('/joinCampaign', joinCampaign);
 router.post('/login', login);
 router.post('/validatePhoneNumber', validatePhoneNumber);
 router.post('/resetPassword/sendReset', (req, res) => sendReset(req, res, resetPassword));
+router.post('/resetPassword/resetPassword', (req, res) => resetCallerPassword(req, res, resetPassword));
 
 router.get('/getArea', getArea);
 
