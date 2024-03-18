@@ -29,7 +29,7 @@ export default async function sendReset(
 
 	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area });
 	if (!caller) {
-		res.status(400).send({ message: 'Phone number not found', OK: false });
+		res.status(200).send({ message: 'Password sent if phone existe', OK: true });
 		log(`Phone number not found from ` + ip, 'WARNING', 'sendReset.ts');
 		return;
 	}
@@ -51,6 +51,6 @@ ${bolderize('ne repondez pas a ce message')}`
 		return;
 	}
 
-	res.status(200).send({ message: 'Password sent', OK: true });
+	res.status(200).send({ message: 'Password sent if phone existe', OK: true });
 	log(`caller ${caller.name} (${caller.phone}) ask to reset the password`, 'INFORMATION', 'sendReset.ts');
 }

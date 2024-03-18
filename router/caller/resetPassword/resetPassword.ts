@@ -32,7 +32,10 @@ export default async function resetCallerPassword(
 
 	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area });
 	if (!caller) {
-		res.status(400).send({ message: 'Phone number not found', OK: false });
+		res.status(404).send({
+			message: 'Wrong creantial',
+			OK: false
+		});
 		log(`Phone number not found from ` + ip, 'WARNING', 'resetCallerPassword.ts');
 		return;
 	}
@@ -52,11 +55,11 @@ export default async function resetCallerPassword(
 
 	if (reset?.password != req.body.tryPassword) {
 		log(`Wrong password from ` + ip, 'WARNING', 'resetCallerPassword.ts');
-		res.status(401).send({
-			message: 'Wrong password',
-			data: { endDate: new Date((reset?.date.getTime() ?? 0) + 600_000), try: reset?.try },
+		res.status(404).send({
+			message: 'Wrong creantial',
 			OK: false
 		});
+		return;
 	}
 
 	if (req.body.newPin.length != 4) {
