@@ -26,6 +26,13 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 		return;
 	}
 
+	const campaign = await Campaign.findOne({ _id: req.body.campaign });
+	if (!campaign) {
+		res.status(401).send({ message: 'Wrong campaign id', OK: false });
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'numberOfCallers.ts');
+		return;
+	}
+
 	const countCallers = await Caller.countDocuments({ campaigns: campaign._id });
 
 	res.status(200).send({
