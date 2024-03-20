@@ -7,6 +7,7 @@ import { Client } from '../../Models/Client';
 import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
+import sendSms from '../../tools/sendSms';
 
 export default async function getPhoneNumber(
 	req: Request<any>,
@@ -102,9 +103,19 @@ export default async function getPhoneNumber(
 	if (nbCallInMinutes >= 8) {
 		aspirationDetector.set(caller.phone, (aspirationDetector.get(caller.phone) ?? 0) + 1);
 		res.status(429).send({ message: 'Too many call in the last minute', OK: false });
-		if (aspirationDetector.get(caller.phone) ?? 0 >= 5)
+		if (aspirationDetector.get(caller.phone) ?? 0 >= 5) {
 			log(`aspiration detected from: ${caller.name} (${ip}) (${caller.phone})`, 'ERROR', 'getPhoneNumber.ts');
-		else
+			await sendSms(
+				area.adminPhone,
+				`aspiration detected from: ${caller.name} (${ip}) (${caller.phone})
+this user has been banned, contact the devlopper to unban him.`
+			);
+			if (process.env.DEV_PHONE)
+				await sendSms(
+					process.env.DEV_PHONE,
+					`aspiration detected from: ${caller.name} (${ip}) (${caller.phone})`
+				);
+		} else
 			log(
 				`Too many call in the last minute from: ${caller.name} (${ip}) (${caller.phone})`,
 				'WARNING',

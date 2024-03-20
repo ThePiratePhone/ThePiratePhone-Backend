@@ -28,7 +28,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 
 	if (isNaN(req.body.satisfaction) || req.body.satisfaction < -2 || req.body.satisfaction > 2) {
 		res.status(400).send({ message: 'satisfaction is not a valid number', OK: false });
-		log(`satisfaction is not a valid number from ` + ip, 'ERROR', 'endCall.ts');
+		log(`satisfaction is not a valid number from ` + ip, 'WARNING', 'endCall.ts');
 		return;
 	}
 
@@ -42,7 +42,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 	const curentCampaign: any = await getCurrentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(404).send({ message: 'no actual Camaing', OK: false });
-		log(`no actual Camaing from ${caller.name} (${ip})`, 'ERROR', 'validatePhoneNumber.ts');
+		log(`no actual Camaing from ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
 		return;
 	}
 
