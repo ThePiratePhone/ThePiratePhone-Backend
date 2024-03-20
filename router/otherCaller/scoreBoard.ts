@@ -61,19 +61,17 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}
 
 	const callers = await Caller.find({ area: req.body.area, campaigns: campaign._id }).limit(10);
-
 	const scoreBoard = callers.map(el => {
 		return {
 			name: el.name,
 			nbCall: el.timeInCall.length,
-			timeInCall: el.timeInCall.filter(el => el.campaign.toString() == campaign._id.toString())
+			timeInCall: el.timeInCall.reduce((acc, cur) => acc + cur.time, 0)
 		};
 	});
 
 	scoreBoard.sort((a, b) => {
 		return b.nbCall - a.nbCall;
 	});
-
 	res.status(200).send({
 		message: 'OK',
 		data: scoreBoard,

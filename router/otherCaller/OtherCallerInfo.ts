@@ -30,6 +30,13 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		return;
 	}
 
+	req.body.otherPhone = clearPhone(req.body.otherPhone);
+	if (!phoneNumberCheck(req.body.otherPhone)) {
+		res.status(400).send({ message: 'Wrong phone number (otherPhone)', OK: false });
+		log(`Wrong phone number (otherPhone) from: ` + ip, 'WARNING', 'scoreBoard.ts');
+		return;
+	}
+
 	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area, pinCode: req.body.pinCode });
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
@@ -61,5 +68,5 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 			nbCalls: call.timeInCall.length
 		}
 	});
-	log(`Caller ino get from: ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
+	log(`Caller info get from: ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
 }
