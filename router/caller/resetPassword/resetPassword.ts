@@ -39,7 +39,6 @@ export default async function resetCallerPassword(
 		log(`Phone number not found from ` + ip, 'WARNING', 'resetCallerPassword.ts');
 		return;
 	}
-
 	const reset = resetPassword.get(req.body.phone);
 	if ((reset?.try ?? 4) >= 3) {
 		res.status(429).send({ message: 'Too many tries', OK: false });
@@ -47,7 +46,7 @@ export default async function resetCallerPassword(
 		return;
 	}
 
-	if (new Date().getTime() - (reset?.date?.getTime() ?? 0) < 600_000) {
+	if (new Date().getTime() - (reset?.date?.getTime() ?? 0) > 600_000) {
 		res.status(408).send({ message: 'too long', OK: false });
 		log(`too long from ` + ip, 'WARNING', 'resetCallerPassword.ts');
 		return;
