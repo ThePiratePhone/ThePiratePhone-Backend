@@ -59,8 +59,13 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		log(`Caller not allowed to call this campaign from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
 		return;
 	}
+	const callers = await Caller.aggregate([
+		{ $match: { area: ObjectId.createFromHexString(req.body.area), campaigns: campaign._id } },
+		{ $addFields: { length: { $size: '$timeInCall' } } },
+		{ $sort: { length: -1 } },
+		{ $limit: 10 }
+	]);
 
-	const callers = await Caller.find({ area: req.body.area, campaigns: campaign._id }).limit(10);
 	const scoreBoard = callers.map(el => {
 		return {
 			name: el.name,

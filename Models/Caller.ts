@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { Campaign } from './Campaign';
 
 const CallerSchema = new mongoose.Schema({
 	name: {
