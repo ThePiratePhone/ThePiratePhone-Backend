@@ -1,20 +1,20 @@
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
 import { log } from '../../tools/log';
 import clearPhone from '../../tools/clearPhone';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
-import { ObjectId } from 'mongodb';
 import { Caller } from '../../Models/Caller';
-import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import { Area } from '../../Models/Area';
-import { Campaign } from '../../Models/Campaign';
+import { NativeBuffer } from 'mongoose';
 
-export default async function scoreBoard(req: Request<any>, res: Response<any>) {
+export default async function OtherCallerInfo(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
+		typeof req.body.otherPhone != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
 		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
 	) {
@@ -44,40 +44,22 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	let campaign;
-	if (!req.body.campaign) campaign = (await AreaCampaignProgress(area)) as any;
-	else campaign = Campaign.findOne({ _id: req.body.campaign, area: req.body.area });
-
-	if (!campaign || campaign == null) {
-		res.status(200).send({ message: 'no campaign in progress or campaign not found', OK: false });
-		log(`No campaign in progress or campaign not found from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
+	const call = await Caller.findOne({ area: req.body.area, phone: req.body.otherPhone });
+	if (!call) {
+		res.status(404).send({ message: 'Caller not found', OK: false });
+		log(`Caller not found from: ` + ip, 'WARNING', 'scoreBoard.ts');
 		return;
 	}
-
-	if (campaign.area.toString() != area._id.toString() && !caller.campaigns.includes(campaign._id)) {
-		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
-		log(`Caller not allowed to call this campaign from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
-		return;
-	}
-
-	const callers = await Caller.find({ area: req.body.area, campaigns: campaign._id }).limit(10);
-
-	const scoreBoard = callers.map(el => {
-		return {
-			name: el.name,
-			nbCall: el.timeInCall.length,
-			timeInCall: el.timeInCall.filter(el => el.campaign.toString() == campaign._id.toString())
-		};
-	});
-
-	scoreBoard.sort((a, b) => {
-		return b.nbCall - a.nbCall;
-	});
 
 	res.status(200).send({
 		message: 'OK',
-		data: scoreBoard,
-		OK: true
+		OK: true,
+		data: {
+			name: call.name,
+			phone: call.phone,
+			totalTime: call.timeInCall.reduce((acc, cur) => acc + cur.time, 0),
+			nbCalls: call.timeInCall.length
+		}
 	});
-	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
+	log(`Caller ino get from: ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
 }
