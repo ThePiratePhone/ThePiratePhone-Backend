@@ -41,6 +41,7 @@ import response from './router/stats/response';
 import cleanAspiration from './router/admin/caller/cleanAspiration';
 import sendReset from './router/caller/resetPassword/sendReset';
 import resetCallerPassword from './router/caller/resetPassword/resetPassword';
+import scoreBoard from './router/otherCaller/scoreBoard';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -82,6 +83,9 @@ router.post('/admin/listCaller', listCaller);
 router.post('/admin/listCallerCampaign', listCallerCampaign);
 router.post('/admin/listClientCampaign', listClientCampaign);
 router.post('/admin/login', loginAdmin);
+
+//otherCaller
+router.post('/otherCaller/scoreBoard', scoreBoard);
 
 //caller
 router.post('/changePassword', changePassword);
