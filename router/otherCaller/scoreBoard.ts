@@ -58,13 +58,13 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	if (campaign.area.toString() != area._id.toString() && !campaign.callerList.includes(caller._id)) {
+	if (campaign.area.toString() != area._id.toString() && !caller.campaigns.includes(campaign._id)) {
 		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
 		log(`Caller not allowed to call this campaign from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	}
 
-	const callers = await Caller.find({ area: req.body.area, _id: { $in: campaign.callerList } }).limit(10);
+	const callers = await Caller.find({ area: req.body.area, campaigns: campaign._id }).limit(10);
 
 	const scoreBoard = callers.map(el => {
 		return {

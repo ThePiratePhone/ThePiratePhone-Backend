@@ -18,11 +18,6 @@ const CampaignSchema = new mongoose.Schema({
 		type: Date,
 		required: true
 	},
-	callerList: {
-		type: [mongoose.Schema.Types.ObjectId],
-		ref: 'Caller',
-		required: true
-	},
 	area: {
 		type: mongoose.Schema.ObjectId,
 		ref: 'Area',

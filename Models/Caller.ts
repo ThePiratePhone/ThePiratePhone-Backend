@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { Campaign } from './Campaign';
 
 const CallerSchema = new mongoose.Schema({
 	name: {
@@ -45,6 +46,12 @@ const CallerSchema = new mongoose.Schema({
 		type: mongoose.Schema.ObjectId,
 		ref: 'Area',
 		required: true
+	},
+	campaigns: {
+		type: [mongoose.Schema.ObjectId],
+		ref: 'Campaign',
+		required: true,
+		default: []
 	},
 	createdAt: {
 		type: Date,

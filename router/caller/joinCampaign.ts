@@ -42,7 +42,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	if (curentCampaign.callerList.includes(caller._id)) {
+	if (caller.campaigns.includes(curentCampaign._id)) {
 		res.status(403).send({ message: 'Caller already in campaign', OK: false });
 		log(`Caller already in campaign from: ${caller.name} (${ip})`, 'WARNING', 'joinCampaign.ts');
 		return;
@@ -55,7 +55,10 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { callerList: caller._id } });
+	await Promise.all([
+		Campaign.updateOne({ _id: curentCampaign._id }),
+		caller.updateOne({ $push: { campaigns: curentCampaign._id } })
+	]);
 	res.status(200).send({
 		message: 'Caller added to campaign',
 		OK: true,

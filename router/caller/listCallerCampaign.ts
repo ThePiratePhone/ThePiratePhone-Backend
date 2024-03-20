@@ -35,9 +35,9 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
-	const numberOfCallers = await Caller.countDocuments({ _id: { $in: campaign.callerList } });
+	const numberOfCallers = await Caller.countDocuments({ campaigns: campaign._id });
 
-	const callers = await Caller.find({ _id: { $in: campaign.callerList } })
+	const callers = await Caller.find({ campaigns: campaign._id })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!callers) {

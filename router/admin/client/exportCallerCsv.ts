@@ -35,8 +35,7 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 			log(`No campaign in progress from ${ip}`, 'WARNING', 'exportCallerCsv.ts');
 			return;
 		}
-		console.log(campaign.callerList);
-		selector = { $or: [{ _id: { $in: campaign.callerList } }, { area: area._id }] };
+		selector = { $or: [{ campaigns: campaign._id }, { area: area._id }] };
 	}
 
 	const csvStream = csv.format({ headers: true, delimiter: ';' });

@@ -44,12 +44,12 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	if (campaign.callerList.includes(caller._id)) {
+	if (caller.campaigns.includes(campaign._id)) {
 		res.status(200).send({ message: 'Caller already in campaign', OK: true });
 		log(`Caller already in campaign from ${area.name} (${ip})`, 'WARNING', 'addCallerCampaign.ts');
 		return;
 	}
-	await campaign.updateOne({ $push: { callerList: caller._id } });
+	await caller.updateOne({ $push: { campaigns: campaign._id } });
 
 	res.status(200).send({ message: 'Caller added to campaign', OK: true });
 	log(`Caller added to campaign from ${area.name} (${ip})`, 'INFORMATION', 'addCallerCampaign.ts');

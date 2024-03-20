@@ -4,6 +4,7 @@ import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
 import { ObjectId } from 'mongodb';
+import { Caller } from '../../Models/Caller';
 
 export default async function numberOfCallers(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -25,17 +26,12 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: req.body.campaign });
-	if (!campaign) {
-		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'numberOfCallers.ts');
-		return;
-	}
+	const countCallers = await Caller.countDocuments({ campaigns: campaign._id });
 
 	res.status(200).send({
-		message: 'in this campaign ' + campaign.callerList.length + ' caller was added',
+		message: 'in this campaign ' + countCallers + ' caller was added',
 		OK: true,
-		data: { numberOfCallers: campaign.callerList.length }
+		data: { numberOfCallers: countCallers }
 	});
 	log(`number of caller get by ${area.name} (${ip})`, 'INFORMATION', 'numberOfCallers.ts');
 }

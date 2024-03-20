@@ -46,7 +46,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		return;
 	}
 
-	if (curentCampaign.area.toString() != caller.area.toString() && !curentCampaign.callerList.includes(caller._id)) {
+	if (curentCampaign.area.toString() != caller.area.toString() && !caller.campaigns.includes(curentCampaign._id)) {
 		res.status(403).send({ message: 'Caller not in campaign', OK: false });
 		log(`Caller not in campaign from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
 		return;

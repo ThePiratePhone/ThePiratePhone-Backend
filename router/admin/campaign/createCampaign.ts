@@ -66,7 +66,6 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		script: req.body.script,
 		dateStart: dateStart,
 		dateEnd: dateEnd,
-		callerList: [],
 		trashUser: [],
 		password: req.body.password,
 		callHoursStart: req.body.callHoursStart,

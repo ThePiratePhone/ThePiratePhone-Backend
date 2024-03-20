@@ -36,7 +36,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 				dateEnd: { $gte: new Date() }
 			},
 			{
-				callerList: caller._id,
+				_id: { $in: caller.campaigns },
 				dateStart: { $lte: new Date() },
 				dateEnd: { $gte: new Date() }
 			}
