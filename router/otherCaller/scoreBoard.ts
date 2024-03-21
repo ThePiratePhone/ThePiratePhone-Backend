@@ -59,12 +59,43 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		log(`Caller not allowed to call this campaign from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
 		return;
 	}
+
 	const callers = await Caller.aggregate([
 		{ $match: { area: ObjectId.createFromHexString(req.body.area), campaigns: campaign._id } },
 		{ $addFields: { length: { $size: '$timeInCall' } } },
 		{ $sort: { length: -1 } },
-		{ $limit: 10 }
+		{ $limit: 5 }
 	]);
+
+	let place: any = callers.findIndex(el => el.phone == req.body.phone);
+	if (place >= -1) {
+		const truc = await Caller.aggregate([
+			{ $match: { area: ObjectId.createFromHexString(req.body.area), campaigns: campaign._id } },
+			{ $addFields: { length: { $size: '$timeInCall' } } },
+			{ $sort: { length: -1 } },
+			{ $project: { name: 1, timeInCall: 1, phone: 1 } },
+			{
+				$group: {
+					_id: null,
+					phones: { $push: '$phone' },
+					names: { $push: '$name' },
+					timeInCalls: { $push: '$timeInCall' }
+				}
+			},
+			{ $project: { yourPlace: { $indexOfArray: ['$phones', req.body.phone] }, names: 1, timeInCalls: 1 } },
+			{ $unwind: { path: '$yourPlace' } },
+			{
+				$project: {
+					name: { $arrayElemAt: ['$names', '$yourPlace'] },
+					timeInCall: { $arrayElemAt: ['$timeInCalls', '$yourPlace'] },
+					yourPlace: '$yourPlace'
+				}
+			}
+		]);
+
+		console.log(truc);
+		place = truc[0].yourPlace;
+	}
 
 	const scoreBoard = callers.map(el => {
 		return {
@@ -79,7 +110,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	});
 	res.status(200).send({
 		message: 'OK',
-		data: scoreBoard,
+		data: { scoreBoard, yourPlace: place + 1 },
 		OK: true
 	});
 	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
