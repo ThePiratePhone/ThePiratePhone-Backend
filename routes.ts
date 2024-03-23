@@ -43,6 +43,7 @@ import resetCallerPassword from './router/caller/resetPassword/resetPassword';
 import scoreBoard from './router/otherCaller/scoreBoard';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import setActive from './router/admin/campaign/setActive';
+import changeCallHours from './router/admin/campaign/changeCallHours';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -56,6 +57,7 @@ router.post('/stats/response', response);
 router.post('/admin/campaign/changeCampaignPassword', changeCampaingPassword);
 router.post('/admin/campaign/setActive', setActive);
 router.post('/admin/campaign/changeName', changeName);
+router.post('/admin/campaign/changeCallHours', changeCallHours);
 //admin/client
 router.post('/admin/client/removeClient', removeClient);
 router.post('/admin/client/searchByPhone', SearchByPhone);

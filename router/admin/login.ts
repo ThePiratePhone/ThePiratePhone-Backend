@@ -13,7 +13,9 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
+	console.log(req.body);
 	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
+	console.log(area);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', 'login.ts');
