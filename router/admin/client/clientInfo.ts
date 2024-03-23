@@ -36,7 +36,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	let campaign: any;
+	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.campaign) {
 		campaign = await Campaign.findOne({ _id: req.body.campaign, area: area._id });
@@ -58,7 +58,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 
 	const timeCallClient = new Array();
 
-	const callers = client.data.get(campaign._id)?.map(async campaign => {
+	const callers = client.data.get(campaign._id.toString())?.map(async campaign => {
 		const caller = await Caller.findById(campaign.caller);
 		if (!caller) return null;
 		console.log(caller.timeInCall);

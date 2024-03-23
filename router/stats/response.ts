@@ -26,7 +26,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const campaign = (await getCurrentCampaign(area._id)) as any;
+	const campaign = await getCurrentCampaign(area._id);
 	if (!campaign) {
 		res.status(404).send({ message: 'campaign not found', OK: false });
 		log(`Campaign not found from: ${area.name} (${ip})`, 'WARNING', 'response.ts');
@@ -44,7 +44,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 	let removed = 0;
 	let notAnswered = 0;
 	await clientInThisCampaign.eachAsync(client => {
-		const data = client.data.get(campaign._id);
+		const data = client.data.get(campaign._id.toString());
 		const call = data?.[data.length - 1];
 
 		clientCalled++;

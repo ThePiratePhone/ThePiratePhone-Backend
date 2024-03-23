@@ -29,7 +29,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const curentCampaign: any = await getCurrentCampaign(req.body.area);
+	const curentCampaign = await getCurrentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(400).send({ message: 'no actual campaign', OK: false });
 		log(`no actual campaign from ${caller.name} (${ip})`, 'WARNING', 'joinCampaign.ts');

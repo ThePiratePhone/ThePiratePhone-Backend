@@ -57,7 +57,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const curentCampaign: any = await getCurrentCampaign(req.body.area);
+	const curentCampaign = await getCurrentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(404).send({ message: 'no actual Camaing', OK: false });
 		log(`no actual Camaing from ${caller.name} (${ip})`, 'WARNING', 'endCall.ts');
@@ -72,7 +72,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 
 	if (req.body.satisfaction == -2) {
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
-		await Area.updateOne({ _id: curentCampaign.Area }, { $pull: { clientList: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 	}
 

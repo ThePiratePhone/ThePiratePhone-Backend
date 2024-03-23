@@ -39,7 +39,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	let campaign: any;
+	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.campaign) {
 		campaign = await Campaign.findOne({ _id: req.body.campaign, area: area._id });
@@ -59,7 +59,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	}
 
 	const newData = new mongoose.Types.DocumentArray([{ status: 'not called' }]) as any;
-	client.data.set(campaign._id, newData);
+	client.data.set(campaign._id.toString(), newData);
 	await client.save();
 
 	res.status(200).send({ message: 'User added to campaign', OK: true });

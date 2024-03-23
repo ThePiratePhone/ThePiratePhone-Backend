@@ -46,7 +46,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 		}
 		const data = new Map();
 		if (campaign) {
-			data.set((campaign as any)._id, {
+			data.set(campaign._id.toString(), {
 				status: 'not called'
 			});
 		}

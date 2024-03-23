@@ -30,7 +30,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const curentCampaign: any = await getCurrentCampaign(req.body.area);
+	const curentCampaign = await getCurrentCampaign(req.body.area);
 	if (!curentCampaign) {
 		res.status(404).send({ message: 'no actual Camaing', OK: false });
 		log(`no actual Camaing from ${caller.name} (${ip})`, 'WARNING', 'giveUp.ts');
@@ -44,7 +44,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const data = client.data.get(curentCampaign._id);
+	const data = client.data.get(curentCampaign._id.toString());
 	if (data && data.length < 2) {
 		data[data.length - 1].status = 'not called';
 		data[data.length - 1].caller = null;

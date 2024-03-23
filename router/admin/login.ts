@@ -20,7 +20,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	let campaign = (await getCurrentCampaign(area._id)) as any;
+	let campaign = await getCurrentCampaign(area._id);
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
 		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'login.ts');
