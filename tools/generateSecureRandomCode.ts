@@ -1,4 +1,4 @@
-function generateSecureRandomCode(length) {
+function generateSecureRandomCode(length: number): string {
 	const charset = '0123456789';
 	const charsetLength = charset.length;
 	const randomBytes = new Uint8Array(length);

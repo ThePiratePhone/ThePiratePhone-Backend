@@ -2,7 +2,10 @@ import { Caller } from '../Models/Caller';
 import clearPhone from './clearPhone';
 import phoneNumberCheck from './phoneNumberCheck';
 
-export default async function checkCredentials(phone: string, pinCode: string) {
+export default async function checkCredentials(
+	phone: string,
+	pinCode: string
+): Promise<InstanceType<typeof Caller> | false> {
 	if (!phone || !pinCode) return false;
 	phone = clearPhone(phone);
 	if (!phoneNumberCheck(phone)) return false;

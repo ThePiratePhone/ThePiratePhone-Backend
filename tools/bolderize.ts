@@ -1,4 +1,4 @@
-function bolderize(text: string) {
+function bolderize(text: string): string {
 	return text
 		.split('')
 		.map(char => {
