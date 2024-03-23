@@ -29,7 +29,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 
 	res.status(200).send({
 		message: 'OK',
-		Data: {
+		data: {
 			actualCampaignName: campaign.name,
 			actualCampaignCallStart: campaign.callHoursStart,
 			actualCampaignCallEnd: campaign.callHoursEnd,
@@ -38,4 +38,5 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		},
 		OK: true
 	});
+	log(`Login from ${area.name} (${ip})`, 'INFORMATION', 'login.ts');
 }
