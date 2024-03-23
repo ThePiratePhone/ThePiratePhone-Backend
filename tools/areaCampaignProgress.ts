@@ -1,10 +1,10 @@
 import { Campaign } from '../Models/Campaign';
 
-async function AreaCampaignProgress(area: any): Promise<typeof Campaign | undefined> {
+async function AreaCampaignProgress(area: any): Promise<InstanceType<typeof Campaign> | undefined> {
 	if (!area || !area.id) {
 		return undefined;
 	}
-	let campaign: any;
+	let campaign;
 	if (!area.campaignInProgress) {
 		campaign = await Campaign.findOne({
 			dateStart: { $lte: new Date() },

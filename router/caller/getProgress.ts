@@ -41,7 +41,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'getProgress.ts');
 		return;
 	}
-	const campaign = (await AreaCampaignProgress(area)) as any;
+	const campaign = await AreaCampaignProgress(area);
 	if (!campaign) {
 		res.status(404).send({ message: 'campaign not found', OK: false });
 		log(`Campaign not found from: ${caller.name} (${ip})`, 'WARNING', 'getProgress.ts');
@@ -62,7 +62,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	let TimeInCall = 0;
 	await clientInThisCampaign.eachAsync(client => {
 		totalUser++;
-		const data = client.data.get(campaign._id);
+		const data = client.data.get(campaign._id.toString());
 		data?.forEach(call => {
 			if (call.status == 'not called') return;
 

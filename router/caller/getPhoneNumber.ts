@@ -46,7 +46,7 @@ export default async function getPhoneNumber(
 		return;
 	}
 
-	const campaign = (await AreaCampaignProgress(area)) as any;
+	const campaign = await AreaCampaignProgress(area);
 
 	if (!campaign || campaign == null) {
 		res.status(200).send({ message: 'no campaign in progress', OK: false });
@@ -168,7 +168,7 @@ this user has been banned, contact the devlopper to unban him.`
 		log(`No client available from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
 		return;
 	} else {
-		const clientCampaign = client[0].data[campaign._id];
+		const clientCampaign = client[0].data[campaign._id.toString()];
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
 			log(`Error while getting client campaign`, 'WARNING', 'getPhoneNumber.ts');

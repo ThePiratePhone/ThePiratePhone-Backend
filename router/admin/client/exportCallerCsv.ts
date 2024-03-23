@@ -28,7 +28,7 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 	}
 	let selector: {} = { area: area._id };
 
-	const campaign = (await AreaCampaignProgress(area)) as any;
+	const campaign = await AreaCampaignProgress(area);
 	if (req.body.curentCamaign) {
 		if (!campaign) {
 			res.status(200).send({ message: 'No campaign in progress', OK: false });
