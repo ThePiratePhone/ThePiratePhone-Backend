@@ -38,4 +38,5 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		},
 		OK: true
 	});
+	log(`Login from ${area.name} (${ip})`, 'INFORMATION', 'login.ts');
 }
