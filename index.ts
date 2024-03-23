@@ -16,6 +16,7 @@ mongoose
 	.connect(process.env.URI ?? '')
 	.then(() => {
 		log('Successfully connected to MongoDB', 'INFORMATION', 'index.ts');
+		mongoose.connection.useDb(process.env.DB ?? '');
 	})
 	.catch(error => {
 		log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');

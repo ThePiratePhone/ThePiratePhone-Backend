@@ -3,9 +3,9 @@ import { ObjectId } from 'mongodb';
 
 import { Area } from '../../Models/Area';
 import { Client } from '../../Models/Client';
-import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 
 type data = {
 	status: 'called' | 'not called' | 'not answered' | 'inprogress';
@@ -41,7 +41,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'getProgress.ts');
 		return;
 	}
-	const campaign = await AreaCampaignProgress(area);
+	const campaign = await getCurrentCampaign(area._id);
 	if (!campaign) {
 		res.status(404).send({ message: 'campaign not found', OK: false });
 		log(`Campaign not found from: ${caller.name} (${ip})`, 'WARNING', 'getProgress.ts');

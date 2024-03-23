@@ -36,6 +36,11 @@ export default async function createClients(req: Request<any>, res: Response<any
 	}
 
 	const campaign = await getCurrentCampaign(area._id);
+	if (!campaign) {
+		res.status(200).send({ message: 'No campaign in progress', OK: false });
+		log(`No campaign in progress from ${ip}`, 'WARNING', 'createClient.ts');
+		return;
+	}
 	const errors: Array<[string, string, string]> = [];
 	const sleep = req.body.data.map(async (usr: [string, string]) => {
 		const phone = clearPhone(usr[1]);
@@ -65,7 +70,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 			if (error.code != 11000) {
 				errors.push([usr[0], phone, error.message]);
 			} else {
-				if (!(await addClientCampaign(phone, (campaign as any)._id))) {
+				if (!(await addClientCampaign(phone, campaign._id.toString()))) {
 					errors.push([usr[0], phone, 'internal error']);
 					log(
 						`Internal error from ${area.name} (${ip}) for adding user to camaign. ${usr[0]}, ${usr[1]}`,

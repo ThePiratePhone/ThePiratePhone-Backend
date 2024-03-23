@@ -2,7 +2,6 @@ import { Router } from 'express';
 
 import addCallerCampaign from './router/admin/campaign/addCallerCampaign';
 import addClientCampaign from './router/admin/campaign/addClientCampaign';
-import changeCallHours from './router/admin/campaign/changeCallHoursEnd';
 import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
 import changeName from './router/admin/campaign/changeName';
 import createCampaign from './router/admin/campaign/createCampaign';
@@ -43,6 +42,7 @@ import sendReset from './router/caller/resetPassword/sendReset';
 import resetCallerPassword from './router/caller/resetPassword/resetPassword';
 import scoreBoard from './router/otherCaller/scoreBoard';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
+import setActive from './router/admin/campaign/setActive';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -54,7 +54,7 @@ router.post('/stats/response', response);
 
 //admin/campaign
 router.post('/admin/campaign/changeCampaignPassword', changeCampaingPassword);
-router.post('/admin/campaign/changeCallHours', changeCallHours);
+router.post('/admin/campaign/setActive', setActive);
 router.post('/admin/campaign/changeName', changeName);
 //admin/client
 router.post('/admin/client/removeClient', removeClient);

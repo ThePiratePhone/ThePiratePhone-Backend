@@ -10,13 +10,10 @@ const CampaignSchema = new mongoose.Schema({
 		type: Array<String>(),
 		required: true
 	},
-	dateStart: {
-		type: Date,
-		required: true
-	},
-	dateEnd: {
-		type: Date,
-		required: true
+	active: {
+		type: Boolean,
+		required: true,
+		default: false
 	},
 	area: {
 		type: mongoose.Schema.ObjectId,

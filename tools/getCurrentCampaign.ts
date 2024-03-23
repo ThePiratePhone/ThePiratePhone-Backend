@@ -10,8 +10,7 @@ async function getCurrentCampaign(area: ObjectId): Promise<InstanceType<typeof C
 	let campaign: InstanceType<typeof Campaign> | null = null;
 	if (!CampaignArea.campaignInProgress) {
 		campaign = await Campaign.findOne({
-			dateStart: { $lte: new Date() },
-			dateEnd: { $gte: new Date() },
+			active: true,
 			area: CampaignArea._id
 		});
 		if (campaign) {

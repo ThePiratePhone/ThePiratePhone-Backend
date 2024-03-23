@@ -4,10 +4,10 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
-import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
 import sendSms from '../../tools/sendSms';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 
 export default async function getPhoneNumber(
 	req: Request<any>,
@@ -46,7 +46,7 @@ export default async function getPhoneNumber(
 		return;
 	}
 
-	const campaign = await AreaCampaignProgress(area);
+	const campaign = await getCurrentCampaign(area._id);
 
 	if (!campaign || campaign == null) {
 		res.status(200).send({ message: 'no campaign in progress', OK: false });

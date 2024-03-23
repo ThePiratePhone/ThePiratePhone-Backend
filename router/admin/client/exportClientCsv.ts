@@ -4,8 +4,8 @@ import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
-import AreaCampaignProgress from '../../../tools/areaCampaignProgress';
 import { log } from '../../../tools/log';
+import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -28,7 +28,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	}
 	let selector = { area: area._id };
 
-	const campaign = await AreaCampaignProgress(area);
+	const campaign = await getCurrentCampaign(area._id);
 
 	if (!campaign) {
 		res.status(200).send({ message: 'No campaign in progress', OK: false });

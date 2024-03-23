@@ -4,9 +4,9 @@ import clearPhone from '../../tools/clearPhone';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
 import { ObjectId } from 'mongodb';
 import { Caller } from '../../Models/Caller';
-import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -45,7 +45,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}
 
 	let campaign;
-	if (!req.body.campaign) campaign = await AreaCampaignProgress(area);
+	if (!req.body.campaign) campaign = await getCurrentCampaign(area._id);
 	else campaign = Campaign.findOne({ _id: req.body.campaign, area: req.body.area });
 
 	if (!campaign || campaign == null) {
