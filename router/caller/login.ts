@@ -27,10 +27,15 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		log(`Wrong credentials from: ` + ip, 'WARNING', 'login.ts');
 		return;
 	}
-
+	console.log(caller);
 	const campaignAvailable = await Campaign.find({
-		_id: { $in: caller.campaigns },
-		active: true
+		$or: [
+			{ _id: { $in: caller.campaigns }, active: true },
+			{
+				area: caller.area,
+				active: true
+			}
+		]
 	});
 	if (!campaignAvailable) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
