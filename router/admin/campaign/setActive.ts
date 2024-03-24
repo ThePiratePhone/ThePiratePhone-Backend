@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { log } from '../../../tools/log';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
+import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 
 export default async function setActive(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -13,6 +14,7 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 		(req.body.active && !ObjectId.isValid(req.body.campaign)) ||
 		!ObjectId.isValid(req.body.area)
 	) {
+		console.log(req.body);
 		log(`Missing parameters from ` + ip, 'WARNING', 'createClient.ts');
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		return;
@@ -25,31 +27,31 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: req.body.campaign, areaId: area._id });
-	if (!campaign) {
-		log(`Campaign not found from ${ip}`, 'WARNING', 'createClient.ts');
-		res.status(400).send({ message: 'Campaign not found', OK: false });
-		return;
-	}
-	let areaUpdate, update;
-	if (!req.body.active) {
-		update = await Campaign.updateOne({ _id: campaign._id }, { active: false });
-		areaUpdate = await Area.updateOne({ _id: area._id }, { activeCampaign: null });
-		return;
-	} else {
-		update = await Campaign.updateOne({ _id: campaign._id }, { active: true });
-		areaUpdate = await Area.updateOne({ _id: area._id }, { activeCampaign: campaign._id });
-	}
+	const previusCampaign = await getCurrentCampaign(area._id);
 
-	if (update && areaUpdate) {
-		log(
-			`Campaign ${campaign.name} is now ${req.body.active ? 'active' : 'inactive'} from ${ip}`,
-			'INFORMATION',
-			'createClient.ts'
-		);
-		res.status(200).send({ message: 'Campaign updated', OK: true });
+	if (req.body.active) {
+		const campaign = await Campaign.updateOne({ _id: req.body.campaign, area: area._id }, { active: true });
+		if (campaign.matchedCount == 0) {
+			log(`Campaign not found from ${ip}`, 'WARNING', 'createClient.ts');
+			res.status(404).send({ message: 'Campaign not found', OK: false });
+			return;
+		}
+		area.campaignInProgress = req.body.campaign;
+		await area.save();
+		if (previusCampaign && previusCampaign._id != req.body.campaign) {
+			await Campaign.updateOne({ _id: previusCampaign._id }, { active: false });
+		}
+		res.send({ message: 'Campaign activated', OK: true });
 	} else {
-		log(`Error updating campaign ${campaign.name} from ${ip}`, 'ERROR', 'createClient.ts');
-		res.status(500).send({ message: 'Error updating campaign', OK: false });
+		if (previusCampaign) {
+			previusCampaign.active = false;
+		}
+		area.campaignInProgress = null;
+		if (previusCampaign) {
+			await Promise.all([previusCampaign.save(), area.save()]);
+		} else {
+			await area.save();
+		}
+		res.send({ message: 'Campaign deactivated', OK: true });
 	}
 }
