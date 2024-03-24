@@ -30,7 +30,6 @@ export default async function changeTimeBetwenCall(req: Request<any>, res: Respo
 		{ _id: req.body.campaign },
 		{ timeBetweenCall: req.body.newTimeBetweenCall }
 	);
-	console.log(output);
 	if (output.modifiedCount != 1) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', 'changeTimeBetwenCall.ts');

@@ -69,7 +69,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 
 	let place: any = callers.findIndex(el => el.phone == req.body.phone);
 	if (place >= -1) {
-		const truc = await Caller.aggregate([
+		place = await Caller.aggregate([
 			{ $match: { area: ObjectId.createFromHexString(req.body.area), campaigns: campaign._id } },
 			{ $addFields: { length: { $size: '$timeInCall' } } },
 			{ $sort: { length: -1 } },
@@ -91,10 +91,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 					yourPlace: '$yourPlace'
 				}
 			}
-		]);
-
-		console.log(truc);
-		place = truc[0].yourPlace;
+		])[0].yourPlace;
 	}
 
 	const scoreBoard = callers.map(el => {

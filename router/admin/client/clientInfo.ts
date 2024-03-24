@@ -61,14 +61,8 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 	const callers = client.data.get(campaign._id.toString())?.map(async campaign => {
 		const caller = await Caller.findById(campaign.caller);
 		if (!caller) return null;
-		console.log(caller.timeInCall);
 		timeCallClient.push(
 			caller.timeInCall.filter(call => {
-				console.log(
-					call.campaign.toString(),
-					campaign?._id?.toString(),
-					call.campaign.toString() == campaign?._id?.toString()
-				);
 				call.campaign.toString() == (campaign?._id?.toString() ?? '') &&
 					call.client.toString() == client._id.toString();
 			})
