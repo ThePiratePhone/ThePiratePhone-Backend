@@ -1,13 +1,12 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
-
-import { Area } from '../../Models/Area';
-import { Caller } from '../../Models/Caller';
-import { Campaign } from '../../Models/Campaign';
-import clearPhone from '../../tools/clearPhone';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
+import clearPhone from '../../tools/clearPhone';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
+import { ObjectId } from 'mongodb';
+import { Caller } from '../../Models/Caller';
+import { Area } from '../../Models/Area';
+import { Campaign } from '../../Models/Campaign';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -46,7 +45,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}
 
 	let campaign;
-	if (!req.body.campaign) campaign = await getCurrentCampaign(area._id);
+	if (!req.body.campaign) campaign = await getCurrentCampaign(area.id);
 	else campaign = Campaign.findOne({ _id: req.body.campaign, area: req.body.area });
 
 	if (!campaign || campaign == null) {
@@ -62,16 +61,24 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}
 
 	const callers = await Caller.aggregate([
-		{ $match: { area: ObjectId.createFromHexString(req.body.area), campaigns: campaign._id } },
+		{
+			$match: {
+				$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
+			}
+		},
 		{ $addFields: { length: { $size: '$timeInCall' } } },
 		{ $sort: { length: -1 } },
 		{ $limit: 5 }
 	]);
 
 	let place: any = callers.findIndex(el => el.phone == req.body.phone);
-	if (place >= -1) {
-		place = await Caller.aggregate([
-			{ $match: { area: ObjectId.createFromHexString(req.body.area), campaigns: campaign._id } },
+	if (place >= 5) {
+		const truc = await Caller.aggregate([
+			{
+				$match: {
+					$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
+				}
+			},
 			{ $addFields: { length: { $size: '$timeInCall' } } },
 			{ $sort: { length: -1 } },
 			{ $project: { name: 1, timeInCall: 1, phone: 1 } },
@@ -92,7 +99,10 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 					yourPlace: '$yourPlace'
 				}
 			}
-		])[0].yourPlace;
+		]);
+
+		console.log(truc);
+		place = truc[0].yourPlace;
 	}
 
 	const scoreBoard = callers.map(el => {
