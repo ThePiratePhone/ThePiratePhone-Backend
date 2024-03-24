@@ -46,10 +46,14 @@ const CampaignSchema = new mongoose.Schema({
 		default: 10_800_000
 	},
 	callHoursStart: {
-		type: Date
+		type: Date,
+		required: true,
+		default: new Date(0)
 	},
 	callHoursEnd: {
-		type: Date
+		type: Date,
+		required: true,
+		default: new Date(0)
 	}
 });
 

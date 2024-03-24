@@ -56,24 +56,13 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const timeCallClient = new Array();
-
-	const callers = client.data.get(campaign._id.toString())?.map(async campaign => {
-		const caller = await Caller.findById(campaign.caller);
+	const callers = client.data.get(campaign._id.toString())?.map(async clientCallObj => {
+		const caller = await Caller.findById(clientCallObj.caller);
 		if (!caller) return null;
-		timeCallClient.push(
-			caller.timeInCall.filter(call => {
-				call.campaign.toString() == (campaign?._id?.toString() ?? '') &&
-					call.client.toString() == client._id.toString();
-			})
-		);
-
 		return {
 			id: caller._id,
 			name: caller.name,
-			phone: caller.phone,
-			nbCall: timeCallClient.length,
-			calls: timeCallClient
+			phone: caller.phone
 		};
 	});
 	if (!callers) {
@@ -82,9 +71,17 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 			data: { client: client, callers: [] }
 		});
 	} else {
+		let callerResolve: any[] = [];
+		await Promise.all(callers).then(resolvedCallers => {
+			callerResolve = resolvedCallers.filter(caller => caller != null);
+		});
+
 		res.status(200).send({
 			OK: true,
-			data: { client: client, callers: callers }
+			data: {
+				client: client,
+				callers: callerResolve
+			}
 		});
 	}
 	log(`Client info got from ${area.name} (${ip})`, 'INFORMATION', 'clientInfo.ts');

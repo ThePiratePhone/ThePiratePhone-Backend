@@ -14,7 +14,6 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 		(req.body.active && !ObjectId.isValid(req.body.campaign)) ||
 		!ObjectId.isValid(req.body.area)
 	) {
-		console.log(req.body);
 		log(`Missing parameters from ` + ip, 'WARNING', 'createClient.ts');
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		return;

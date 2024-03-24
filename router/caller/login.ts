@@ -27,7 +27,6 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		log(`Wrong credentials from: ` + ip, 'WARNING', 'login.ts');
 		return;
 	}
-	console.log(caller);
 	const campaignAvailable = await Campaign.find({
 		$or: [
 			{ _id: { $in: caller.campaigns }, active: true },
