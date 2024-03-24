@@ -30,8 +30,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 
 	const campaignAvailable = await Campaign.find({
 		_id: { $in: caller.campaigns },
-		dateStart: { $lte: new Date() },
-		dateEnd: { $gte: new Date() }
+		active: true
 	});
 	if (!campaignAvailable) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
