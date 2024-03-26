@@ -38,7 +38,7 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 		{ phone: req.body.Callerphone, area: area._id },
 		{ pinCode: req.body.newPassword }
 	);
-	if (result.modifiedCount != 1) {
+	if (result.matchedCount != 1) {
 		res.status(404).send({ message: 'Caller not found or same password', OK: false });
 		log(`Caller not found or same password from ${area.name} admin (${ip})`, 'WARNING', 'changeCallerPassword.ts');
 		return;
