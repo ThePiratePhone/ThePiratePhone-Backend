@@ -43,6 +43,7 @@ import sendReset from './router/caller/resetPassword/sendReset';
 import resetCallerPassword from './router/caller/resetPassword/resetPassword';
 import scoreBoard from './router/otherCaller/scoreBoard';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
+import ChangeName from './router/admin/area/changeName';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -51,6 +52,9 @@ const resetPassword = new Map<String, { date: Date; password: String; try: numbe
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
 router.post('/stats/response', response);
+
+//admin/area
+router.post('/admin/area/changeName/', ChangeName);
 
 //admin/campaign
 router.post('/admin/campaign/changeCampaignPassword', changeCampaingPassword);
