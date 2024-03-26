@@ -10,13 +10,10 @@ const CampaignSchema = new mongoose.Schema({
 		type: Array<String>(),
 		required: true
 	},
-	dateStart: {
-		type: Date,
-		required: true
-	},
-	dateEnd: {
-		type: Date,
-		required: true
+	active: {
+		type: Boolean,
+		required: true,
+		default: false
 	},
 	area: {
 		type: mongoose.Schema.ObjectId,
@@ -49,10 +46,14 @@ const CampaignSchema = new mongoose.Schema({
 		default: 10_800_000
 	},
 	callHoursStart: {
-		type: Date
+		type: Date,
+		required: true,
+		default: new Date(0)
 	},
 	callHoursEnd: {
-		type: Date
+		type: Date,
+		required: true,
+		default: new Date(0)
 	}
 });
 

@@ -4,9 +4,9 @@ import clearPhone from '../../tools/clearPhone';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
 import { ObjectId } from 'mongodb';
 import { Caller } from '../../Models/Caller';
-import AreaCampaignProgress from '../../tools/areaCampaignProgress';
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
 
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -45,7 +45,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}
 
 	let campaign;
-	if (!req.body.campaign) campaign = await AreaCampaignProgress(area);
+	if (!req.body.campaign) campaign = await getCurrentCampaign(area.id);
 	else campaign = Campaign.findOne({ _id: req.body.campaign, area: req.body.area });
 
 	if (!campaign || campaign == null) {
@@ -61,16 +61,33 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}
 
 	const callers = await Caller.aggregate([
-		{ $match: { area: ObjectId.createFromHexString(req.body.area), campaigns: campaign._id } },
+		{
+			$match: {
+				$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
+			}
+		},
 		{ $addFields: { length: { $size: '$timeInCall' } } },
 		{ $sort: { length: -1 } },
 		{ $limit: 5 }
 	]);
 
 	let place: any = callers.findIndex(el => el.phone == req.body.phone);
-	if (place >= -1) {
-		const truc = await Caller.aggregate([
-			{ $match: { area: ObjectId.createFromHexString(req.body.area), campaigns: campaign._id } },
+
+	const scoreBoard = callers.map(el => {
+		return {
+			name: el.name,
+			nbCall: el.timeInCall.length,
+			timeInCall: el.timeInCall.reduce((acc, cur) => acc + cur.time, 0)
+		};
+	});
+
+	if (place >= 5) {
+		const caller = await Caller.aggregate([
+			{
+				$match: {
+					$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
+				}
+			},
 			{ $addFields: { length: { $size: '$timeInCall' } } },
 			{ $sort: { length: -1 } },
 			{ $project: { name: 1, timeInCall: 1, phone: 1 } },
@@ -93,17 +110,17 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			}
 		]);
 
-		console.log(truc);
-		place = truc[0].yourPlace;
+		if (caller.length == 0) {
+			place = -1;
+		} else {
+			place = caller[0].yourPlace;
+			scoreBoard.push({
+				name: caller[0].name,
+				nbCall: caller[0].timeInCall.length,
+				timeInCall: caller[0].timeInCall.reduce((acc, cur) => acc + cur.time, 0)
+			});
+		}
 	}
-
-	const scoreBoard = callers.map(el => {
-		return {
-			name: el.name,
-			nbCall: el.timeInCall.length,
-			timeInCall: el.timeInCall.reduce((acc, cur) => acc + cur.time, 0)
-		};
-	});
 
 	scoreBoard.sort((a, b) => {
 		return b.nbCall - a.nbCall;

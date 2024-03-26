@@ -30,7 +30,6 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 		{ _id: req.body.campaign },
 		{ nbMaxCallCampaign: req.body.newNumberMaxCall }
 	);
-	console.log(output);
 	if (output.modifiedCount != 1) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', 'changeNumberMaxCall.ts');

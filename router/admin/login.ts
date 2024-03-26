@@ -30,6 +30,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	res.status(200).send({
 		message: 'OK',
 		data: {
+			actualCampaignId: campaign._id,
 			actualCampaignName: campaign.name,
 			actualCampaignCallStart: campaign.callHoursStart,
 			actualCampaignCallEnd: campaign.callHoursEnd,
