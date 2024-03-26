@@ -26,7 +26,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		{ _id: req.body.area, AdminPassword: req.body.adminCode },
 		{ name: req.body.newName }
 	);
-	if (update.matchedCount) {
+	if (update.matchedCount != 1) {
 		res.status(404).send({ OK: false, message: 'no area found' });
 		log(`no area found from ${ip}`, 'WARNING', 'ChangeName.ts');
 		return;
