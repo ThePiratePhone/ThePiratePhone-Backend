@@ -4,8 +4,8 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../Models/Area';
 import { Client } from '../../Models/Client';
 import checkCredentials from '../../tools/checkCredentials';
-import { log } from '../../tools/log';
 import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
 
 type data = {
 	status: 'called' | 'not called' | 'not answered' | 'inprogress';
