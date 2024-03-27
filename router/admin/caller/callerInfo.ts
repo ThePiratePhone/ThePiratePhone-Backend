@@ -36,7 +36,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area });
+	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area.toString() });
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
 		log(`Caller not found from: ` + ip, 'WARNING', 'callerInfo.ts');
@@ -55,21 +55,15 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const call = await Caller.findOne({ area: req.body.area, phone: req.body.otherPhone });
-	if (!call) {
-		res.status(404).send({ message: 'Caller not found', OK: false });
-		log(`Caller not found from: ` + ip, 'WARNING', 'callerInfo.ts');
-		return;
-	}
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
 		data: {
-			id: call._id,
-			name: call.name,
-			phone: call.phone,
-			totalTime: call.timeInCall.reduce((acc, cur) => acc + cur.time, 0),
-			nbCalls: call.timeInCall.length
+			id: caller._id,
+			name: caller.name,
+			phone: caller.phone,
+			totalTime: caller.timeInCall.reduce((acc, cur) => acc + cur.time, 0),
+			nbCalls: caller.timeInCall.length
 		}
 	});
 }
