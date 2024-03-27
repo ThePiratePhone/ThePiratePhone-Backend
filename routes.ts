@@ -45,6 +45,7 @@ import scoreBoard from './router/otherCaller/scoreBoard';
 import call from './router/stats/call';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
+import callerInfo from './router/admin/caller/callerInfo';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -73,6 +74,8 @@ router.post('/admin/client/clientInfo', clientInfo);
 
 //admin/caller
 router.post('/admin/caller/cleanAspiration', (req, res) => cleanAspiration(req, res, aspirationDetector));
+router.post('/admin/caller/changeCallerPassword', changeCallerPassword);
+router.post('/admin/caller/callerInfo', callerInfo);
 
 //admin/
 router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
@@ -82,7 +85,6 @@ router.post('/admin/addClientCampaign', addClientCampaign);
 router.post('/admin/campaign', listCampaign);
 router.post('/admin/changePassword', changePasswordAdmin);
 router.post('/admin/createCaller', createCallerByAdmin);
-router.post('/admin/changeCallerPassword', changeCallerPassword);
 router.post('/admin/createCampaign', createCampaign);
 router.post('/admin/exportCallerCsv', exportCallerCsv);
 router.post('/admin/exportClientCsv', exportClientCsv);

@@ -15,8 +15,7 @@ export default async function cleanAspiration(
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
 		typeof req.body.phone != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'cleanAspiration.ts');
