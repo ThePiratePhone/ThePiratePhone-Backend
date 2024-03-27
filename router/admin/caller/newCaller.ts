@@ -1,30 +1,29 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-
-import { Area } from '../../Models/Area';
-import { Caller } from '../../Models/Caller';
-import clearPhone from '../../tools/clearPhone';
-import { log } from '../../tools/log';
-import phoneNumberCheck from '../../tools/phoneNumberCheck';
+import { log } from '../../../tools/log';
+import clearPhone from '../../../tools/clearPhone';
+import phoneNumberCheck from '../../../tools/phoneNumberCheck';
+import { Area } from '../../../Models/Area';
+import { Caller } from '../../../Models/Caller';
 
 export default async function createCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
+		typeof req.body.adminCode != 'string' ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.AreaPassword != 'string' ||
-		typeof req.body.CallerName != 'string'
+		typeof req.body.name != 'string' ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'createCaller.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ` + ip, 'WARNING', 'createCaller.ts');
+		log(`Invalid pin code from ` + ip, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
@@ -70,6 +69,6 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	res.status(200).send({ message: 'caller ' + newCaller.name + ' created from ' + ip, OK: true });
+	res.status(200).send({ message: 'caller ' + newCaller.name + ' created', OK: true });
 	log(`Caller ${newCaller.name} created from ${area.name} (${ip})`, 'INFORMATION', 'createCaller.ts');
 }

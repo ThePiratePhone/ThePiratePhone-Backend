@@ -76,6 +76,7 @@ router.post('/admin/client/clientInfo', clientInfo);
 router.post('/admin/caller/cleanAspiration', (req, res) => cleanAspiration(req, res, aspirationDetector));
 router.post('/admin/caller/changeCallerPassword', changeCallerPassword);
 router.post('/admin/caller/callerInfo', callerInfo);
+router.post('/admin/caller/createCaller', createCaller);
 
 //admin/
 router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
