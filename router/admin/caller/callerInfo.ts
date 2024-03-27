@@ -5,7 +5,6 @@ import clearPhone from '../../../tools/clearPhone';
 import phoneNumberCheck from '../../../tools/phoneNumberCheck';
 import { Caller } from '../../../Models/Caller';
 import { Area } from '../../../Models/Area';
-import { Client } from '../../../Models/Client';
 import { Campaign } from '../../../Models/Campaign';
 import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 
@@ -30,7 +29,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area, pinCode: req.body.pinCode });
+	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area });
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
 		log(`Caller not found from: ` + ip, 'WARNING', 'callerInfo.ts');
