@@ -14,7 +14,6 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
-		typeof req.body.newPassword != 'string' ||
 		typeof req.body.phone != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
 		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
