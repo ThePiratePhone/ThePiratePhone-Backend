@@ -46,6 +46,8 @@ import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
 import callerInfo from './router/admin/caller/callerInfo';
 import removeCaller from './router/admin/caller/removeCaller';
+import SearchCallerByName from './router/admin/caller/searchByName';
+import SearchCallerByPhone from './router/admin/caller/searchByPhone';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -57,7 +59,6 @@ router.post('/stats/response', response);
 
 //admin/area
 router.post('/admin/area/changeName/', ChangeName);
-
 //admin/campaign
 router.post('/admin/campaign/changeCampaignPassword', changeCampaingPassword);
 router.post('/admin/campaign/setActive', setActive);
@@ -71,14 +72,14 @@ router.post('/admin/client/removeClients', removeAllClients);
 router.post('/admin/client/createClient', createClient);
 router.post('/admin/client/createClients', createClients);
 router.post('/admin/client/clientInfo', clientInfo);
-
 //admin/caller
 router.post('/admin/caller/cleanAspiration', (req, res) => cleanAspiration(req, res, aspirationDetector));
 router.post('/admin/caller/changeCallerPassword', changeCallerPassword);
 router.post('/admin/caller/callerInfo', callerInfo);
 router.post('/admin/caller/createCaller', createCaller);
 router.post('/admin/caller/removeCaller', removeCaller);
-
+router.post('/admin/caller/searchByName', SearchCallerByName);
+router.post('/admin/caller/searchByPhone', SearchCallerByPhone);
 //admin/
 router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
 router.post('/admin/changeTimeBetwenCall', changeTimeBetwenCall);

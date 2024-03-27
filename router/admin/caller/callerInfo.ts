@@ -66,4 +66,6 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 			nbCalls: caller.timeInCall.length
 		}
 	});
+
+	log(`Caller info sent from ${area.name} (${ip})`, 'INFORMATION', 'callerInfo.ts');
 }

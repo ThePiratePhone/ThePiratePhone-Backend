@@ -48,9 +48,9 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 	const remove = await Caller.deleteOne({ phone: req.body.phone });
 	if (remove.deletedCount == 1) {
 		res.status(200).send({ message: 'Caller removed', OK: true });
-		log(`Caller removed: ${req.body.phone} (${ip})`, 'INFORMATION', 'removeCaller.ts');
+		log(`Caller removed: ${req.body.phone} from ${area.name} (${ip})`, 'INFORMATION', 'removeCaller.ts');
 	} else {
 		res.status(500).send({ message: 'Error while removing caller', OK: false });
-		log(`Error while removing caller: ${req.body.phone} (${ip})`, 'ERROR', 'removeCaller.ts');
+		log(`Error while removing caller: ${req.body.phone} from ${area.name} (${ip})`, 'ERROR', 'removeCaller.ts');
 	}
 }
