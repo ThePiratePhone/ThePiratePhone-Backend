@@ -27,7 +27,6 @@ import changePasswordAdmin from './router/admin/management/changePassword';
 import changeTimeBetwenCall from './router/admin/management/changeTimeBetwenCall';
 import changePassword from './router/caller/changePassword';
 import createCaller from './router/caller/createCaller';
-import createCallerByAdmin from './router/caller/createCallerByAdmin';
 import endCall from './router/caller/endCall';
 import getPhoneNumber from './router/caller/getPhoneNumber';
 import getProgress from './router/caller/getProgress';
@@ -46,6 +45,7 @@ import call from './router/stats/call';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
 import callerInfo from './router/admin/caller/callerInfo';
+import removeCaller from './router/admin/caller/removeCaller';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -77,6 +77,7 @@ router.post('/admin/caller/cleanAspiration', (req, res) => cleanAspiration(req, 
 router.post('/admin/caller/changeCallerPassword', changeCallerPassword);
 router.post('/admin/caller/callerInfo', callerInfo);
 router.post('/admin/caller/createCaller', createCaller);
+router.post('/admin/caller/removeCaller', removeCaller);
 
 //admin/
 router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
