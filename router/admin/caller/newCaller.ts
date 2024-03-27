@@ -36,16 +36,10 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area });
+	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
 	if (!area) {
-		res.status(400).send({ message: 'Invalid area', OK: false });
+		res.status(400).send({ message: 'Invalid credentials', OK: false });
 		log(`Invalid area from: ${req.body.phone} (${ip})`, 'WARNING', 'createCaller.ts');
-		return;
-	}
-
-	if (area.password != req.body.AreaPassword) {
-		res.status(400).send({ message: 'Invalid area password', OK: false });
-		log(`Invalid area password from: ${req.body.phone} (${ip})`, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
@@ -60,7 +54,7 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		pinCode: req.body.pinCode,
 		area: area._id,
 		timeInCall: [],
-		name: req.body.CallerName
+		name: req.body.name
 	});
 
 	const result = await newCaller.save();
