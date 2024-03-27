@@ -90,7 +90,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
 }
 
-async function addClientCampaign(phone: String, campaignId: string) {
+async function addClientCampaign(phone: string, campaignId: string) {
 	const client = await Client.findOne({ phone: phone });
 	if (!client) {
 		return false;
@@ -101,7 +101,7 @@ async function addClientCampaign(phone: String, campaignId: string) {
 	try {
 		const newData = new Types.DocumentArray([{ status: 'not called' }]) as any;
 		client.data.set(campaignId, newData);
-		await client.updateOne(phone, { data: client.data });
+		await client.updateOne({ phone: phone }, { data: client.data });
 		return true;
 	} catch (e) {
 		return false;

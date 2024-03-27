@@ -29,17 +29,17 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
+	const area = await Area.findOne({ _id: req.body.area });
+	if (!area) {
+		res.status(404).send({ message: 'area not found', OK: false });
+		log(`Area not found from: ${ip}`, 'WARNING', 'callerInfo.ts');
+		return;
+	}
+
 	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area });
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
 		log(`Caller not found from: ` + ip, 'WARNING', 'callerInfo.ts');
-		return;
-	}
-
-	const area = await Area.findOne({ _id: req.body.area });
-	if (!area) {
-		res.status(404).send({ message: 'area not found', OK: false });
-		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'callerInfo.ts');
 		return;
 	}
 
@@ -65,6 +65,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		message: 'OK',
 		OK: true,
 		data: {
+			id: call._id,
 			name: call.name,
 			phone: call.phone,
 			totalTime: call.timeInCall.reduce((acc, cur) => acc + cur.time, 0),
