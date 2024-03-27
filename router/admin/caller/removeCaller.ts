@@ -1,10 +1,12 @@
-import { ObjectId } from 'mongodb';
-import { log } from '../../../tools/log';
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { Client } from '../../../Models/Client';
+import clearPhone from '../../../tools/clearPhone';
 import getCurrentCampaign from '../../../tools/getCurrentCampaign';
+import { log } from '../../../tools/log';
+import phoneNumberCheck from '../../../tools/phoneNumberCheck';
 
 export default async function removeCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -19,7 +21,15 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, password: req.body.AreaPassword });
+	req.body.phone = clearPhone(req.body.phone);
+
+	if (!phoneNumberCheck(req.body.phone)) {
+		res.status(400).send({ message: 'Wrong phone number', OK: false });
+		log('Wrong phone number', 'WARNING', 'removeCaller.ts');
+		return;
+	}
+
+	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid area', OK: false });
 		log(`Invalid area from: ${req.body.phone} (${ip})`, 'WARNING', 'removeCaller.ts');
