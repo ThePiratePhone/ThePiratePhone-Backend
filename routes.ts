@@ -85,7 +85,6 @@ router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/addClientCampaign', addClientCampaign);
 router.post('/admin/campaign', listCampaign);
 router.post('/admin/changePassword', changePasswordAdmin);
-router.post('/admin/createCaller', createCallerByAdmin);
 router.post('/admin/createCampaign', createCampaign);
 router.post('/admin/exportCallerCsv', exportCallerCsv);
 router.post('/admin/exportClientCsv', exportClientCsv);
