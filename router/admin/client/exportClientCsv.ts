@@ -53,10 +53,10 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	csvStream.pipe(res);
 
 	const numberOfClients = await Client.countDocuments(selector);
-	const clients = await Client.find(selector).cursor();
+	const clients = Client.find(selector).cursor();
 	await clients.eachAsync(async client => {
 		const csvData = {};
-		const lastCall = client.data.get(campaign._id.toString())?.find(cl => cl.status == 'called');
+		const lastCall = client.data.get(campaign?._id?.toString() ?? '')?.find(cl => cl.status == 'called');
 		if (lastCall) {
 			csvData[`status`] = CleanStatus(lastCall?.status);
 			csvData[`satisfaction`] = cleanSatisfaction(lastCall?.satisfaction ?? Infinity);
