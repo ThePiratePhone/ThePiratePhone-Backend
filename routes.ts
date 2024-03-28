@@ -49,6 +49,8 @@ import removeCaller from './router/admin/caller/removeCaller';
 import SearchCallerByName from './router/admin/caller/searchByName';
 import SearchCallerByPhone from './router/admin/caller/searchByPhone';
 import newCaller from './router/admin/caller/newCaller';
+import changeNameCallerByAdmin from './router/admin/caller/changeName';
+import changeNameCallerByCaller from './router/caller/changeName';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -81,6 +83,7 @@ router.post('/admin/caller/createCaller', newCaller);
 router.post('/admin/caller/removeCaller', removeCaller);
 router.post('/admin/caller/searchByName', SearchCallerByName);
 router.post('/admin/caller/searchByPhone', SearchCallerByPhone);
+router.post('/admin/caller/changeName', changeNameCallerByAdmin);
 //admin/
 router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
 router.post('/admin/changeTimeBetwenCall', changeTimeBetwenCall);
@@ -110,6 +113,7 @@ router.post('/giveUp', giveUp);
 router.post('/joinCampaign', joinCampaign);
 router.post('/login', login);
 router.post('/validatePhoneNumber', validatePhoneNumber);
+router.post('/changeName', changeNameCallerByCaller);
 router.post('/resetPassword/sendReset', (req, res) => sendReset(req, res, resetPassword));
 router.post('/resetPassword/resetPassword', (req, res) => resetCallerPassword(req, res, resetPassword));
 
