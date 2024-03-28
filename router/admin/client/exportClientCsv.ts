@@ -6,6 +6,9 @@ import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
 import getCurrentCampaign from '../../../tools/getCurrentCampaign';
+import { Campaign } from '../../../Models/Campaign';
+import { cleanSatisfaction, CleanStatus } from '../../../tools/utils';
+import { Caller } from '../../../Models/Caller';
 
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -28,13 +31,19 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	}
 	let selector = { area: area._id };
 
-	const campaign = await getCurrentCampaign(area._id);
+	let campaign: InstanceType<typeof Campaign> | null = null;
 
+	if (req.body.CampaignId) {
+		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+	} else {
+		campaign = await getCurrentCampaign(area._id);
+	}
 	if (!campaign) {
-		res.status(200).send({ message: 'No campaign in progress', OK: false });
-		log(`No campaign in progress from ${ip}`, 'WARNING', 'exportClientCsv.ts');
+		res.status(401).send({ message: 'Wrong campaign id', OK: false });
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'changeCallHours.ts');
 		return;
 	}
+
 	selector = { area: area._id, [`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } } };
 
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
@@ -44,49 +53,27 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	csvStream.pipe(res);
 
 	const numberOfClients = await Client.countDocuments(selector);
-	for (let i = 0; i < numberOfClients; i += 500) {
-		const clients = await Client.find(selector).limit(500).skip(i);
-		if (!clients) {
-			return;
+	const clients = await Client.find(selector).cursor();
+	await clients.eachAsync(async client => {
+		const csvData = {};
+		const lastCall = client.data.get(campaign._id.toString())?.find(cl => cl.status == 'called');
+		if (lastCall) {
+			csvData[`status`] = CleanStatus(lastCall?.status);
+			csvData[`satisfaction`] = cleanSatisfaction(lastCall?.satisfaction ?? Infinity);
+			csvData[`appeleant`] = lastCall?.caller
+				? (await Caller.findOne(lastCall.caller, ['name']))?.name ?? ''
+				: '';
+			csvData[`commentaire`] = lastCall?.comment ?? '';
 		}
-		clients.forEach(client => {
-			if (req.body.curentCamaign) {
-				const csvData = {};
-				for (let i = 1; i <= campaign.nbMaxCallCampaign; i++) {
-					const dataKeyPrefix = `data${i}`;
-					csvData[`${dataKeyPrefix}.status`] =
-						client?.data.get(campaign._id.toString())?.[i - 1]?.status ?? '';
-					csvData[`${dataKeyPrefix}.caller`] =
-						client?.data.get(campaign._id.toString())?.[i - 1]?.caller ?? '';
-					csvData[`${dataKeyPrefix}.scriptVersion`] =
-						client?.data.get(campaign._id.toString())?.[i - 1]?.scriptVersion ?? '';
-					csvData[`${dataKeyPrefix}.startCall`] =
-						client?.data.get(campaign._id.toString())?.[i - 1]?.startCall ?? '';
-					csvData[`${dataKeyPrefix}.endCall`] =
-						client?.data.get(campaign._id.toString())?.[i - 1]?.endCall ?? '';
-					csvData[`${dataKeyPrefix}.satisfaction`] =
-						client?.data.get(campaign._id.toString())?.[i - 1]?.satisfaction ?? '';
-					csvData[`${dataKeyPrefix}.comment`] =
-						client?.data.get(campaign._id.toString())?.[i - 1]?.comment ?? '';
-				}
 
-				csvStream.write({
-					name: client.name,
-					phone: client.phone,
-					institution: client.institution,
-					promotion: client.promotion,
-					...csvData
-				});
-			} else {
-				csvStream.write({
-					name: client.name,
-					phone: client.phone,
-					institution: client.institution,
-					promotion: client.promotion
-				});
-			}
+		csvStream.write({
+			nom: client.name,
+			telephone: client.phone,
+			institution: client.institution,
+			promotion: client.promotion,
+			...csvData
 		});
-	}
+	});
 	csvStream.end();
 	res.end();
 	log(`Exported ${numberOfClients} clients from ${ip} (${area.name})`, 'INFORMATION', 'exportClientCsv.ts');
