@@ -9,7 +9,7 @@ import router from './routes';
 import { log } from './tools/log';
 
 dotenv.config({ path: '.env' });
-const port = 7000;
+const port = 8443;
 
 // Connect to MongoDB using Mongoose
 mongoose
