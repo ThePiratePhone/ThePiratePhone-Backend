@@ -51,6 +51,8 @@ import SearchCallerByPhone from './router/admin/caller/searchByPhone';
 import newCaller from './router/admin/caller/newCaller';
 import changeNameCallerByAdmin from './router/admin/caller/changeName';
 import changeNameCallerByCaller from './router/caller/changeName';
+import ChangePin from './router/admin/area/changePin';
+import ChangePassword from './router/admin/area/changeAdminPassword';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -61,7 +63,9 @@ router.post('/stats/call', call);
 router.post('/stats/response', response);
 
 //admin/area
-router.post('/admin/area/changeName/', ChangeName);
+router.post('/admin/area/changeName', ChangeName);
+router.post('/admin/area/changePin', ChangePin);
+router.post('/admin/area/changePasword', ChangePassword);
 //admin/campaign
 router.post('/admin/campaign/changeCampaignPassword', changeCampaingPassword);
 router.post('/admin/campaign/setActive', setActive);
