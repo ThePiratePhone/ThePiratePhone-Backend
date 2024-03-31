@@ -93,12 +93,13 @@ export default async function getPhoneNumber(
 			}
 		}
 	}
-
 	const nbCallInMinutes = caller.timeInCall.filter(
 		time =>
-			(time.date ?? new Date()).getMinutes() > new Date().getMinutes() - 1 &&
-			time.campaign.toString() == campaign._id.toString()
+			time.campaign.toString() == campaign._id.toString() &&
+			(time.date ?? new Date()).getTime() > new Date().setMinutes(new Date().getMinutes() - 1)
 	).length;
+
+	console.log(nbCallInMinutes);
 
 	if (nbCallInMinutes >= 8) {
 		aspirationDetector.set(caller.phone, (aspirationDetector.get(caller.phone) ?? 0) + 1);
