@@ -71,10 +71,17 @@ router.post('/admin/campaign/changeCampaignPassword', changeCampaingPassword);
 router.post('/admin/campaign/setActive', setActive);
 router.post('/admin/campaign/changeName', changeName);
 router.post('/admin/campaign/changeCallHours', changeCallHours);
+router.post('/admin/campaign/changeTimeBetwenCall', changeTimeBetwenCall);
+router.post('/admin/campaign/changeNumberMaxCall', changeNumberMaxCall);
+router.post('/admin/campaign/addClientCampaign', addClientCampaign);
+router.post('/admin/campaign/listCallerCampaign', listCallerCampaign);
+router.post('/admin/campaign/listClientCampaign', listClientCampaign);
+router.post('/admin/campaign/campaign', listCampaign);
 //admin/client
+router.post('/admin/client/searchByName', SearchByName);
 router.post('/admin/client/removeClient', removeClient);
 router.post('/admin/client/searchByPhone', SearchByPhone);
-router.post('/admin/client/searchByName', SearchByName);
+router.post('/admin/addCallerCampaign', addCallerCampaign);
 router.post('/admin/client/removeClients', removeAllClients);
 router.post('/admin/client/createClient', createClient);
 router.post('/admin/client/createClients', createClients);
@@ -90,17 +97,10 @@ router.post('/admin/caller/searchByName', SearchCallerByName);
 router.post('/admin/caller/searchByPhone', SearchCallerByPhone);
 router.post('/admin/caller/changeName', changeNameCallerByAdmin);
 router.post('/admin/caller/exportCallersCsv', exportCallerCsv);
+router.post('/admin/caller/listCaller', listCaller);
 //admin/
-router.post('/admin/changeNumberMaxCall', changeNumberMaxCall);
-router.post('/admin/changeTimeBetwenCall', changeTimeBetwenCall);
-router.post('/admin/addCallerCampaign', addCallerCampaign);
-router.post('/admin/addClientCampaign', addClientCampaign);
-router.post('/admin/campaign', listCampaign);
 router.post('/admin/changePassword', changePasswordAdmin);
 router.post('/admin/createCampaign', createCampaign);
-router.post('/admin/listCaller', listCaller);
-router.post('/admin/listCallerCampaign', listCallerCampaign);
-router.post('/admin/listClientCampaign', listClientCampaign);
 router.post('/admin/login', loginAdmin);
 
 //otherCaller
