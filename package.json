@@ -1,5 +1,5 @@
 {
-	"name": "calsphere-backend",
+	"name": "thepiratephone-backend",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.ts",
@@ -8,16 +8,8 @@
 		"start": "ts-node .",
 		"deploy": "ssh Eve sh /opt/updateCSB.sh"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Call-Sphere/Call-Sphere-Backend.git"
-	},
 	"author": "UnelDev",
 	"license": "GNU GPLv3",
-	"bugs": {
-		"url": "https://github.com/Call-Sphere/Call-Sphere-Backend/issues"
-	},
-	"homepage": "https://github.com/Call-Sphere/Call-Sphere-Backend#readme",
 	"devDependencies": {
 		"@types/cors": "^2.8.17",
 		"@types/express": "^4.17.21"
