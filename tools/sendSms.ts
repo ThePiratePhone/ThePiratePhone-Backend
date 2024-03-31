@@ -1,5 +1,4 @@
 import axios from 'axios';
-import chalk from 'chalk';
 import { log } from './log';
 
 async function sendSms(phoneNumber: string, message: string) {
@@ -17,10 +16,16 @@ async function sendSms(phoneNumber: string, message: string) {
 	}
 	log(`Sending sms to ${phoneNumber}: ${message}`, 'INFORMATION', 'sendSms.ts');
 
-	const res = await axios.post(`http://${process.env.PHONE_IP}/send?message=${message}&phoneno=%2B${phoneNumber}`);
-	if (res?.data?.body?.success != true && typeof res?.data?.body?.success == undefined) {
-		log(`Error sending sms to ${phoneNumber}: ${res?.data?.body?.message}`, 'ERROR', 'sendSms.ts');
-		return false;
+	try {
+		const res = await axios.post(
+			`http://${process.env.PHONE_IP}/send?message=${message}&phoneno=%2B${phoneNumber}`
+		);
+		if (res?.data?.body?.success != true && typeof res?.data?.body?.success == undefined) {
+			log(`Error sending sms to ${phoneNumber}: ${res?.data?.body?.message}`, 'ERROR', 'sendSms.ts');
+			return false;
+		}
+	} catch (error: any) {
+		log(`Error sending sms to ${phoneNumber}: ${error?.code}`, 'ERROR', 'sendSms.ts');
 	}
 	return true;
 }
