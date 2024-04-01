@@ -49,7 +49,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
 	res.setHeader('Content-Type', 'text/csv');
 
-	const csvStream = csv.format({ headers: true, delimiter: ',' });
+	const csvStream = csv.format({ headers: true, delimiter: ';' });
 	csvStream.pipe(res);
 
 	const numberOfClients = await Client.countDocuments(selector);
