@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "npx nodemon index.ts",
 		"start": "ts-node .",
-		"deploy": "ssh Eve sh /opt/updateCSB.sh"
+		"deploy": "ssh Eve sh /opt/updatePPB.sh"
 	},
 	"author": "UnelDev",
 	"license": "GNU GPLv3",
