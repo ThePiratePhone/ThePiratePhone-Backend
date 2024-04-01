@@ -76,25 +76,19 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
 	}
-
-	const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[nbCall - 1];
+	const clientCampaign = client.data.get(curentCampaign._id.toString()) as Array<any>;
 	if (!clientCampaign) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 		return;
 	}
-	if (!clientCampaign) {
-		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
-		return;
-	}
-	clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
-	clientCampaign.startCall = new Date(Date.now() - req.body.timeInCall);
-	clientCampaign.endCall = new Date();
-	clientCampaign.satisfaction = req.body.satisfaction;
-	if (req.body.comment && req.body.comment.trim().length > 0) {
-		clientCampaign.comment = req.body.comment.trim();
-	}
+	clientCampaign.push({
+		status: req.body.satisfaction == 0 ? 'not answered' : 'called',
+		startCall: new Date(),
+		endCall: new Date(),
+		satisfaction: req.body.satisfaction,
+		comment: req.body.comment && req.body.comment.trim().length > 0 ? req.body.comment.trim() : ''
+	});
 
 	await Caller.updateOne(
 		{ _id: caller._id },

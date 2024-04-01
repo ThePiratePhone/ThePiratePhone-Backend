@@ -65,23 +65,29 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 	}
 
 	let nbCall = client.data.get(curentCampaign._id.toString())?.length;
+	const callCampaign = client.data.get(curentCampaign._id.toString());
+	if (!callCampaign) {
+		res.status(404).send({ message: 'no campaign found for this client', OK: false });
+		log(`no campaign found for this client from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
+		return;
+	}
 	if (!nbCall) {
 		const newData = new Types.DocumentArray([{ status: 'not called' }]) as any;
 		client.data.set(curentCampaign._id.toString(), newData);
 		nbCall = 1;
 	}
 
-	if (client.data[nbCall - 1].status == 'inprogress') {
+	if (callCampaign[nbCall - 1].status == 'inprogress') {
 		res.status(403).send({ message: 'Client already in call', OK: false });
 		log(`Client already in call from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
 		return;
 	}
 
-	if (client.data[nbCall - 1].status == 'called') {
-		res.status(403).send({ message: 'Client already validate', OK: false });
-		log(`Client already validate from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
-		return;
-	}
+	// if (callCampaign[nbCall - 1].status == 'called') {
+	// 	res.status(403).send({ message: 'Client already validate', OK: false });
+	// 	log(`Client already validate from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
+	// 	return;
+	// }
 
 	if (
 		!client.data.get(curentCampaign._id.toString())?.find(call => call?.caller?.toString() == caller._id.toString())
@@ -92,26 +98,19 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 	}
 
 	if (req.body.satisfaction != -2) {
-		const clientCampaign = (client.data.get(curentCampaign._id.toString()) as unknown as Map<string, any>)[
-			nbCall - 1
-		];
+		const clientCampaign = client.data.get(curentCampaign._id.toString()) as Array<any>;
 		if (!clientCampaign) {
 			res.status(500).send({ message: 'Internal error', OK: false });
 			log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 			return;
 		}
-		if (!clientCampaign) {
-			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
-			return;
-		}
-		clientCampaign.status = req.body.satisfaction == 0 ? 'not answered' : 'called';
-		clientCampaign.startCall = new Date();
-		clientCampaign.endCall = new Date();
-		clientCampaign.satisfaction = req.body.satisfaction;
-		if (req.body.comment && req.body.comment.trim().length > 0) {
-			clientCampaign.comment = req.body.comment.trim();
-		}
+		clientCampaign.push({
+			status: req.body.satisfaction == 0 ? 'not answered' : 'called',
+			startCall: new Date(),
+			endCall: new Date(),
+			satisfaction: req.body.satisfaction,
+			comment: req.body.comment && req.body.comment.trim().length > 0 ? req.body.comment.trim() : ''
+		});
 	} else if (req.body.satisfaction == -2) {
 		await Campaign.updateOne({ _id: curentCampaign._id }, { $push: { trashUser: client._id } });
 		log(`delete ${client.phone} client from ${caller.name} ${caller.name} (${ip})`, 'INFORMATION', 'endCall.ts');
