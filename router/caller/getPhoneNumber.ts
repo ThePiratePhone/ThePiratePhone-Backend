@@ -99,8 +99,6 @@ export default async function getPhoneNumber(
 			(time.date ?? new Date()).getTime() > new Date().setMinutes(new Date().getMinutes() - 1)
 	).length;
 
-	console.log(nbCallInMinutes);
-
 	if (nbCallInMinutes >= 8) {
 		aspirationDetector.set(caller.phone, (aspirationDetector.get(caller.phone) ?? 0) + 1);
 		res.status(429).send({ message: 'Too many call in the last minute', OK: false });
