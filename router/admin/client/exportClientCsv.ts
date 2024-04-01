@@ -49,29 +49,42 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
 	res.setHeader('Content-Type', 'text/csv');
 
-	const csvStream = csv.format({ headers: true, delimiter: ';' });
+	const csvStream = csv.format({ headers: true, delimiter: ',' });
 	csvStream.pipe(res);
 
 	const numberOfClients = await Client.countDocuments(selector);
 	const clients = Client.find(selector).cursor();
 	await clients.eachAsync(async client => {
-		const csvData = {};
+		const csvData: {
+			statut?: 'Appelé·e' | 'Non appelé·e' | 'Appel en cours' | 'Aucune réponse' | 'Aucune info';
+			satisfaction?:
+				| 'A retirer'
+				| 'Pas interessé'
+				| 'Pas de réponse'
+				| 'Pas voté pour nous'
+				| 'Voté pour nous'
+				| 'une erreur est survenu, contacté les devloppeur';
+			appeleant?: string;
+			commentaire?: string;
+		} = {};
 		const lastCall = client.data.get(campaign?._id?.toString() ?? '')?.find(cl => cl.status == 'called');
 		if (lastCall) {
-			csvData[`status`] = CleanStatus(lastCall?.status);
-			csvData[`satisfaction`] = cleanSatisfaction(lastCall?.satisfaction ?? Infinity);
-			csvData[`appeleant`] = lastCall?.caller
-				? (await Caller.findOne(lastCall.caller, ['name']))?.name ?? ''
-				: '';
-			csvData[`commentaire`] = lastCall?.comment ?? '';
+			csvData.statut = CleanStatus(lastCall?.status);
+			csvData.satisfaction = cleanSatisfaction(lastCall?.satisfaction ?? Infinity);
+			csvData.appeleant = lastCall?.caller ? (await Caller.findOne(lastCall.caller, ['name']))?.name ?? '' : '';
+			csvData.commentaire = lastCall?.comment ?? '';
 		}
+		console.log(csvData);
 
 		csvStream.write({
 			nom: client.name,
 			telephone: client.phone,
 			institution: client.institution,
 			promotion: client.promotion,
-			...csvData
+			statut: csvData.statut ?? '',
+			satisfaction: csvData.satisfaction ?? '',
+			appeleant: csvData.appeleant ?? '',
+			commentaire: csvData.commentaire ?? ''
 		});
 	});
 	csvStream.end();
