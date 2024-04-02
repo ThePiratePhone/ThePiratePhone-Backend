@@ -81,7 +81,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		};
 	});
 
-	if (place >= 5) {
+	if (place == -1) {
 		const caller = await Caller.aggregate([
 			{
 				$match: {
@@ -126,7 +126,6 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		return b.nbCall - a.nbCall;
 	});
 
-	console.log(scoreBoard);
 	res.status(200).send({
 		message: 'OK',
 		data: { scoreBoard, yourPlace: place + 1 },

@@ -74,7 +74,6 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 			csvData.appeleant = lastCall?.caller ? (await Caller.findOne(lastCall.caller, ['name']))?.name ?? '' : '';
 			csvData.commentaire = lastCall?.comment ?? '';
 		}
-		console.log(csvData);
 
 		csvStream.write({
 			nom: client.name,
