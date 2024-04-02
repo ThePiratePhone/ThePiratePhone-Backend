@@ -77,7 +77,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		return {
 			name: el.name,
 			nbCall: el.timeInCall.length,
-			timeInCall: el.timeInCall.reduce((acc, cur) => acc + cur.time, 0)
+			timeInCall: el.timeInCall.reduce((acc, cur) => (acc ?? 0) + (cur.time ?? 0), 0)
 		};
 	});
 
@@ -117,7 +117,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			scoreBoard.push({
 				name: caller[0].name,
 				nbCall: caller[0].timeInCall.length,
-				timeInCall: caller[0].timeInCall.reduce((acc, cur) => acc + cur.time, 0)
+				timeInCall: caller[0].timeInCall.reduce((acc, cur) => (acc ?? 0) + (cur.time ?? 0), 0)
 			});
 		}
 	}
@@ -125,6 +125,8 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	scoreBoard.sort((a, b) => {
 		return b.nbCall - a.nbCall;
 	});
+
+	console.log(scoreBoard);
 	res.status(200).send({
 		message: 'OK',
 		data: { scoreBoard, yourPlace: place + 1 },
