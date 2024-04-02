@@ -185,7 +185,9 @@ this user has been banned, contact the devlopper to unban him.`
 				status: 'inprogress',
 				caller: caller._id,
 				scriptVersion: campaign.script.length - 1,
-				startCall: new Date()
+				startCall: new Date(),
+				CampaignCallStart: campaign.callHoursStart,
+				CampaignCallEnd: campaign.callHoursEnd
 			});
 		}
 		await Promise.all([caller.save(), Client.updateOne({ _id: client[0]._id }, { data: client[0].data })]);
