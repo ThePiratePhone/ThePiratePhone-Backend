@@ -75,7 +75,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			}
 			if (call?.caller?.toString() ?? '' == caller._id.toString()) {
 				if (call.status == 'called') totaldiscution++;
-				TimeInCall += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime();
+				TimeInCall += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime() ?? 0;
 				if (call.status == 'called' && call.satisfaction == 2) totalConvertion++;
 			}
 		});
@@ -90,7 +90,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			totalCall: totalCall,
 			totalUser: totalUser,
 			totalConvertion: totalConvertion,
-			timeInCall: TimeInCall,
+			timeInCall: TimeInCall ?? 0,
 			callInProgress: callInProgress
 		}
 	});

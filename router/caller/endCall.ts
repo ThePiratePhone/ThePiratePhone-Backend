@@ -97,7 +97,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 				timeInCall: {
 					date: new Date(),
 					client: client._id,
-					time: req.body.timeInCall,
+					time: req.body.timeInCall ?? 0,
 					campaign: curentCampaign._id
 				}
 			},

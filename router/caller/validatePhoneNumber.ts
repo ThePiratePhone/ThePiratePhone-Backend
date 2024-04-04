@@ -123,7 +123,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 				timeInCall: {
 					date: new Date(),
 					client: client._id,
-					time: req.body.timeInCall,
+					time: req.body.timeInCall??0,
 					campaign: curentCampaign._id
 				}
 			},
