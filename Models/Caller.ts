@@ -25,7 +25,7 @@ const CallerSchema = new mongoose.Schema({
 			{
 				date: { type: Date, require: true },
 				client: { type: mongoose.Schema.ObjectId, ref: 'Client', required: true },
-				time: { type: Number, required: true },
+				time: { type: Number, required: false },
 				campaign: { type: mongoose.Schema.ObjectId, ref: 'Campaign', required: true }
 			}
 		]
