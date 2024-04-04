@@ -1,16 +1,18 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
-import { Client } from '../../Models/Client';
+
 import { Area } from '../../Models/Area';
+import { Campaign } from '../../Models/Campaign';
+import { Client } from '../../Models/Client';
 import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
 
 export default async function response(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 
 	if (
 		!req.body ||
-		!ObjectId.isValid(req.body.campaign) ||
+		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId)) ||
 		typeof req.body.adminCode != 'string' ||
 		!ObjectId.isValid(req.body.area)
 	) {
@@ -26,10 +28,13 @@ export default async function response(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const campaign = await getCurrentCampaign(area._id);
-	if (!campaign) {
-		res.status(404).send({ message: 'campaign not found', OK: false });
-		log(`Campaign not found from: ${area.name} (${ip})`, 'WARNING', 'response.ts');
+	let campaign;
+	if (!req.body.campaign) campaign = await getCurrentCampaign(area.id);
+	else campaign = Campaign.findOne({ _id: req.body.campaign, area: req.body.area });
+
+	if (!campaign || campaign == null) {
+		res.status(404).send({ message: 'no campaign in progress or campaign not found', OK: false });
+		log(`No campaign in progress or campaign not found from: ${area.name} (${ip})`, 'WARNING', 'response.ts');
 		return;
 	}
 
