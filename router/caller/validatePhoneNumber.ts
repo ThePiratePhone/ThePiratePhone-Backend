@@ -32,6 +32,8 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		return;
 	}
 
+	req.body.timeInCall = Math.min(req.body.timeInCall ?? 0, 1_200_000);
+
 	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
 	if (!caller) {
 		res.status(403).send({ message: 'Wrong credentials', OK: false });
@@ -123,7 +125,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 				timeInCall: {
 					date: new Date(),
 					client: client._id,
-					time: req.body.timeInCall??0,
+					time: req.body.timeInCall ?? 0,
 					campaign: curentCampaign._id
 				}
 			},
