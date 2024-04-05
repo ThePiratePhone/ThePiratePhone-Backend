@@ -50,11 +50,11 @@ export default async function call(req: Request<any>, res: Response<any>) {
 	await clientInThisCampaign.eachAsync(client => {
 		totalUser++;
 		const data = client.data.get(campaign._id.toString());
+		if (data && data[data.length - 1] && data[data.length - 1].status != 'not called') totalClientCalled++;
 		data?.forEach(call => {
 			if (call.status == 'not called') return;
 
-			totalCall += data?.length ?? 0;
-			totalClientCalled++;
+			totalCall++;
 			totalTime += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime();
 			if (call.status == 'called' && call.satisfaction == 2) totalConvertion++;
 		});
