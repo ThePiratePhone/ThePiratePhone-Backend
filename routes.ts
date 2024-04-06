@@ -53,6 +53,7 @@ import changeNameCallerByAdmin from './router/admin/caller/changeName';
 import changeNameCallerByCaller from './router/caller/changeName';
 import ChangePin from './router/admin/area/changePin';
 import ChangePassword from './router/admin/area/changeAdminPassword';
+import changeScript from './router/admin/campaign/changeScript';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -77,6 +78,7 @@ router.post('/admin/campaign/addClientCampaign', addClientCampaign);
 router.post('/admin/campaign/listCallerCampaign', listCallerCampaign);
 router.post('/admin/campaign/listClientCampaign', listClientCampaign);
 router.post('/admin/campaign/campaign', listCampaign);
+router.post('/admin/campaign/changeScript', changeScript);
 //admin/client
 router.post('/admin/client/searchByName', SearchByName);
 router.post('/admin/client/removeClient', removeClient);
