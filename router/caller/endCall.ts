@@ -82,9 +82,15 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`Internal error from ${caller.name} (${ip})`, 'ERROR', 'endCall.ts');
 		return;
 	}
+	if (clientCampaign.length > 0) {
+		//pop fisrt case for remplace this by case up to date
+		clientCampaign.pop();
+	}
 	clientCampaign.push({
 		status: req.body.satisfaction == 0 ? 'not answered' : 'called',
-		startCall: new Date(),
+		caller: caller._id,
+		scriptVersion: clientCampaign.length - 1,
+		startCall: new Date(new Date().getTime() - req.body.timeInCall ?? 0),
 		endCall: new Date(),
 		satisfaction: req.body.satisfaction,
 		comment: req.body.comment && req.body.comment.trim().length > 0 ? req.body.comment.trim() : ''
