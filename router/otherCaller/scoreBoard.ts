@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
-import { log } from '../../tools/log';
-import clearPhone from '../../tools/clearPhone';
-import phoneNumberCheck from '../../tools/phoneNumberCheck';
 import { ObjectId } from 'mongodb';
-import { Caller } from '../../Models/Caller';
+
 import { Area } from '../../Models/Area';
+import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
+import clearPhone from '../../tools/clearPhone';
 import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
+import phoneNumberCheck from '../../tools/phoneNumberCheck';
 
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -128,7 +129,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 
 	res.status(200).send({
 		message: 'OK',
-		data: { scoreBoard, yourPlace: place + 1 },
+		data: { scoreBoard, yourPlace: place < 6 ? place + 1 : place },
 		OK: true
 	});
 	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
