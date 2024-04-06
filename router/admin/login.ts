@@ -36,6 +36,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			actualCampaignCallStart: campaign.callHoursStart,
 			actualCampaignCallEnd: campaign.callHoursEnd,
 			actualCampaignMaxCall: campaign.nbMaxCallCampaign,
+			actualCampaignScript: campaign.script[campaign.script.length - 1],
 			actualCampaignTimeBetweenCall: campaign.timeBetweenCall
 		},
 		OK: true
