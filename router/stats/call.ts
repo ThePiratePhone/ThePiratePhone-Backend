@@ -1,16 +1,17 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
-import { Client } from '../../Models/Client';
 import { Area } from '../../Models/Area';
+import { Campaign } from '../../Models/Campaign';
+import { Client } from '../../Models/Client';
 import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
 
 export default async function call(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 
 	if (
 		!req.body ||
-		!ObjectId.isValid(req.body.campaign) ||
+		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId)) ||
 		typeof req.body.adminCode != 'string' ||
 		!ObjectId.isValid(req.body.area)
 	) {
@@ -26,10 +27,13 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const campaign = await getCurrentCampaign(area._id);
-	if (!campaign) {
-		res.status(404).send({ message: 'campaign not found', OK: false });
-		log(`Campaign not found from: ${area.name} (${ip})`, 'WARNING', 'call.ts');
+	let campaign;
+	if (!req.body.CampaignId) campaign = await getCurrentCampaign(area.id);
+	else campaign = Campaign.findOne({ _id: req.body.CampaignId, area: req.body.area });
+
+	if (!campaign || campaign == null) {
+		res.status(404).send({ message: 'no campaign in progress or campaign not found', OK: false });
+		log(`No campaign in progress or campaign not found from: ${area.name} (${ip})`, 'WARNING', 'call.ts');
 		return;
 	}
 
@@ -46,11 +50,11 @@ export default async function call(req: Request<any>, res: Response<any>) {
 	await clientInThisCampaign.eachAsync(client => {
 		totalUser++;
 		const data = client.data.get(campaign._id.toString());
+		if (data && data[data.length - 1] && data[data.length - 1].status != 'not called') totalClientCalled++;
 		data?.forEach(call => {
 			if (call.status == 'not called') return;
 
-			totalCall += data?.length ?? 0;
-			totalClientCalled++;
+			totalCall++;
 			totalTime += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime();
 			if (call.status == 'called' && call.satisfaction == 2) totalConvertion++;
 		});

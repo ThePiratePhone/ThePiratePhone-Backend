@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
-import clearPhone from '../../tools/clearPhone';
-import phoneNumberCheck from '../../tools/phoneNumberCheck';
-import { Caller } from '../../Models/Caller';
+
 import { Area } from '../../Models/Area';
-import { NativeBuffer } from 'mongoose';
+import { Caller } from '../../Models/Caller';
+import clearPhone from '../../tools/clearPhone';
+import { log } from '../../tools/log';
+import phoneNumberCheck from '../../tools/phoneNumberCheck';
 
 export default async function OtherCallerInfo(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -15,8 +15,7 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
 		typeof req.body.otherPhone != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', 'scoreBoard.ts');

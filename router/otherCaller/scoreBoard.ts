@@ -49,7 +49,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	else campaign = Campaign.findOne({ _id: req.body.campaign, area: req.body.area });
 
 	if (!campaign || campaign == null) {
-		res.status(200).send({ message: 'no campaign in progress or campaign not found', OK: false });
+		res.status(404).send({ message: 'no campaign in progress or campaign not found', OK: false });
 		log(`No campaign in progress or campaign not found from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
 		return;
 	}
