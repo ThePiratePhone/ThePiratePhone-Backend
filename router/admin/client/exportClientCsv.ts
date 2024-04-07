@@ -63,7 +63,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 				| 'Pas de réponse'
 				| 'Pas voté pour nous'
 				| 'Voté pour nous'
-				| 'une erreur est survenu, contacté les devloppeur';
+				| 'Une erreur est survenue. Contactez les développeurs';
 			appeleant?: string;
 			commentaire?: string;
 		} = {};

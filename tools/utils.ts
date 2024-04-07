@@ -11,7 +11,7 @@ function cleanSatisfaction(satisfaction: number) {
 		case 2:
 			return 'Voté pour nous';
 		default:
-			return 'une erreur est survenu, contacté les devloppeur';
+			return 'Une erreur est survenue. Contactez les développeurs';
 	}
 }
 
