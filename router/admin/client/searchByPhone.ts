@@ -29,7 +29,7 @@ export default async function SearchByPhone(req: Request<any>, res: Response<any
 	req.body.phone = clearPhone(req.body.phone);
 	req.body.phone = req.body.phone.match(/\d+/g)?.join('') || '';
 
-	const output = await Client.find({ phone: { $regex: req.body.phone, $options: 'i' } }).limit(10);
+	const output = await Client.find({ phone: { $regex: req.body.phone, $options: 'i' } }, ['name', 'phone']).limit(10);
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`Clients searched from ${ip} (${area.name})`, 'INFORMATION', 'shearchByPhone.ts');
 }

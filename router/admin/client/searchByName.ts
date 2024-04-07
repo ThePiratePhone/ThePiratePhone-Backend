@@ -32,7 +32,7 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 	const escapedNameParts = (req.body.name as string).split(' ').map(escapeRegExp);
 	const regexParts = escapedNameParts.map(part => `(?=.*${part})`).join('');
 	const regex = new RegExp(`^${regexParts}`, 'i');
-	const output = await Client.find({ name: regex }).limit(10);
+	const output = await Client.find({ name: regex }, ['name', 'phone']).limit(10);
 
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`Clients searched from ${ip} (${area.name})`, 'INFORMATION', 'searchByName.ts');
