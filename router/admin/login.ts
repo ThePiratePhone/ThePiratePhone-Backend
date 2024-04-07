@@ -21,23 +21,18 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	}
 
 	let campaign = await getCurrentCampaign(area._id);
-	if (!campaign) {
-		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'login.ts');
-		return;
-	}
 
 	res.status(200).send({
 		message: 'OK',
 		data: {
 			areaName: area.name,
-			actualCampaignId: campaign._id,
-			actualCampaignName: campaign.name,
-			actualCampaignCallStart: campaign.callHoursStart,
-			actualCampaignCallEnd: campaign.callHoursEnd,
-			actualCampaignMaxCall: campaign.nbMaxCallCampaign,
-			actualCampaignScript: campaign.script[campaign.script.length - 1],
-			actualCampaignTimeBetweenCall: campaign.timeBetweenCall
+			actualCampaignId: campaign?._id ?? undefined,
+			actualCampaignName: campaign?.name ?? undefined,
+			actualCampaignCallStart: campaign?.callHoursStart ?? undefined,
+			actualCampaignCallEnd: campaign?.callHoursEnd ?? undefined,
+			actualCampaignMaxCall: campaign?.nbMaxCallCampaign ?? undefined,
+			actualCampaignScript: campaign?.script[campaign.script.length - 1] ?? undefined,
+			actualCampaignTimeBetweenCall: campaign?.timeBetweenCall ?? undefined
 		},
 		OK: true
 	});

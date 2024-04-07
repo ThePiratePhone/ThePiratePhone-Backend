@@ -26,7 +26,7 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const previusCampaign = await getCurrentCampaign(area._id);
+	const previousCampaign = await getCurrentCampaign(area._id);
 
 	if (req.body.active) {
 		const campaign = await Campaign.updateOne({ _id: req.body.campaign, area: area._id }, { active: true });
@@ -37,17 +37,17 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 		}
 		area.campaignInProgress = req.body.campaign;
 		await area.save();
-		if (previusCampaign && previusCampaign._id != req.body.campaign) {
-			await Campaign.updateOne({ _id: previusCampaign._id }, { active: false });
+		if (previousCampaign && previousCampaign._id != req.body.campaign) {
+			await Campaign.updateOne({ _id: previousCampaign._id }, { active: false });
 		}
 		res.send({ message: 'Campaign activated', OK: true });
 	} else {
-		if (previusCampaign) {
-			previusCampaign.active = false;
+		if (previousCampaign) {
+			previousCampaign.active = false;
 		}
 		area.campaignInProgress = null;
-		if (previusCampaign) {
-			await Promise.all([previusCampaign.save(), area.save()]);
+		if (previousCampaign) {
+			await Promise.all([previousCampaign.save(), area.save()]);
 		} else {
 			await area.save();
 		}
