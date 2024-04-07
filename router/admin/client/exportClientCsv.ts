@@ -71,7 +71,9 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		if (lastCall) {
 			csvData.statut = CleanStatus(lastCall?.status);
 			csvData.satisfaction = cleanSatisfaction(lastCall?.satisfaction ?? Infinity);
-			csvData.appeleant = lastCall?.caller ? (await Caller.findOne(lastCall.caller, ['name']))?.name ?? '' : '';
+			csvData.appeleant = lastCall?.caller
+				? (await Caller.findOne(lastCall.caller, ['name']))?.name ?? 'aucun·e trouvé·e'
+				: '';
 			csvData.commentaire = lastCall?.comment ?? '';
 		}
 
