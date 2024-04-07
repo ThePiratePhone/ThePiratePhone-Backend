@@ -29,7 +29,7 @@ export default async function changeTimeBetwenCall(req: Request<any>, res: Respo
 
 	let campaign: InstanceType<typeof Campaign> | null;
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+		campaign = await Campaign.findOne({ _id: req.body.CampaignId, area: area._id });
 	} else {
 		campaign = await getCurrentCampaign(area._id);
 	}

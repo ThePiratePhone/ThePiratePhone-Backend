@@ -31,7 +31,7 @@ export default async function changeCallHours(req: Request<any>, res: Response<a
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+		campaign = await Campaign.findOne({ _id: req.body.CampaignId, area: area._id });
 	} else {
 		campaign = await getCurrentCampaign(area._id);
 	}
