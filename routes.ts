@@ -54,6 +54,7 @@ import scoreBoard from './router/otherCaller/scoreBoard';
 import call from './router/stats/call';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
+import getCampaign from './router/admin/campaign/GetCampaign';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -78,6 +79,7 @@ router.post('/admin/campaign/addClientCampaign', addClientCampaign);
 router.post('/admin/campaign/listCallerCampaign', listCallerCampaign);
 router.post('/admin/campaign/listClientCampaign', listClientCampaign);
 router.post('/admin/campaign/campaign', listCampaign);
+router.post('/admin/campaign/getCampaign', getCampaign);
 router.post('/admin/campaign/changeScript', changeScript);
 //admin/client
 router.post('/admin/client/searchByName', SearchByName);

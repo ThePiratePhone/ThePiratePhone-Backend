@@ -94,16 +94,16 @@ export default async function createClients(req: Request<any>, res: Response<any
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
 }
 
-async function addClientCampaign(phone: string, area: ObjectId, campaignId: string) {
+async function addClientCampaign(phone: string, area: ObjectId, CampaignId: string) {
 	const client = await Client.findOne({ phone: phone, area: area });
 	if (!client) {
 		return false;
 	}
-	if (client.data.has(campaignId)) {
+	if (client.data.has(CampaignId)) {
 		return true;
 	}
 	try {
-		client.data.set(campaignId, [{ status: 'not called' }] as any);
+		client.data.set(CampaignId, [{ status: 'not called' }] as any);
 		return (await client.save()) != undefined;
 	} catch (e: any) {
 		//isn't true error

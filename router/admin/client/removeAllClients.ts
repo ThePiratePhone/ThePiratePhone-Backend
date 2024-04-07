@@ -47,8 +47,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 	if (client.length) {
 		await Promise.all(
 			client.map(async el => {
-				console.log(campaign._id.toString());
-				el.data.delete(campaign._id.toString());
+				el.data.delete(campaign?._id?.toString() ?? '');
 				if (el.data.size == 0) {
 					await Client.deleteOne(el._id);
 				} else {
