@@ -37,7 +37,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 
 	const campaign = await getCurrentCampaign(area._id);
 	if (!campaign) {
-		res.status(200).send({ message: 'No campaign in progress', OK: false });
+		res.status(404).send({ message: 'No campaign in progress', OK: false });
 		log(`No campaign in progress from ${ip}`, 'WARNING', 'createClient.ts');
 		return;
 	}
@@ -55,6 +55,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 				status: 'not called'
 			});
 		}
+		const nbClient = await Client.countDocuments({ phone: phone, area: area._id });
 		const user = new Client({
 			area: area._id,
 			name: usr[0] ?? null,
@@ -64,13 +65,16 @@ export default async function createClients(req: Request<any>, res: Response<any
 			institution: req.body.institution ?? null
 		});
 		try {
-			await user.save();
-			return true;
+			if (nbClient != 0) throw { code: 11000 };
+			else {
+				await user.save();
+				return true;
+			}
 		} catch (error: any) {
 			if (error.code != 11000) {
 				errors.push([usr[0], phone, error.message]);
 			} else {
-				if (!(await addClientCampaign(phone, campaign._id.toString()))) {
+				if (!(await addClientCampaign(phone, area._id, campaign._id.toString()))) {
 					errors.push([usr[0], phone, 'internal error']);
 					log(
 						`Internal error from ${area.name} (${ip}) for adding user to camaign. ${usr[0]}, ${usr[1]}`,
@@ -90,8 +94,8 @@ export default async function createClients(req: Request<any>, res: Response<any
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
 }
 
-async function addClientCampaign(phone: string, campaignId: string) {
-	const client = await Client.findOne({ phone: phone });
+async function addClientCampaign(phone: string, area: ObjectId, campaignId: string) {
+	const client = await Client.findOne({ phone: phone, area: area });
 	if (!client) {
 		return false;
 	}
@@ -99,11 +103,10 @@ async function addClientCampaign(phone: string, campaignId: string) {
 		return true;
 	}
 	try {
-		const newData = new Types.DocumentArray([{ status: 'not called' }]) as any;
-		client.data.set(campaignId, newData);
-		await client.updateOne({ phone: phone }, { data: client.data });
+		client.data.set(campaignId, [{ status: 'not called' }] as any);
+		return (await client.save()) != undefined;
+	} catch (e: any) {
+		//isn't true error
 		return true;
-	} catch (e) {
-		return false;
 	}
 }
