@@ -1,9 +1,9 @@
-function cleanSatisfaction(satisfaction: number) {
+function cleanSatisfaction(satisfaction: number | null) {
 	switch (satisfaction) {
 		case -2:
 			return 'A retirer';
 		case -1:
-			return 'Pas interessé';
+			return 'Pas interessé·e';
 		case 0:
 			return 'Pas de réponse';
 		case 1:
