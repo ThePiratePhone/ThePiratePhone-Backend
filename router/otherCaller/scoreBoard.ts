@@ -31,7 +31,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area, pinCode: req.body.pinCode });
+	const caller = await Caller.findOne({ phone: req.body.phone, pinCode: req.body.pinCode });
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
 		log(`Caller not found from: ` + ip, 'WARNING', 'scoreBoard.ts');
@@ -67,6 +67,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 				$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
 			}
 		},
+		{ $match: { 'timeInCall.campaign': campaign._id } },
 		{ $addFields: { length: { $size: '$timeInCall' } } },
 		{ $sort: { length: -1 } },
 		{ $limit: 5 }
@@ -89,6 +90,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 					$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
 				}
 			},
+			{ $match: { 'timeInCall.campaign': campaign._id } },
 			{ $addFields: { length: { $size: '$timeInCall' } } },
 			{ $sort: { length: -1 } },
 			{ $project: { name: 1, timeInCall: 1, phone: 1 } },
