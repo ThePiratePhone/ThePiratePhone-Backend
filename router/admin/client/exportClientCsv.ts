@@ -8,7 +8,7 @@ import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 import { log } from '../../../tools/log';
-import { cleanSatisfaction, CleanStatus } from '../../../tools/utils';
+import { cleanSatisfaction, CleanStatus, humainPhone } from '../../../tools/utils';
 
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -57,33 +57,38 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	await clients.eachAsync(async client => {
 		const csvData: {
 			statut?: 'Appelé·e' | 'Non appelé·e' | 'Appel en cours' | 'Aucune réponse' | 'Aucune info';
-			satisfaction?:
+			resultat?:
 				| 'A retirer'
 				| 'Pas interessé·e'
 				| 'Pas de réponse'
 				| 'Pas voté pour nous'
 				| 'Voté pour nous'
-				| 'Une erreur est survenue. Contactez les développeurs';
+				| 'Une erreur est survenue. Contactez les développeurs'
+				| 'Encore en appel';
 			appeleant?: string;
 			commentaire?: string;
 		} = {};
-		const lastCall = client.data.get(campaign?._id?.toString() ?? '')?.find(cl => cl.status == 'called');
+		const lastCall = client.data.get(campaign?._id?.toString() ?? '')?.find(cl => cl.status != 'not called');
 		if (lastCall) {
+			const lastCaller = lastCall?.caller ? await Caller.findOne(lastCall.caller, ['name', 'phone']) : undefined;
 			csvData.statut = CleanStatus(lastCall?.status);
-			csvData.satisfaction = cleanSatisfaction(lastCall?.satisfaction ?? null);
-			csvData.appeleant = lastCall?.caller
-				? (await Caller.findOne(lastCall.caller, ['name']))?.name ?? 'Inconnu·e'
+			csvData.resultat =
+				lastCall?.status == 'inprogress'
+					? 'Encore en appel'
+					: cleanSatisfaction(lastCall?.satisfaction ?? null);
+			csvData.appeleant = lastCaller
+				? (lastCaller.name ?? 'Inconnu·e') + ' (' + (humainPhone(lastCaller.phone) ?? 'numero inconu') + ')'
 				: '';
 			csvData.commentaire = lastCall?.comment ?? '';
 		}
 
 		csvStream.write({
 			nom: client.name,
-			telephone: client.phone,
+			telephone: humainPhone(client.phone),
 			institution: client.institution,
 			promotion: client.promotion,
 			statut: csvData.statut ?? '',
-			satisfaction: csvData.satisfaction ?? '',
+			resultat: csvData.resultat ?? '',
 			appeleant: csvData.appeleant ?? '',
 			commentaire: csvData.commentaire ?? ''
 		});
