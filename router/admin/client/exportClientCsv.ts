@@ -12,7 +12,12 @@ import { cleanSatisfaction, CleanStatus } from '../../../tools/utils';
 
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (!req.body || typeof req.body.adminCode != 'string' || !ObjectId.isValid(req.body.area)) {
+	if (
+		!req.body ||
+		typeof req.body.adminCode != 'string' ||
+		!ObjectId.isValid(req.body.area) ||
+		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
+	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'exportClientCsv.ts');
 		return;

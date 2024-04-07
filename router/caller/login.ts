@@ -41,6 +41,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		log(`Campaign not found for ${caller.name} (${ip})`, 'WARNING', 'login.ts');
 		return;
 	}
+
 	const areaAvaible = await Area.findOne({ _id: caller.area });
 	if (!areaAvaible) {
 		res.status(400).send({ message: 'Area not found', OK: false });
