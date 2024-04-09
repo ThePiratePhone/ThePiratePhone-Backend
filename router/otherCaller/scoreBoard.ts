@@ -61,18 +61,38 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const callers = await Caller.aggregate([
+	let callers = await Caller.aggregate([
 		{
 			$match: {
 				$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
 			}
 		},
-		{ $match: { 'timeInCall.campaign': campaign._id } },
-		{ $addFields: { length: { $size: '$timeInCall' } } },
+		{
+			$addFields: {
+				timeInCall: {
+					$filter: {
+						input: '$timeInCall',
+						as: 'call',
+						cond: { $eq: ['$$call.campaign', campaign._id] }
+					}
+				},
+				length: { $size: '$timeInCall' }
+			}
+		},
+		{
+			$match: {
+				length: { $gt: 0 }
+			}
+		},
 		{ $sort: { length: -1 } },
 		{ $limit: 5 }
 	]);
 
+	callers.sort((a, b) => {
+		return b.timeInCall.length - a.timeInCall.length;
+	});
+
+	callers = callers.filter(el => el.timeInCall.length > 0);
 	let place: any = callers.findIndex(el => el.phone == req.body.phone);
 
 	const scoreBoard = callers.map(el => {
@@ -128,7 +148,6 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	scoreBoard.sort((a, b) => {
 		return b.nbCall - a.nbCall;
 	});
-
 	res.status(200).send({
 		message: 'OK',
 		data: { scoreBoard, yourPlace: place < 6 ? place + 1 : place },
