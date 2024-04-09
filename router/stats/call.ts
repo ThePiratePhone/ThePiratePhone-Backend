@@ -50,7 +50,13 @@ export default async function call(req: Request<any>, res: Response<any>) {
 	await clientInThisCampaign.eachAsync(client => {
 		totalUser++;
 		const data = client.data.get(campaign._id.toString());
-		if (data && data[data.length - 1] && data[data.length - 1].status != 'not called') totalClientCalled++;
+		if (
+			data &&
+			data[data.length - 1] &&
+			data[data.length - 1].status != 'not called' &&
+			data[data.length - 1].status != 'not answered'
+		)
+			totalClientCalled++;
 		data?.forEach(call => {
 			if (call.status == 'not called') return;
 
