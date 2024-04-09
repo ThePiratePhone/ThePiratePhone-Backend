@@ -8,6 +8,7 @@ import clearPhone from '../../tools/clearPhone';
 import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
 import phoneNumberCheck from '../../tools/phoneNumberCheck';
+import mongoose from 'mongoose';
 
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -63,94 +64,106 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 
 	let callers = await Caller.aggregate([
 		{
-			$match: {
-				$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
-			}
-		},
-		{
-			$addFields: {
-				timeInCall: {
-					$filter: {
-						input: '$timeInCall',
-						as: 'call',
-						cond: { $eq: ['$$call.campaign', campaign._id] }
+			$project: {
+				name: 1,
+				phone: 2,
+				totalCalls: {
+					$size: {
+						$filter: {
+							input: '$timeInCall',
+							as: 'call',
+							cond: { $eq: ['$$call.campaign', campaign._id] }
+						}
 					}
 				},
-				length: { $size: '$timeInCall' }
+				totalTime: {
+					$sum: {
+						$map: {
+							input: {
+								$filter: {
+									input: '$timeInCall',
+									as: 'call',
+									cond: { $eq: ['$$call.campaign', campaign._id] }
+								}
+							},
+							as: 'call',
+							in: '$$call.time'
+						}
+					}
+				}
 			}
 		},
 		{
-			$match: {
-				length: { $gt: 0 }
-			}
+			$sort: { totalCalls: -1 }
 		},
-		{ $sort: { length: -1 } },
-		{ $limit: 5 }
+		{
+			$limit: 5
+		}
 	]);
 
 	callers.sort((a, b) => {
-		return b.timeInCall.length - a.timeInCall.length;
+		return b.totalCalls - a.totalCalls;
 	});
 
-	callers = callers.filter(el => el.timeInCall.length > 0);
-	let place: any = callers.findIndex(el => el.phone == req.body.phone);
-
-	const scoreBoard = callers.map(el => {
-		return {
-			name: el.name,
-			nbCall: el.timeInCall.length,
-			timeInCall: el.timeInCall.reduce((acc, cur) => (acc ?? 0) + (cur.time ?? 0), 0)
-		};
-	});
+	callers = callers.filter(el => el.totalCalls > 0);
+	let place = callers.findIndex(el => el.phone == req.body.phone);
 
 	if (place == -1) {
-		const caller = await Caller.aggregate([
-			{
-				$match: {
-					$or: [{ area: ObjectId.createFromHexString(req.body.area) }, { campaigns: campaign._id }]
-				}
-			},
-			{ $match: { 'timeInCall.campaign': campaign._id } },
-			{ $addFields: { length: { $size: '$timeInCall' } } },
-			{ $sort: { length: -1 } },
-			{ $project: { name: 1, timeInCall: 1, phone: 1 } },
-			{
-				$group: {
-					_id: null,
-					phones: { $push: '$phone' },
-					names: { $push: '$name' },
-					timeInCalls: { $push: '$timeInCall' }
-				}
-			},
-			{ $project: { yourPlace: { $indexOfArray: ['$phones', req.body.phone] }, names: 1, timeInCalls: 1 } },
-			{ $unwind: { path: '$yourPlace' } },
+		await Caller.aggregate([
 			{
 				$project: {
-					name: { $arrayElemAt: ['$names', '$yourPlace'] },
-					timeInCall: { $arrayElemAt: ['$timeInCalls', '$yourPlace'] },
-					yourPlace: '$yourPlace'
+					name: 1,
+					phone: 2,
+					totalCalls: {
+						$size: {
+							$filter: {
+								input: '$timeInCall',
+								as: 'call',
+								cond: { $eq: ['$$call.campaign', campaign._id] }
+							}
+						}
+					},
+					totalTime: {
+						$sum: {
+							$map: {
+								input: {
+									$filter: {
+										input: '$timeInCall',
+										as: 'call',
+										cond: { $eq: ['$$call.campaign', campaign._id] }
+									}
+								},
+								as: 'call',
+								in: '$$call.time'
+							}
+						}
+					}
 				}
+			},
+			{
+				$sort: { totalCalls: -1 }
 			}
-		]);
-
-		if (caller.length == 0) {
-			place = -1;
-		} else {
-			place = caller[0].yourPlace;
-			scoreBoard.push({
-				name: caller[0].name,
-				nbCall: caller[0].timeInCall.length,
-				timeInCall: caller[0].timeInCall.reduce((acc, cur) => (acc ?? 0) + (cur.time ?? 0), 0)
+		])
+			.cursor()
+			.eachAsync((caller, index) => {
+				if (caller.phone === req.body.phone) {
+					place = index + 1;
+					callers.push({
+						name: caller.name,
+						totalCalls: caller.totalCalls,
+						totalTime: caller.totalTime
+					});
+				}
 			});
-		}
 	}
 
-	scoreBoard.sort((a, b) => {
+	callers.sort((a, b) => {
 		return b.nbCall - a.nbCall;
 	});
+
 	res.status(200).send({
 		message: 'OK',
-		data: { scoreBoard, yourPlace: place < 6 ? place + 1 : place },
+		data: { scoreBoard: callers, yourPlace: place },
 		OK: true
 	});
 	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
