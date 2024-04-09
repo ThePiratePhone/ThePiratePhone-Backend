@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+
 import { Area } from '../../Models/Area';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
@@ -53,8 +54,8 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		if (
 			data &&
 			data[data.length - 1] &&
-			data[data.length - 1].status != 'not called' &&
-			data[data.length - 1].status != 'not answered'
+			((data[data.length - 1].status != 'not called' && data[data.length - 1].status != 'not answered') ||
+				data.length == campaign.nbMaxCallCampaign)
 		)
 			totalClientCalled++;
 		data?.forEach(call => {
