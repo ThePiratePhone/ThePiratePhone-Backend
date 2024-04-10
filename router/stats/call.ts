@@ -53,7 +53,7 @@ export default async function call(req: Request<any>, res: Response<any>) {
 				data &&
 				data[data.length - 1] &&
 				((data[data.length - 1].status != 'not called' && data[data.length - 1].status != 'not answered') ||
-					data.length == campaign.nbMaxCallCampaign)
+					data.length >= campaign.nbMaxCallCampaign)
 			)
 				totalCalled++;
 			if (data && data[data.length - 1].status == 'not answered') totalNotRespond++;

@@ -150,7 +150,7 @@ this user has been banned, contact the devlopper to unban him.`
 						},
 						{ 'lastElement.status': 'not called' }
 					],
-					dataSize: { $lte: campaign.nbMaxCallCampaign }
+					dataSize: { $lte: campaign.nbMaxCallCampaign - 1 }
 				}
 			},
 			{ $unset: 'lastElement' },
