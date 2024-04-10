@@ -6,6 +6,7 @@ import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import checkCredentials from '../../tools/checkCredentials';
+import clearPhone from '../../tools/clearPhone';
 import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
 
@@ -54,9 +55,7 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		return;
 	}
 
-	if (req.body.phoneNumber.startsWith('0')) {
-		req.body.phoneNumber = req.body.phoneNumber.replace('0', '+33');
-	}
+	req.body.phoneNumber = clearPhone(req.body.phoneNumber);
 	const client = await Client.findOne({
 		phone: req.body.phoneNumber
 	});
@@ -84,12 +83,6 @@ export default async function validatePhoneNumber(req: Request<any>, res: Respon
 		log(`Client already in call from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
 		return;
 	}
-
-	// if (callCampaign[nbCall - 1].status == 'called') {
-	// 	res.status(403).send({ message: 'Client already validate', OK: false });
-	// 	log(`Client already validate from: ${caller.name} (${ip})`, 'WARNING', 'validatePhoneNumber.ts');
-	// 	return;
-	// }
 
 	if (
 		!client.data.get(curentCampaign._id.toString())?.find(call => call?.caller?.toString() == caller._id.toString())
