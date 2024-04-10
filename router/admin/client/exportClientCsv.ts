@@ -67,6 +67,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 				| 'Encore en appel';
 			appeleant?: string;
 			commentaire?: string;
+			nombreAppel?: number;
 		} = {};
 		const lastCall = client.data.get(campaign?._id?.toString() ?? '')?.find(cl => cl.status != 'not called');
 		if (lastCall) {
@@ -80,6 +81,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 				? (lastCaller.name ?? 'Inconnu·e') + ' (' + (humainPhone(lastCaller.phone) ?? 'numero inconu') + ')'
 				: '';
 			csvData.commentaire = lastCall?.comment ?? '';
+			csvData.nombreAppel = client.data.get(campaign?._id?.toString() ?? '')?.length ?? 0;
 		}
 
 		csvStream.write({
@@ -90,7 +92,8 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 			statut: csvData.statut ?? '',
 			resultat: csvData.resultat ?? '',
 			appeleant: csvData.appeleant ?? '',
-			commentaire: csvData.commentaire ?? ''
+			commentaire: csvData.commentaire ?? '',
+			nombreAppel: csvData.nombreAppel ?? 0
 		});
 	});
 	csvStream.end();
