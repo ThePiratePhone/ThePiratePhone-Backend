@@ -49,14 +49,12 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		.eachAsync(client => {
 			totalUser++;
 			const data = client.data.get(campaign._id.toString());
-			if (
+			if (data && data[data.length - 1].status == 'not answered') totalNotRespond++;
+			else if (
 				data &&
-				data[data.length - 1] &&
-				((data[data.length - 1].status != 'not called' && data[data.length - 1].status != 'not answered') ||
-					data.length >= campaign.nbMaxCallCampaign)
+				(data[data.length - 1].status != 'not called' || data.length >= campaign.nbMaxCallCampaign)
 			)
 				totalCalled++;
-			if (data && data[data.length - 1].status == 'not answered') totalNotRespond++;
 		});
 
 	res.status(200).send({
