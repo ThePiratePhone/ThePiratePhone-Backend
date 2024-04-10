@@ -23,7 +23,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 
 	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
 	if (!area) {
-		res.status(401).send({ message: 'Wrong Creantial', OK: false });
+		res.status(401).send({ message: 'Wrong Credentials', OK: false });
 		log('Wrong Creantial from ' + ip, 'WARNING', 'response.ts');
 		return;
 	}
@@ -47,20 +47,18 @@ export default async function response(req: Request<any>, res: Response<any>) {
 	let failure = 0;
 	let notInterested = 0;
 	let removed = 0;
-	let notAnswered = 0;
 	await clientInThisCampaign.eachAsync(client => {
 		const data = client.data.get(campaign._id.toString());
 		const call = data?.[data.length - 1];
 
-		clientCalled++;
 		if (call && call.status) {
 			switch (call.status) {
 				case 'inprogress':
 					break;
 				case 'not answered':
-					notAnswered++;
 					break;
 				case 'called':
+					clientCalled++;
 					switch (call.satisfaction) {
 						case -2:
 							removed++;
@@ -69,7 +67,6 @@ export default async function response(req: Request<any>, res: Response<any>) {
 							notInterested++;
 							break;
 						case 0:
-							notAnswered++;
 							break;
 						case 1:
 							failure++;
@@ -95,8 +92,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 			converted: converted,
 			failure: failure,
 			notInterested: notInterested,
-			removed: removed,
-			notAnswered: notAnswered
+			removed: removed
 		}
 	});
 

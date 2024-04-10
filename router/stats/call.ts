@@ -38,44 +38,34 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const clientInThisCampaign = Client.find({
+	let totalCalled = 0;
+	let totalNotRespond = 0;
+	let totalUser = 0;
+	await Client.find({
 		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
 		_id: { $nin: campaign.trashUser }
-	}).cursor();
-
-	let totalClientCalled = 0;
-	let totalCall = 0;
-	let totalUser = 0;
-	let totalConvertion = 0;
-	let totalTime = 0;
-	await clientInThisCampaign.eachAsync(client => {
-		totalUser++;
-		const data = client.data.get(campaign._id.toString());
-		if (
-			data &&
-			data[data.length - 1] &&
-			((data[data.length - 1].status != 'not called' && data[data.length - 1].status != 'not answered') ||
-				data.length == campaign.nbMaxCallCampaign)
-		)
-			totalClientCalled++;
-		data?.forEach(call => {
-			if (call.status == 'not called') return;
-
-			totalCall++;
-			totalTime += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime();
-			if (call.status == 'called' && call.satisfaction == 2) totalConvertion++;
+	})
+		.cursor()
+		.eachAsync(client => {
+			totalUser++;
+			const data = client.data.get(campaign._id.toString());
+			if (
+				data &&
+				data[data.length - 1] &&
+				((data[data.length - 1].status != 'not called' && data[data.length - 1].status != 'not answered') ||
+					data.length == campaign.nbMaxCallCampaign)
+			)
+				totalCalled++;
+			if (data && data[data.length - 1].status == 'not answered') totalNotRespond++;
 		});
-	});
 
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
 		data: {
-			totalClientCalled: totalClientCalled,
-			totalCall: totalCall,
-			totalUser: totalUser,
-			totalConvertion: totalConvertion,
-			totalTime: totalTime
+			totalCalled: totalCalled,
+			totalNotRespond: totalNotRespond,
+			totalUser: totalUser
 		}
 	});
 
