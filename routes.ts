@@ -55,6 +55,7 @@ import call from './router/stats/call';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
 import getCampaign from './router/admin/campaign/GetCampaign';
+import callByDate from './router/stats/callByDate';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -63,6 +64,7 @@ const resetPassword = new Map<String, { date: Date; password: String; try: numbe
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
 router.post('/stats/response', response);
+router.post('/stats/callByDate', callByDate);
 
 //admin/area
 router.post('/admin/area/changeName', ChangeName);

@@ -23,7 +23,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area }, ['name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', 'exportClientCsv.ts');
@@ -34,7 +34,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id }, []);
 	} else {
 		campaign = await getCurrentCampaign(area._id);
 	}
