@@ -41,13 +41,13 @@ export default async function callByDate(req: Request<any>, res: Response<any>) 
 	res.setHeader('Transfer-Encoding', 'chunked');
 	res.write('{ "data": [');
 
-	const selector = { area: area._id, [`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } } };
+	const selector = { area: area._id, [`data.${campaign?._id ?? ''}`]: { $exists: true, $not: { $size: 0 } } };
 	const numberClient = await Client.countDocuments(selector);
 	let i = 0;
 	await Client.find(selector)
 		.cursor()
 		.eachAsync(client => {
-			const data = client.data.get(campaign.id.toString());
+			const data = client.data.get((campaign?._id ?? '').toString());
 			data?.forEach(el => {
 				res.write(
 					JSON.stringify({
