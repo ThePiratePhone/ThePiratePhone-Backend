@@ -19,6 +19,7 @@ import changeCampaingPassword from './router/admin/campaign/changeCampaignPasswo
 import changeName from './router/admin/campaign/changeName';
 import changeScript from './router/admin/campaign/changeScript';
 import createCampaign from './router/admin/campaign/createCampaign';
+import getCampaign from './router/admin/campaign/GetCampaign';
 import listCampaign from './router/admin/campaign/listCampaign';
 import listClientCampaign from './router/admin/campaign/listClientCampaign';
 import setActive from './router/admin/campaign/setActive';
@@ -52,10 +53,9 @@ import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
 import call from './router/stats/call';
+import callByDate from './router/stats/callByDate';
 import numberOfCallers from './router/stats/numberOfCallers';
 import response from './router/stats/response';
-import getCampaign from './router/admin/campaign/GetCampaign';
-import callByDate from './router/stats/callByDate';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();

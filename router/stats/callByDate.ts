@@ -1,10 +1,11 @@
-import { json, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
-import { Campaign } from '../../Models/Campaign';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
+
 import { Area } from '../../Models/Area';
+import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
+import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { log } from '../../tools/log';
 
 export default async function callByDate(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -52,7 +53,7 @@ export default async function callByDate(req: Request<any>, res: Response<any>) 
 				res.write(
 					JSON.stringify({
 						date: el.startCall ?? 0,
-						response: el.status == 'not answered' || el.status == 'not called' ? false : true
+						response: el.status
 					}) + (numberClient - 1 == i ? '' : ',')
 				);
 			});
