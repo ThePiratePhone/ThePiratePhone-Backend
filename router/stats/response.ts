@@ -30,7 +30,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 
 	let campaign;
 	if (!req.body.CampaignId) campaign = await getCurrentCampaign(area.id);
-	else campaign = Campaign.findOne({ _id: req.body.CampaignId, area: req.body.area });
+	else campaign = await Campaign.findOne({ _id: req.body.CampaignId, area: req.body.area });
 
 	if (!campaign || campaign == null) {
 		res.status(404).send({ message: 'no campaign in progress or campaign not found', OK: false });
