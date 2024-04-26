@@ -9,15 +9,16 @@ import { Client } from '../../../Models/Client';
 /**
  * create clients, max size 500
  * @example
- * data:{
- * 	adminCode: string,
- * 	area: string,
- * 	data: [phone, name, firstname, institution]
+ * body:{
+ * 	"adminCode": string,
+ * 	"area": string,
+ * 	"data": [phone, name, firstname, institution]
  * }
  * @throws {400}: missing parameters,
  * @throws {400}: to manu users (more of 500)
  * @throws {403}: bad area or adminCode
  * @throws {404}: no campaing in progress
+ * @throws {200}: all fine
  */
 export default async function createClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -77,11 +78,9 @@ export default async function createClients(req: Request<any>, res: Response<any
 					return true;
 				} else if ((await Client.countDocuments({ phone: phone, campaigns: { $ne: campaign._id } })) == 1) {
 					// client exist in another campaing
-					console.log('this');
 					await Client.updateOne({ phone: phone }, { $push: { campaigns: campaign._id } });
 				} else {
 					// duplicate
-					console.log('duplicate');
 					throw { code: 11000 };
 				}
 			} catch (error: any) {
@@ -92,10 +91,6 @@ export default async function createClients(req: Request<any>, res: Response<any
 		}
 	);
 	await Promise.all(sleep);
-	log(
-		`Created ${req.body.data.length - errors.length} users from ${area.name} (${ip})`,
-		'INFORMATION',
-		'createClient.ts'
-	);
+	log(`Created ${req.body.data.length - errors.length} users from ${area.name} (${ip})`, 'INFORMATION', __filename);
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
 }
