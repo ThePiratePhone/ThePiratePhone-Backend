@@ -27,12 +27,6 @@ const AreaModel = new mongoose.Schema({
 		maxlength: 13,
 		unique: true
 	},
-	campaignInProgress: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Campaign',
-		default: null,
-		required: false
-	},
 	createdAt: {
 		type: Date,
 		default: Date.now()

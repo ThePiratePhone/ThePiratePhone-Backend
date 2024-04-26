@@ -1,6 +1,7 @@
 import { bgRed, blue, gray, red, yellow } from 'chalk';
 import fs from 'fs';
 import path from 'path';
+import { getFileName } from './utils';
 
 type WarningLevel = 'DEBUG' | 'INFORMATION' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
@@ -16,13 +17,15 @@ type WarningLevel = 'DEBUG' | 'INFORMATION' | 'WARNING' | 'ERROR' | 'CRITICAL';
  */
 export async function log(text: string, impact: WarningLevel = 'DEBUG', location: string | undefined) {
 	if (process?.env?.npm_lifecycle_script?.includes('jest')) return;
+	location = getFileName(location ?? 'no location');
 	const date = new Date().toLocaleDateString('en-GB', {
 		timeZone: 'Europe/Paris',
 		year: '2-digit',
 		month: '2-digit',
 		day: '2-digit',
 		hour: '2-digit',
-		minute: '2-digit'
+		minute: '2-digit',
+		second: '2-digit'
 	});
 	const logDir = './log';
 	const logFilePath = path.resolve(`${logDir}/log.log`);

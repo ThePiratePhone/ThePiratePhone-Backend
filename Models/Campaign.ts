@@ -54,6 +54,11 @@ const CampaignSchema = new mongoose.Schema({
 		type: Date,
 		required: true,
 		default: new Date(0)
+	},
+	callPermited: {
+		type: Boolean,
+		require: true,
+		default: true
 	}
 });
 

@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 
 import router from './routes';
 import { log } from './tools/log';
+import { getFileName } from './tools/utils';
 
 dotenv.config({ path: '.env' });
 const port = 8443;
@@ -30,11 +31,11 @@ if (process.env.ISDEV == 'false') {
 	};
 	const server = https.createServer(options, app);
 	server.listen(port, () => {
-		log(`Listening at https://localhost:${port}`, 'DEBUG', 'index.ts');
+		log(`Listening at https://localhost:${port}`, 'DEBUG', __filename);
 	});
 } else {
 	app.listen(port, () => {
-		log(`Listening at http://localhost:${port}`, 'DEBUG', 'index.ts');
+		log(`Listening at http://localhost:${port}`, 'DEBUG', __filename);
 	});
 }
 

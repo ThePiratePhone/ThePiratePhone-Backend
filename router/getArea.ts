@@ -9,10 +9,10 @@ export default async function getArea(req: Request<any>, res: Response<any>) {
 	const area = await Area.find();
 	if (!area) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting area from ` + ip, 'CRITICAL', 'getArea.ts');
+		log(`Error while getting area from ` + ip, 'CRITICAL', __filename);
 		return;
 	}
-	log(`Get area from ` + ip, 'INFORMATION', 'getArea.ts');
+	log(`Get area from ` + ip, 'INFORMATION', __filename);
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
