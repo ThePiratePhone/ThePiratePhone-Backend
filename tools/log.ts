@@ -9,11 +9,14 @@ type WarningLevel = 'DEBUG' | 'INFORMATION' | 'WARNING' | 'ERROR' | 'CRITICAL';
 // (2023-04-28T11:27:47.509Z) [ERROR]> bad password for test@exemple.com
 // (2023-04-28T11:27:47.509Z) [INFORMATION]> test@exemple.com connected
 /**
+ * @param impact The impact level of the log
  * Impact Levels:
  * - INFORMATION: No impact on the system or user.
  * - WARNING: Minor impact that can be easily corrected.
  * - ERROR: Moderate impact that requires attention.
  * - CRITICAL: Significant impact that can cause damage or data loss.
+ * @param location The file name where the log is called (use **__filename**)
+ * @param text The text to log
  */
 export async function log(text: string, impact: WarningLevel = 'DEBUG', location: string | undefined) {
 	if (process?.env?.npm_lifecycle_script?.includes('jest')) return;

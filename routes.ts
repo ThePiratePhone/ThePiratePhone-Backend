@@ -2,6 +2,7 @@ import { Router } from 'express';
 import getArea from './router/getArea';
 import createClients from './router/admin/client/createClients';
 import createCaller from './router/caller/createCaller';
+import ChangeName from './router/caller/changeName';
 
 const router = Router();
 const aspirationDetector = new Map<String, number>();
@@ -14,4 +15,5 @@ router.post('/admin/client/createClients', createClients);
 
 //caller
 router.post('/caller/createCaller', createCaller);
+router.post('/caller/changeName', ChangeName);
 export default router;
