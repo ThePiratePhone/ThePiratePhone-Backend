@@ -17,6 +17,9 @@ function clearPhone(phoneNumber: string): string {
 	if (phoneNumber.startsWith('6') || phoneNumber.startsWith('7')) {
 		phoneNumber = '0' + phoneNumber;
 	}
+	if (phoneNumber.startsWith('33') && phoneNumber.length == 11) {
+		phoneNumber = '0' + phoneNumber.slice(2);
+	}
 	if (phoneNumber.startsWith('0')) {
 		phoneNumber = phoneNumber.replace('0', '+33');
 	}

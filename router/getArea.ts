@@ -3,6 +3,11 @@ import { Request, Response } from 'express';
 import { Area } from '../Models/Area';
 import { log } from '../tools/log';
 
+/**
+ * Get all area
+ * @throws {500}: Internal error
+ * @throws {200}: OK
+ */
 export default async function getArea(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 
