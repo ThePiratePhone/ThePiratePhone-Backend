@@ -6,6 +6,7 @@ import ChangeName from './router/caller/changeName';
 import changePassword from './router/caller/changePassword';
 import endCall from './router/caller/endCall';
 import getPhoneNumber from './router/caller/getPhoneNumber';
+import login from './router/caller/login';
 
 const router = Router();
 
@@ -15,9 +16,10 @@ router.get('/getArea', getArea);
 router.post('/admin/client/createClients', createClients);
 
 //caller
-router.post('/caller/createCaller', createCaller);
-router.post('/caller/changeName', ChangeName);
 router.post('/caller/changePassword', changePassword);
+router.post('/caller/createCaller', createCaller);
 router.post('/caller/endCall', endCall);
 router.post('/caller/getPhoneNumber', getPhoneNumber);
+router.post('/caller/login', login);
+router.post('/caller/changeName', ChangeName);
 export default router;
