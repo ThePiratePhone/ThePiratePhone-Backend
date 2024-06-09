@@ -1,41 +1,43 @@
 import { Request, Response } from 'express';
 import { log } from '../../tools/log';
+import { ObjectId } from 'mongodb';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 import { Caller } from '../../Models/Caller';
 import { Call } from '../../Models/Call';
 
 /**
- * End a call
+ * Validate inprogress call
+ *
  * @example
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"timeInCall": number,
- * 	"satisfaction": number {-1, 0, 1, 2, 3, 4}
- * 	"comment": string | null
+ * 	"area": string,
+ * 	"satisfaction": number,
+ * 	"comment": string
  * }
  *
  * @throws {400}: Missing parameters
- * @throws {400}: Invalid pin code
  * @throws {400}: Invalid phone number
+ * @throws {400}: Invalid pin code
  * @throws {400}: satisfaction is not a valid number
  * @throws {403}: Invalid credential
  * @throws {403}: No call in progress
  * @throws {500}: Internal error
  * @throws {200}: Call ended
  */
-export default async function endCall(req: Request<any>, res: Response<any>) {
+export default async function validateCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		typeof req.body.timeInCall != 'number' ||
+		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.satisfaction != 'number' ||
 		(req.body.comment && typeof req.body.comment != 'string')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters`, 'WARNING', __filename);
+		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
@@ -57,7 +59,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`satisfaction is not a valid number from ` + ip, 'WARNING', __filename);
 		return;
 	}
-	req.body.timeInCall = Math.min(req.body.timeInCall, 1_200_000);
 
 	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
 	if (!caller) {
@@ -78,6 +79,8 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
+
+	req.body.timeInCall = Math.min(req.body.timeInCall, 1_200_000);
 
 	call.status = 'Done';
 	call.satisfaction = req.body.satisfaction;
