@@ -7,7 +7,6 @@ import mongoose from 'mongoose';
 
 import router from './routes';
 import { log } from './tools/log';
-import { getFileName } from './tools/utils';
 import rateLimit from 'express-rate-limit';
 
 dotenv.config({ path: '.env' });
@@ -43,7 +42,11 @@ if (process.env.ISDEV == 'false') {
 // set up rate limiter: maximum of forty requests per minute
 const limiter = rateLimit({
 	windowMs: 60 * 1000,
-	max: 40
+	max: 40,
+	handler: (req, res, next, options) => {
+		res.status(options.statusCode).send(options.message);
+		log(`Too many requests from: ${req.ip}`, 'WARNING', __filename);
+	}
 });
 app.use(express.json());
 app.use(cors());
