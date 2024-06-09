@@ -4,6 +4,26 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 import { Caller } from '../../Models/Caller';
 import { Call } from '../../Models/Call';
 
+/**
+ * End a call
+ * @example
+ * body:{
+ * 	"phone": string,
+ * 	"pinCode": string  {max 4 number},
+ * 	"timeInCall": number,
+ * 	"satisfaction": number {-1, 0, 1, 2, 3, 4}
+ * 	"comment": string | null
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Invalid pin code
+ * @throws {400}: Invalid phone number
+ * @throws {400}: satisfaction is not a valid number
+ * @throws {403}: Invalid credential
+ * @throws {403}: No call in progress
+ * @throws {500}: Internal error
+ * @throws {200}: Call ended
+ */
 export default async function endCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -26,7 +46,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 
 	req.body.phone = clearPhone(req.body.phone);
-	if (phoneNumberCheck(req.body.phone)) {
+	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
 		log(`Invalid phone number`, 'WARNING', __filename);
 		return;
@@ -47,7 +67,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const call = await Call.findOne({ caller: caller._id, status: 'In progress' });
+	const call = await Call.findOne({ Caller: caller._id, status: 'In progress' });
 	if (!call) {
 		res.status(403).send({ message: 'No call in progress', OK: false });
 		log(`No call in progress from: ${req.body.phone} (${ip})`, 'WARNING', __filename);
@@ -56,10 +76,12 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 
 	call.status = 'Done';
 	call.satisfaction = req.body.satisfaction;
+	call.duration = req.body.timeInCall ?? 0;
 	if (req.body.comment) call.comment = req.body.comment;
 	if (req.body.satisfaction == -1) {
 		call.status = 'deleted';
 	}
+	call.lastInteraction = new Date();
 
 	try {
 		await call.save();

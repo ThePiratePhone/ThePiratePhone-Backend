@@ -18,7 +18,7 @@ const CallModel = new mongoose.Schema({
 	},
 	satisfaction: {
 		type: Number,
-		required: true,
+		required: false,
 		enum: [0, 1, 2, 3, 4]
 	},
 	comment: {
@@ -30,7 +30,15 @@ const CallModel = new mongoose.Schema({
 		required: true,
 		enum: ['In progress', 'to recall', 'Done', 'deleted']
 	},
-	createdAt: {
+	start: {
+		type: Date,
+		default: Date.now()
+	},
+	duration: {
+		type: Number,
+		required: false
+	},
+	lastInteraction: {
 		type: Date,
 		default: Date.now()
 	}
