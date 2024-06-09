@@ -41,7 +41,9 @@ export default async function changePassword(req: Request<any>, res: Response<an
 
 	req.body.phone = clearPhone(req.body.phone);
 
-	const caller = await Caller.findOne({ phone: req.body.phone, pinCode: req.body.pinCode }, ['name']);
+	const caller = await Caller.findOne({ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode } }, [
+		'name'
+	]);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from: ${req.body.phone} (${ip})`, 'WARNING', 'changePassword.ts');
@@ -56,7 +58,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 
 	if (req.body.newPin != req.body.pinCode) {
 		const result = await Caller.updateOne(
-			{ phone: req.body.phone, pinCode: req.body.pinCode },
+			{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode } },
 			{ pinCode: req.body.newPin }
 		);
 

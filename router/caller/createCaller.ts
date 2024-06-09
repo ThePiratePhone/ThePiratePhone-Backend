@@ -45,9 +45,9 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	req.body.phone = clearPhone(req.body.phone);
+	const phone = clearPhone(req.body.phone);
 
-	if (!phoneNumberCheck(req.body.phone)) {
+	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
 		log('Wrong phone number', 'WARNING', __filename);
 		return;
@@ -59,21 +59,23 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, password: req.body.AreaPassword }, ['name']);
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, password: { $eq: req.body.AreaPassword } }, [
+		'name'
+	]);
 	if (!area) {
 		res.status(404).send({ message: 'area not found or invalid password', OK: false });
 		log(`area not found or invalid password from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	if ((await Caller.countDocuments({ phone: req.body.phone })) != 0) {
+	if ((await Caller.countDocuments({ phone: phone })) != 0) {
 		res.status(409).send({ message: 'caller already exist', OK: false });
-		log(`caller already exist from ${req.body.phone} in ${area.name} (${ip})`, 'WARNING', 'createCaller.ts');
+		log(`caller already exist from ${phone} in ${area.name} (${ip})`, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
 	const newCaller = new Caller({
-		phone: req.body.phone,
+		phone: phone,
 		pinCode: req.body.pinCode,
 		area: area._id,
 		name: req.body.CallerName

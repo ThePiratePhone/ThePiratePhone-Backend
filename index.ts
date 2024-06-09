@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import router from './routes';
 import { log } from './tools/log';
 import { getFileName } from './tools/utils';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config({ path: '.env' });
 const port = 8443;
@@ -39,8 +40,14 @@ if (process.env.ISDEV == 'false') {
 	});
 }
 
+// set up rate limiter: maximum of forty requests per minute
+const limiter = rateLimit({
+	windowMs: 60 * 1000,
+	max: 40
+});
 app.use(express.json());
 app.use(cors());
+app.use(limiter);
 app.use((err: { status: number }, req: any, res: any, next: Function) => {
 	if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
 		return res.sendStatus(400);

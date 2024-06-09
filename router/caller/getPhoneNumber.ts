@@ -45,21 +45,21 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	req.body.phone = clearPhone(req.body.phone);
-	if (!phoneNumberCheck(req.body.phone)) {
+	const phone = clearPhone(req.body.phone);
+	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
 		log(`Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: req.body.phone, pinCode: req.body.pinCode }, ['name']);
+	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ${req.body.phone} (${ip})`, 'WARNING', __filename);
+		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: req.body.campaignId }, [
+	const campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId } }, [
 		'script',
 		'callPermited',
 		'timeBetweenCall',
@@ -78,7 +78,9 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const call = await Call.findOne({ Caller: caller._id, status: 'In progress', Campaign: campaign._id }, ['Client']);
+	const call = await Call.findOne({ Caller: { $eq: caller._id }, status: 'In progress', Campaign: campaign._id }, [
+		'Client'
+	]);
 	if (call) {
 		call.lastInteraction = new Date();
 		try {

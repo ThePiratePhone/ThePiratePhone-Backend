@@ -47,7 +47,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	}
 
 	const change = await Caller.updateOne(
-		{ phone: req.body.phone, pinCode: req.body.pinCode },
+		{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode } },
 		{ name: req.body.newName }
 	);
 	console.log(change);

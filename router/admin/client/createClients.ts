@@ -39,14 +39,16 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode }, ['name']);
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } }, [
+		'name'
+	]);
 	if (!area) {
 		res.status(403).send({ message: 'area not found or bad admin password', OK: false });
 		log(`area not found or bad admin password from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ area: area._id, active: true }, []);
+	const campaign = await Campaign.findOne({ area: { $eq: area._id }, active: true }, []);
 	if (!campaign) {
 		res.status(404).send({ message: 'no campaign in progress', OK: false });
 		log(`no campaign in progress from ${area.name} (${ip})`, 'WARNING', __filename);
