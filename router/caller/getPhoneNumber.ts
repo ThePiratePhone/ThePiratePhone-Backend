@@ -14,7 +14,7 @@ import mongoose from 'mongoose';
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"campaignId": string$
+ * 	"campaignId": string
  * }
  *
  * @throws {400}: Missing parameters
@@ -52,10 +52,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
+	const caller = await Caller.findOne(
+		{ phone: phone, pinCode: { $eq: req.body.pinCode }, campaigns: { $eq: req.body.campaignId } },
+		['name']
+	);
 	if (!caller) {
-		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);
+		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
+		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -78,8 +81,9 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const call = await Call.findOne({ Caller: { $eq: caller._id }, status: 'In progress', Campaign: campaign._id }, [
-		'Client'
+	const call = await Call.findOne({ Caller: { $eq: caller._id }, status: 'In progress', Campaign: campaign.id }, [
+		'Client',
+		'Campaign'
 	]);
 	if (call) {
 		call.lastInteraction = new Date();
