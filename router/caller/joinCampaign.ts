@@ -16,7 +16,7 @@ import { Campaign } from '../../Models/Campaign';
  * 	"campaignId": string,
  * 	"campaignPassword": string
  * }
- * 
+ *
  * @throws {400}: Missing parameters
  * @throws {400}: Invalid phone number
  * @throws {403}: Invalid credential or incorrect campaing
@@ -24,7 +24,6 @@ import { Campaign } from '../../Models/Campaign';
  * @throws {403}: Already joined campaign
  * @throws {500}: Internal error
  * @throws {200}: Campaign joined
-
  */
 export default async function joinCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
