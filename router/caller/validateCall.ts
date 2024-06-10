@@ -43,14 +43,14 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code`, 'WARNING', __filename);
+		log(`Invalid pin code from: ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number`, 'WARNING', __filename);
+		log(`Invalid phone number from:${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -94,9 +94,9 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 	try {
 		await call.save();
 		res.status(200).send({ message: 'Call ended', OK: true });
-		log(`Call ended by ${caller.name} (${phone})`, 'INFORMATION', __filename);
+		log(`Call ended by ${caller.name} (${phone}) from (${ip})`, 'INFORMATION', __filename);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Internal error: ${e}`, 'ERROR', __filename);
+		log(`Internal error: ${e} from: ${caller.name} (${ip})`, 'ERROR', __filename);
 	}
 }

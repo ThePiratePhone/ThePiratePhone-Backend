@@ -39,26 +39,24 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		return;
 	}
 
-	req.body.phone = clearPhone(req.body.phone);
+	const phone = clearPhone(req.body.phone);
 
-	const caller = await Caller.findOne({ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode } }, [
-		'name'
-	]);
+	const caller = await Caller.findOne({ phone: { $eq: phone }, pinCode: { $eq: req.body.pinCode } }, ['name']);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ${req.body.phone} (${ip})`, 'WARNING', 'changePassword.ts');
+		log(`Invalid credential from: (${phone}) ${ip}`, 'WARNING', 'changePassword.ts');
 		return;
 	}
 
 	if (req.body.newPin.length != 4) {
 		res.status(400).send({ message: 'Invalid new pin code', OK: false });
-		log(`Invalid new pin code from: ` + ip, 'WARNING', 'createCaller.ts');
+		log(`Invalid new pin code from: (${phone}) ${ip}`, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
 	if (req.body.newPin != req.body.pinCode) {
 		const result = await Caller.updateOne(
-			{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode } },
+			{ phone: { $eq: phone }, pinCode: { $eq: req.body.pinCode } },
 			{ pinCode: req.body.newPin }
 		);
 
@@ -70,5 +68,5 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	}
 
 	res.status(200).send({ message: 'password changed', OK: true });
-	log(`user ${req.body.phone} password chnaged from: ${caller.name} (${ip})`, 'INFORMATION', 'changePassword.ts');
+	log(`user ${phone} password chnaged from: ${caller.name} (${ip})`, 'INFORMATION', 'changePassword.ts');
 }

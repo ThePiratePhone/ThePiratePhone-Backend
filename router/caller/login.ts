@@ -32,7 +32,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number`, 'WARNING', __filename);
+		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
 		return;
 	}
 

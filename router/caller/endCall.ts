@@ -35,20 +35,20 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		(req.body.comment && typeof req.body.comment != 'string')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters`, 'WARNING', __filename);
+		log(`Missing parameters from: ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code`, 'WARNING', __filename);
+		log(`Invalid pin code from: ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number`, 'WARNING', __filename);
+		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -94,6 +94,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`Call ended by ${caller.name} (${phone})`, 'INFORMATION', __filename);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Internal error: ${e}`, 'ERROR', __filename);
+		log(`Internal error: ${e} from: ${caller.name} (${phone}) ${ip}`, 'ERROR', __filename);
 	}
 }

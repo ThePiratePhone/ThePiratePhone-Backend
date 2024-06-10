@@ -48,7 +48,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number`, 'WARNING', __filename);
+		log(`Invalid phone number from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -91,7 +91,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			await call.save();
 		} catch (e) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Error while updating call`, 'ERROR', 'getPhoneNumber.ts');
+			log(`Error while updating call ${caller.name} (${ip})`, 'ERROR', 'getPhoneNumber.ts');
 			return;
 		}
 		res.status(400).send({
@@ -157,7 +157,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		]);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting client`, 'ERROR', 'getPhoneNumber.ts');
+		log(`Error while getting client from: ${caller.name} (${ip})`, 'ERROR', 'getPhoneNumber.ts');
 	}
 
 	if (!client || client.length == 0) {
@@ -178,7 +178,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		console.log(e);
-		log(`Error while saving call`, 'ERROR', 'getPhoneNumber.ts');
+		log(`Error while saving call from: ${caller.name} (${ip})`, 'ERROR', 'getPhoneNumber.ts');
 		return;
 	}
 

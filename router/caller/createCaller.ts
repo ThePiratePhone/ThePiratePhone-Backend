@@ -49,13 +49,13 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log('Wrong phone number', 'WARNING', __filename);
+		log(`Wrong phone number from: (${phone}) ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
 	if (Number.isNaN(parseInt(req.body.pinCode))) {
 		res.status(400).send({ message: "Invalid pin code, pin code isn't only number", OK: false });
-		log(`Invalid pin code, pin code isn't only number from: ` + ip, 'WARNING', __filename);
+		log(`Invalid pin code, pin code isn't only number from: (${phone}) ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -64,7 +64,7 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	]);
 	if (!area) {
 		res.status(404).send({ message: 'area not found or invalid password', OK: false });
-		log(`area not found or invalid password from: ` + ip, 'WARNING', __filename);
+		log(`area not found or invalid password from: (${phone}) ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -84,7 +84,7 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	const result = await newCaller.save();
 	if (!result) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while saving caller`, 'CRITICAL', 'createCaller.ts');
+		log(`Error while saving caller from: (${phone}) ${ip}`, 'CRITICAL', 'createCaller.ts');
 		return;
 	}
 
