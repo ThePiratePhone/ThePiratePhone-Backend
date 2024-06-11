@@ -19,6 +19,7 @@ const CallModel = new mongoose.Schema({
 	satisfaction: {
 		type: Number,
 		required: false,
+		//[voted, not interested, interested, not answered, removed]
 		enum: [0, 1, 2, 3, 4]
 	},
 	comment: {

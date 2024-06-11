@@ -54,7 +54,7 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	if (![-1, 0, 1, 2, 3, 4].includes(req.body.satisfaction)) {
+	if (![-1, 0, 1, 2, 3].includes(req.body.satisfaction)) {
 		res.status(400).send({ message: 'satisfaction is not a valid number', OK: false });
 		log(`satisfaction is not a valid number from ` + ip, 'WARNING', __filename);
 		return;
