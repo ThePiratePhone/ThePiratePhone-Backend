@@ -1,3 +1,6 @@
+import { ObjectId } from 'mongoose';
+import { Area } from '../Models/Area';
+
 function getFileName(filename: string) {
 	return filename.split('\\').at(-1);
 }

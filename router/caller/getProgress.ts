@@ -8,13 +8,30 @@ import { Client } from '../../Models/Client';
 import { Call } from '../../Models/Call';
 import mongoose from 'mongoose';
 
+/**
+ * Get the progress of a caller
+ * @example
+ * body:
+ * {
+ * 	"phone": "string",
+ * 	"pinCode": string  {max 4 number},
+ * 	"campaignId": "mongoDBID",
+ *  "area":mongoDBID
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Invalid phone number
+ * @throws {403}: Invalid credential or incorrect campaing
+ * @throws {200}: OK
+ */
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.campaignId)
+		!ObjectId.isValid(req.body.campaignId) ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', 'getProgress.ts');
@@ -28,11 +45,10 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, [
-		'name',
-		'campaigns',
-		'phone'
-	]);
+	const caller = await Caller.findOne(
+		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		['name', 'campaigns', 'phone']
+	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
 		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
@@ -41,8 +57,14 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 
 	const totalClientCalled = await Call.countDocuments({ Campaign: { $eq: req.body.campaignId }, Caller: caller._id });
 	const totaldiscution = await Call.countDocuments({ Campaign: { $eq: req.body.campaignId }, Caller: caller._id });
-	const totalCall = await Call.countDocuments({ Campaign: { $eq: req.body.campaignId } });
-	const totalUser = await Client.countDocuments({ campaigns: { $eq: req.body.campaignId } });
+	const totalCall = await Call.countDocuments({
+		Campaign: { $eq: req.body.campaignId },
+		area: { $eq: req.body.area }
+	});
+	const totalUser = await Client.countDocuments({
+		campaigns: { $eq: req.body.campaignId },
+		area: { $eq: req.body.area }
+	});
 	const totalConvertion = await Call.countDocuments({
 		campaign: { $eq: req.body.campaignId },
 		$or: [{ status: 'Done' }, { status: 'deleted' }],
@@ -58,8 +80,6 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		},
 		{ $group: { _id: null, totalDuration: { $sum: '$duration' } } }
 	]);
-	console.log(totalCallTime);
-	console.log("Temps total d'appel:", totalCallTime[0].totalDuration, 'millisecondes');
 
 	res.status(200).send({
 		message: 'OK',
@@ -70,8 +90,8 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			totalCall: totalCall,
 
 			totalUser: totalUser,
-			totalConvertion: totalConvertion
-			// timeInCall: TimeInCall ?? 0
+			totalConvertion: totalConvertion,
+			totalCallTime: totalCallTime[0]?.totalDuration ?? 0
 		}
 	});
 	log(`Caller ${caller.name} (${caller.phone}) requested his progress`, 'INFORMATION', __filename);

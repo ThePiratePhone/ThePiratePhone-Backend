@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
 import { clearPhone } from '../../tools/utils';
+import { ObjectId } from 'mongodb';
 
 /**
  * Change the password of a caller
@@ -11,6 +12,7 @@ import { clearPhone } from '../../tools/utils';
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
  * 	"newPin": string {max 4 number}
+ * 	"area": mongoDBID
  * }
  * @throws {400}: Missing parameters
  * @throws {400}: Invalid pin code
@@ -26,6 +28,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
+		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.newPin != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -41,7 +44,10 @@ export default async function changePassword(req: Request<any>, res: Response<an
 
 	const phone = clearPhone(req.body.phone);
 
-	const caller = await Caller.findOne({ phone: { $eq: phone }, pinCode: { $eq: req.body.pinCode } }, ['name']);
+	const caller = await Caller.findOne(
+		{ phone: { $eq: phone }, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		['name']
+	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from: (${phone}) ${ip}`, 'WARNING', 'changePassword.ts');

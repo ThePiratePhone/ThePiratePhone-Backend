@@ -11,7 +11,8 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"newName": string
+ * 	"newName": string,
+ * 	"area": mongoDBID
  * }
  * @throws {400}: missing parameters,
  * @throws {400}: Wrong phone number
@@ -26,6 +27,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		!req.body ||
 		typeof req.body.pinCode != 'string' ||
 		typeof req.body.phone != 'string' ||
+		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.newName != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -47,7 +49,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	}
 
 	const change = await Caller.updateOne(
-		{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode } },
+		{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
 		{ name: req.body.newName }
 	);
 	console.log(change);

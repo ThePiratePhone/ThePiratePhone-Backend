@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 import { Caller } from '../../Models/Caller';
+import { ObjectId } from 'mongodb';
 
 /**
  * get if your credential is valid
@@ -9,6 +10,7 @@ import { Caller } from '../../Models/Caller';
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number}
+ *	"area": mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
@@ -19,7 +21,12 @@ import { Caller } from '../../Models/Caller';
  */
 export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (!req.body || typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string') {
+	if (
+		!req.body ||
+		typeof req.body.phone != 'string' ||
+		typeof req.body.pinCode != 'string' ||
+		!ObjectId.isValid(req.body.area)
+	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
@@ -36,7 +43,10 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
+	const caller = await Caller.findOne(
+		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		['name']
+	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);

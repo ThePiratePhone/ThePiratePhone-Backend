@@ -33,7 +33,8 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
 		!ObjectId.isValid(req.body.campaignId) ||
-		typeof req.body.campaignPassword != 'string'
+		typeof req.body.campaignPassword != 'string' ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', 'joinCampaign.ts');
@@ -47,11 +48,10 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, [
-		'name',
-		'campaigns',
-		'phone'
-	]);
+	const caller = await Caller.findOne(
+		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		['name', 'campaigns', 'phone']
+	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
 		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
@@ -61,7 +61,8 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	const campaign = await Campaign.findOne(
 		{
 			_id: { $eq: req.body.campaignId },
-			password: { $eq: req.body.campaignPassword }
+			password: { $eq: req.body.campaignPassword },
+			area: { $eq: req.body.area }
 		},
 		['id', 'name']
 	);

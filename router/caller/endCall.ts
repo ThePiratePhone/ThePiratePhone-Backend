@@ -3,6 +3,7 @@ import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 import { Caller } from '../../Models/Caller';
 import { Call } from '../../Models/Call';
+import { ObjectId } from 'mongodb';
 
 /**
  * End a call
@@ -11,8 +12,9 @@ import { Call } from '../../Models/Call';
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
  * 	"timeInCall": number,
- * 	"satisfaction": number {-1, 0, 1, 2, 3, 4}
- * 	"comment": string | null
+ * 	"satisfaction": number {-1, 0, 1, 2, 3, 4},
+ * 	"comment": string | null,
+ * 	"area": mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
@@ -31,6 +33,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
 		typeof req.body.timeInCall != 'number' ||
+		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.satisfaction != 'number' ||
 		(req.body.comment && typeof req.body.comment != 'string')
 	) {
@@ -59,7 +62,10 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 	req.body.timeInCall = Math.min(req.body.timeInCall, 1_200_000);
 
-	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
+	const caller = await Caller.findOne(
+		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		['name']
+	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);

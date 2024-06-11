@@ -14,7 +14,8 @@ import mongoose from 'mongoose';
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"campaignId": string
+ * 	"campaignId": mongoDBID,
+ * 	"area":mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
@@ -32,7 +33,8 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	if (
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.campaignId)
+		!ObjectId.isValid(req.body.campaignId) ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
@@ -53,7 +55,12 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	}
 
 	const caller = await Caller.findOne(
-		{ phone: phone, pinCode: { $eq: req.body.pinCode }, campaigns: { $eq: req.body.campaignId } },
+		{
+			phone: phone,
+			pinCode: { $eq: req.body.pinCode },
+			campaigns: { $eq: req.body.campaignId },
+			area: { $eq: req.body.area }
+		},
 		['name']
 	);
 	if (!caller) {
@@ -62,7 +69,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId } }, [
+	const campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId }, area: { $eq: req.body.area } }, [
 		'script',
 		'callPermited',
 		'timeBetweenCall',

@@ -60,7 +60,10 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
+	const caller = await Caller.findOne(
+		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		['name']
+	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);
