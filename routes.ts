@@ -14,11 +14,6 @@ import getProgress from './router/caller/getProgress';
 
 const router = Router();
 
-router.get('/getArea', getArea);
-
-//admin/client
-router.post('/admin/client/createClients', createClients);
-
 //caller
 router.post('/caller/changePassword', changePassword);
 router.post('/caller/createCaller', createCaller);
@@ -30,4 +25,9 @@ router.post('/caller/joinCampaign', joinCampaign);
 router.post('/caller/login', login);
 router.post('/caller/validateCall', validateCall);
 router.post('/caller/changeName', ChangeName);
+
+//admin/client
+router.post('/admin/client/createClients', createClients);
+
+router.get('/getArea', getArea);
 export default router;

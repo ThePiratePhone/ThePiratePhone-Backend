@@ -14,7 +14,6 @@ import mongoose from 'mongoose';
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"campaignId": mongoDBID,
  * 	"area":mongoDBID
  * }
  *
@@ -23,6 +22,7 @@ import mongoose from 'mongoose';
  * @throws {400}: Invalid phone number
  * @throws {403}: Invalid credential
  * @throws {403}: Call not permited
+ * @throws {403}: Campaign not active
  * @throws {404}: Campaign not found
  * @throws {404}: No client to call
  * @throws {500}: Internal error
@@ -30,12 +30,7 @@ import mongoose from 'mongoose';
  */
 export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.campaignId) ||
-		!ObjectId.isValid(req.body.area)
-	) {
+	if (typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string' || !ObjectId.isValid(req.body.area)) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
@@ -54,11 +49,25 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
+	const campaign = await Campaign.findOne({ active: true, area: { $eq: req.body.area } }, [
+		'script',
+		'callPermited',
+		'timeBetweenCall',
+		'nbMaxCallCampaign',
+		'trashUser',
+		'active'
+	]);
+	if (!campaign) {
+		res.status(404).send({ message: 'Campaign not found', OK: false });
+		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
 	const caller = await Caller.findOne(
 		{
 			phone: phone,
 			pinCode: { $eq: req.body.pinCode },
-			campaigns: { $eq: req.body.campaignId },
+			campaigns: campaign.id,
 			area: { $eq: req.body.area }
 		},
 		['name']
@@ -66,19 +75,6 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
 		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
-		return;
-	}
-
-	const campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId }, area: { $eq: req.body.area } }, [
-		'script',
-		'callPermited',
-		'timeBetweenCall',
-		'nbMaxCallCampaign',
-		'trashUser'
-	]);
-	if (!campaign) {
-		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from: ${caller.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 

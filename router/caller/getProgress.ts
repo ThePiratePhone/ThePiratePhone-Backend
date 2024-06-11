@@ -7,6 +7,7 @@ import { Caller } from '../../Models/Caller';
 import { Client } from '../../Models/Client';
 import { Call } from '../../Models/Call';
 import mongoose from 'mongoose';
+import { Campaign } from '../../Models/Campaign';
 
 /**
  * Get the progress of a caller
@@ -15,8 +16,7 @@ import mongoose from 'mongoose';
  * {
  * 	"phone": "string",
  * 	"pinCode": string  {max 4 number},
- * 	"campaignId": "mongoDBID",
- *  "area":mongoDBID
+ * 	"area":mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
@@ -54,6 +54,8 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
+
+	const campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true });
 
 	const totalClientCalled = await Call.countDocuments({ Campaign: { $eq: req.body.campaignId }, Caller: caller._id });
 	const totaldiscution = await Call.countDocuments({ Campaign: { $eq: req.body.campaignId }, Caller: caller._id });
