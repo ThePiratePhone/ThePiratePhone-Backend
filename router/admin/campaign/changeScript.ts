@@ -54,5 +54,5 @@ export default async function changeScript(req: Request<any>, res: Response<any>
 	}
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Campaign name changed from ${ip} (${area.name})`, 'INFORMATION', 'changeScript.ts');
+	log(`Campaign script changed from ${ip} (${area.name})`, 'INFORMATION', 'changeScript.ts');
 }
