@@ -55,10 +55,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	await Promise.all([
-		Campaign.updateOne({ _id: curentCampaign._id }),
-		caller.updateOne({ $push: { campaigns: curentCampaign._id } })
-	]);
+	await caller.updateOne({ $push: { campaigns: curentCampaign._id } });
 	res.status(200).send({
 		message: 'Caller added to campaign',
 		OK: true,
