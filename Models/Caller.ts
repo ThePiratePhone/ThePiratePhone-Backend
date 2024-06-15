@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { Area } from './Area';
 
 const CallerSchema = new mongoose.Schema({
 	name: {
@@ -28,6 +29,11 @@ const CallerSchema = new mongoose.Schema({
 	createdAt: {
 		type: Date,
 		default: Date.now()
+	},
+	area: {
+		type: mongoose.Schema.ObjectId,
+		ref: 'Area',
+		required: true
 	}
 });
 

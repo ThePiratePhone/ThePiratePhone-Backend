@@ -12,6 +12,7 @@ import joinCampaign from './router/caller/joinCampaign';
 import giveUp from './router/caller/giveUp';
 import getProgress from './router/caller/getProgress';
 import ChangeAreaName from './router/admin/area/changeName';
+import scoreBoard from './router/otherCaller/scoreBoard';
 
 const router = Router();
 
@@ -27,6 +28,8 @@ router.post('/caller/login', login);
 router.post('/caller/validateCall', validateCall);
 router.post('/caller/changeName', ChangeClientName);
 
+//other caller
+router.post('/otherCaller/scoreBoard', scoreBoard);
 //admin/client
 router.post('/admin/client/createClients', createClients);
 
