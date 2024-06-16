@@ -5,50 +5,50 @@ import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
 
 /**
- * change the name of an area
+ * change the users password of an area
  *
  * @example
  * body:
  * {
  * 	"adminCode": string,
  * 	"area": mongoDBID,
- * 	"newName": string
+ * 	"newPassword": string
  * }
  *
  * @throws {400}: Missing parameters
- * @throws {400}: bad new name
+ * @throws {400}: bad new admin password
  * @throws {404}: no area found
- * @throws {200}: name of area changed
+ * @throws {200}: password of area changed
  */
-export default async function ChangeName(req: Request<any>, res: Response<any>) {
+export default async function ChangeAdminPassword(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.newName != 'string'
+		typeof req.body.newPassword != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'ChangeName.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', 'ChangePassword.ts');
 		return;
 	}
-	req.body.newName = req.body.newName.trim();
-	if (req.body.newName == '' || req.body.newName.length > 50) {
-		res.status(400).send({ OK: false, message: 'bad new name' });
-		log(`bad new name from ${ip}`, 'WARNING', 'ChangeName.ts');
+
+	if (req.body.newPassword.trim() == '') {
+		res.status(400).send({ OK: false, message: 'bad new admin password' });
+		log(`bad new admin password from ${ip}`, 'WARNING', 'ChangePassword.ts');
 		return;
 	}
 	const update = await Area.updateOne(
 		{ _id: req.body.area, AdminPassword: req.body.adminCode },
-		{ name: req.body.newName }
+		{ AdminPassword: req.body.newPassword }
 	);
 	if (update.matchedCount != 1) {
 		res.status(404).send({ OK: false, message: 'no area found' });
-		log(`no area found from ${ip}`, 'WARNING', 'ChangeName.ts');
+		log(`no area found from ${ip}`, 'WARNING', 'ChangePassword.ts');
 		return;
 	}
 
-	res.status(200).send({ OK: true, message: 'name of area changed' });
-	log(`name of area changed to ${req.body.newName} from ${req.body.area} (${ip})`, 'WARNING', 'ChangeName.ts');
+	res.status(200).send({ OK: true, message: 'password of area changed' });
+	log(`admin password of area changed from ${ip}`, 'WARNING', 'ChangePassword.ts');
 	return;
 }
