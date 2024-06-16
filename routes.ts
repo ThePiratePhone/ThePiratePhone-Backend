@@ -16,6 +16,8 @@ import scoreBoard from './router/otherCaller/scoreBoard';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import ChangeAdminPassword from './router/admin/area/changeAdminPassword';
 import callerInfo from './router/admin/caller/callerInfo';
+import changeCallerPassword from './router/admin/caller/changeCallerPassword';
+import ChangeName from './router/admin/caller/changeName';
 
 const router = Router();
 
@@ -45,6 +47,8 @@ router.post('/admin/area/changePassword', changePassword);
 
 //admin/caller
 router.post('/admin/caller/callerInfo', callerInfo);
+router.post('/admin/caller/changePassword', changeCallerPassword);
+router.post('/admin/caller/changeName', ChangeName);
 
 router.get('/getArea', getArea);
 export default router;

@@ -99,7 +99,12 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 					}
 				],
 				campaignData: [
-					{ $match: { Caller: new ObjectId(caller._id), Campaign: new ObjectId(req.body.CampaignId) } },
+					{
+						$match: {
+							Caller: new ObjectId(caller._id),
+							Campaign: ObjectId.createFromHexString(req.body.CampaignId)
+						}
+					},
 					{
 						$group: {
 							_id: '$Caller',

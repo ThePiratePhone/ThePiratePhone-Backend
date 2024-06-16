@@ -16,7 +16,7 @@ const port = 8443;
 mongoose
 	.connect(process.env.URI ?? '')
 	.then(() => {
-		log('Successfully connected to MongoDB', 'INFORMATION', 'index.ts');
+		log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
 	})
 	.catch(error => {
 		log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
