@@ -29,13 +29,13 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		typeof req.body.newName != 'string'
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'ChangeName.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
 	req.body.newName = req.body.newName.trim();
 	if (req.body.newName == '' || req.body.newName.length > 50) {
 		res.status(400).send({ OK: false, message: 'bad new name' });
-		log(`bad new name from ${ip}`, 'WARNING', 'ChangeName.ts');
+		log(`bad new name from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 	const update = await Area.updateOne(
@@ -44,11 +44,11 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	);
 	if (update.matchedCount != 1) {
 		res.status(404).send({ OK: false, message: 'no area found' });
-		log(`no area found from ${ip}`, 'WARNING', 'ChangeName.ts');
+		log(`no area found from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ OK: true, message: 'name of area changed' });
-	log(`name of area changed to ${req.body.newName} from ${req.body.area} (${ip})`, 'WARNING', 'ChangeName.ts');
+	log(`name of area changed to ${req.body.newName} from ${req.body.area} (${ip})`, 'WARNING', __filename);
 	return;
 }

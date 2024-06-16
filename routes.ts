@@ -40,6 +40,7 @@ router.post('/admin/client/createClients', createClients);
 //admin/area
 router.post('/admin/area/changeName', ChangeAreaName);
 router.post('/admin/area/changeAdminPassword', ChangeAdminPassword);
+router.post('/admin/area/changePassword', changePassword);
 
 router.get('/getArea', getArea);
 export default router;
