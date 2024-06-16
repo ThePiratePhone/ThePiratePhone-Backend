@@ -5,6 +5,7 @@ import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 import { Call } from '../../Models/Call';
+import { Campaign } from '../../Models/Campaign';
 
 /**
  * get information of other caller
@@ -21,6 +22,7 @@ import { Call } from '../../Models/Call';
  * @throws {400}: Invalid phone number
  * @throws {403}: Invalid credential
  * @throws {404}: Caller not found
+ * @throws {404}: No active campaign
  * @throws {500}: Internal server error
  * @throws {200}: OK
  */
@@ -31,7 +33,8 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		typeof req.body.otherPhone != 'string'
+		typeof req.body.otherPhone != 'string' ||
+		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
@@ -59,6 +62,13 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		return;
 	}
 
+	const campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true });
+	if (!campaign) {
+		res.status(404).send({ message: 'No active campaign', OK: false });
+		log(`No active campaign from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
 	const otherCaller = await Caller.findOne({ phone: otherPhone }, ['_id', 'name', 'phone']);
 	if (!otherCaller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
@@ -67,7 +77,7 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 	}
 
 	const timeCall = (await Call.aggregate([
-		{ $match: { Caller: new ObjectId(otherCaller._id) } },
+		{ $match: { Caller: new ObjectId(otherCaller._id), Campaign: new ObjectId(campaign._id) } },
 		{
 			$group: {
 				_id: '$Caller',

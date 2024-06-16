@@ -39,7 +39,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 	const update = await Area.updateOne(
-		{ _id: req.body.area, AdminPassword: req.body.adminCode },
+		{ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } },
 		{ name: req.body.newName }
 	);
 	if (update.matchedCount != 1) {

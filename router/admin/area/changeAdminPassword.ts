@@ -39,7 +39,7 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 		return;
 	}
 	const update = await Area.updateOne(
-		{ _id: req.body.area, AdminPassword: req.body.adminCode },
+		{ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } },
 		{ AdminPassword: req.body.newPassword }
 	);
 	if (update.matchedCount != 1) {
