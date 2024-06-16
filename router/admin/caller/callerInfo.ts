@@ -7,6 +7,26 @@ import { Caller } from '../../../Models/Caller';
 import { Call } from '../../../Models/Call';
 import { Campaign } from '../../../Models/Campaign';
 
+/**
+ * get information of caller
+ *
+ * @example
+ * body:
+ * {
+ * 	"phone": string,
+ * 	"adminCode": string,
+ * 	"area": string,
+ * 	"CampaignId": string
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Wrong phone number
+ * @throws {404}: no area found
+ * @throws {404}: no caller found
+ * @throws {404}: no campaign active
+ * @throws {404}: No data found
+ * @throws {200}: OK
+ */
 export default async function callerInfo(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -107,7 +127,6 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		}
 	]);
 
-	console.log(data);
 	if (!data || data.length == 0) {
 		res.status(404).send({ message: 'No data found', OK: false });
 		log(`No data found from ${area.name} ${ip}`, 'WARNING', __filename);
