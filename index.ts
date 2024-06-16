@@ -39,18 +39,18 @@ if (process.env.ISDEV == 'false') {
 	});
 }
 
-// set up rate limiter: maximum of forty requests per minute
+// set up rate limiter: maximum of 30 requests per minute
 const limiter = rateLimit({
-	windowMs: 60 * 1000,
-	max: 40,
+	windowMs: 60_000,
+	max: 30,
 	handler: (req, res, next, options) => {
 		res.status(options.statusCode).send(options.message);
 		log(`Too many requests from: ${req.ip}`, 'WARNING', __filename);
 	}
 });
+app.use(limiter);
 app.use(express.json());
 app.use(cors());
-app.use(limiter);
 app.use((err: { status: number }, req: any, res: any, next: Function) => {
 	if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
 		return res.sendStatus(400);

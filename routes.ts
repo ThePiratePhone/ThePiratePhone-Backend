@@ -13,6 +13,7 @@ import giveUp from './router/caller/giveUp';
 import getProgress from './router/caller/getProgress';
 import ChangeAreaName from './router/admin/area/changeName';
 import scoreBoard from './router/otherCaller/scoreBoard';
+import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 
 const router = Router();
 
@@ -30,6 +31,8 @@ router.post('/caller/changeName', ChangeClientName);
 
 //other caller
 router.post('/otherCaller/scoreBoard', scoreBoard);
+router.post('/otherCaller/info', OtherCallerInfo);
+
 //admin/client
 router.post('/admin/client/createClients', createClients);
 
