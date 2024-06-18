@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../../tools/log';
+
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
 import { Client } from '../../../Models/Client';
+import { log } from '../../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * create clients, max size 500
@@ -93,6 +94,6 @@ export default async function createClients(req: Request<any>, res: Response<any
 		}
 	);
 	await Promise.all(sleep);
-	log(`Created ${req.body.data.length - errors.length} users from ${area.name} (${ip})`, 'INFORMATION', __filename);
+	log(`Created ${req.body.data.length - errors.length} users from ${area.name} (${ip})`, 'INFO', __filename);
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
 }

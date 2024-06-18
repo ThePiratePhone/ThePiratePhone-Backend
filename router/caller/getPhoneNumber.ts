@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Caller } from '../../Models/Caller';
-import { log } from '../../tools/log';
+import mongoose from 'mongoose';
+
 import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
-import mongoose from 'mongoose';
+import { log } from '../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * Get a phone number to call
@@ -103,7 +104,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			client: call.Client,
 			script: campaign.script.at(-1)
 		});
-		log(`Already in a call from: ${caller.name} (${ip})`, 'INFORMATION', 'getPhoneNumber.ts');
+		log(`Already in a call from: ${caller.name} (${ip})`, 'INFO', 'getPhoneNumber.ts');
 		return;
 	}
 
@@ -191,5 +192,5 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		client: client[0],
 		script: campaign.script.at(-1)
 	});
-	log(`Client to call from: ${caller.name} (${ip})`, 'INFORMATION', 'getPhoneNumber.ts');
+	log(`Client to call from: ${caller.name} (${ip})`, 'INFO', 'getPhoneNumber.ts');
 }

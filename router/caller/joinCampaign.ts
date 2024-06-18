@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
+
 import { Caller } from '../../Models/Caller';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 import { Campaign } from '../../Models/Campaign';
+import { log } from '../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  *allow a caller to join a campaign
@@ -89,5 +90,5 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	}
 
 	res.status(200).send({ message: 'Campaign joined', OK: true });
-	log(`${caller.name} (${caller.phone}) join campain: ${campaign.name} from ${ip}`, 'INFORMATION', __filename);
+	log(`${caller.name} (${caller.phone}) join campain: ${campaign.name} from ${ip}`, 'INFO', __filename);
 }

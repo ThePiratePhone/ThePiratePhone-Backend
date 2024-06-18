@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
+w;
+import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Caller } from '../../Models/Caller';
-import { ObjectId } from 'mongodb';
 
 /**
  * get if your credential is valid

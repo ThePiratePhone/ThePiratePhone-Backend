@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
+import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
+import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Call } from '../../Models/Call';
-import { Campaign } from '../../Models/Campaign';
 
 /**
  * get information of other caller
@@ -105,9 +105,5 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		OK: true,
 		data: { count: timeCall[0].count, duration: timeCall[0].totalDuration }
 	});
-	log(
-		`get information of ${otherCaller.phone} (${otherCaller.name}) from: ${phone} (${ip})`,
-		'INFORMATION',
-		__filename
-	);
+	log(`get information of ${otherCaller.phone} (${otherCaller.name}) from: ${phone} (${ip})`, 'INFO', __filename);
 }

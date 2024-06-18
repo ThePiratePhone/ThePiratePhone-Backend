@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
 import { clearPhone } from '../../tools/utils';
-import { ObjectId } from 'mongodb';
 
 /**
  * Change the password of a caller
@@ -74,5 +74,5 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	}
 
 	res.status(200).send({ message: 'password changed', OK: true });
-	log(`user ${phone} password chnaged from: ${caller.name} (${ip})`, 'INFORMATION', 'changePassword.ts');
+	log(`user ${phone} password chnaged from: ${caller.name} (${ip})`, 'INFO', 'changePassword.ts');
 }

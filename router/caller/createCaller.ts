@@ -1,8 +1,9 @@
-import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
+
 import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
+import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
@@ -89,5 +90,5 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	}
 
 	res.status(200).send({ message: 'caller ' + newCaller.name + ' created from ' + ip, OK: true });
-	log(`Caller ${newCaller.name} created from ${area.name} (${ip})`, 'INFORMATION', 'createCaller.ts');
+	log(`Caller ${newCaller.name} created from ${area.name} (${ip})`, 'INFO', 'createCaller.ts');
 }

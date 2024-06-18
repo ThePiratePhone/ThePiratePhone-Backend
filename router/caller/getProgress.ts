@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
+import mongoose from 'mongoose';
+import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
+import { Campaign } from '../../Models/Campaign';
+import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Caller } from '../../Models/Caller';
-import { Client } from '../../Models/Client';
-import { Call } from '../../Models/Call';
-import mongoose from 'mongoose';
-import { Campaign } from '../../Models/Campaign';
 
 /**
  * Get the progress of a caller
@@ -96,5 +96,5 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			totalCallTime: totalCallTime[0]?.totalDuration ?? 0
 		}
 	});
-	log(`Caller ${caller.name} (${caller.phone}) requested his progress`, 'INFORMATION', __filename);
+	log(`Caller ${caller.name} (${caller.phone}) requested his progress`, 'INFO', __filename);
 }

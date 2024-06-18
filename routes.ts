@@ -1,23 +1,24 @@
 import { Router } from 'express';
-import getArea from './router/getArea';
-import createClients from './router/admin/client/createClients';
-import createCaller from './router/caller/createCaller';
-import ChangeClientName from './router/caller/changeName';
-import changePassword from './router/caller/changePassword';
-import endCall from './router/caller/endCall';
-import getPhoneNumber from './router/caller/getPhoneNumber';
-import login from './router/caller/login';
-import validateCall from './router/caller/validateCall';
-import joinCampaign from './router/caller/joinCampaign';
-import giveUp from './router/caller/giveUp';
-import getProgress from './router/caller/getProgress';
-import ChangeAreaName from './router/admin/area/changeName';
-import scoreBoard from './router/otherCaller/scoreBoard';
-import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
+
 import ChangeAdminPassword from './router/admin/area/changeAdminPassword';
+import ChangeAreaName from './router/admin/area/changeName';
 import callerInfo from './router/admin/caller/callerInfo';
 import changeCallerPassword from './router/admin/caller/changeCallerPassword';
 import ChangeName from './router/admin/caller/changeName';
+import createClients from './router/admin/client/createClients';
+import ChangeClientName from './router/caller/changeName';
+import changePassword from './router/caller/changePassword';
+import createCaller from './router/caller/createCaller';
+import endCall from './router/caller/endCall';
+import getPhoneNumber from './router/caller/getPhoneNumber';
+import getProgress from './router/caller/getProgress';
+import giveUp from './router/caller/giveUp';
+import joinCampaign from './router/caller/joinCampaign';
+import login from './router/caller/login';
+import validateCall from './router/caller/validateCall';
+import getArea from './router/getArea';
+import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
+import scoreBoard from './router/otherCaller/scoreBoard';
 
 const router = Router();
 

@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { log } from '../../tools/log';
 import { ObjectId } from 'mongodb';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Caller } from '../../Models/Caller';
+
 import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
+import { log } from '../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * Validate inprogress call
@@ -97,7 +98,7 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 	try {
 		await call.save();
 		res.status(200).send({ message: 'Call ended', OK: true });
-		log(`Call ended by ${caller.name} (${phone}) from (${ip})`, 'INFORMATION', __filename);
+		log(`Call ended by ${caller.name} (${phone}) from (${ip})`, 'INFO', __filename);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		log(`Internal error: ${e} from: ${caller.name} (${ip})`, 'ERROR', __filename);

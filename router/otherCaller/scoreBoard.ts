@@ -1,11 +1,12 @@
-import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
 import { Request, Response } from 'express';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Caller } from '../../Models/Caller';
+import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
+
 import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
+import { log } from '../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * get the top 5 callers in a campaign and our score
@@ -138,5 +139,5 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}
 	console.log(topfiveUsers);
 	res.status(200).send({ topfiveUsers, OK: true });
-	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFORMATION', __filename);
+	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFO', __filename);
 }

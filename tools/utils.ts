@@ -1,6 +1,3 @@
-import { ObjectId } from 'mongoose';
-import { Area } from '../Models/Area';
-
 function getFileName(filename: string) {
 	return filename.split('\\').at(-1);
 }
@@ -12,10 +9,10 @@ function clearPhone(phoneNumber: string): string {
 	phoneNumber = phoneNumber.replaceAll(' ', '');
 	phoneNumber = phoneNumber.replaceAll('.', '');
 	phoneNumber = phoneNumber.replaceAll('-', '');
-	phoneNumber = phoneNumber.replaceAll('(+)', '0');
 	phoneNumber = phoneNumber.replaceAll('o', '0');
 	phoneNumber = phoneNumber.replaceAll('(', '');
 	phoneNumber = phoneNumber.replaceAll(')', '');
+	phoneNumber = phoneNumber.replaceAll('+', '');
 
 	if (phoneNumber.startsWith('6') || phoneNumber.startsWith('7')) {
 		phoneNumber = '0' + phoneNumber;
@@ -40,8 +37,8 @@ function phoneNumberCheck(phone: string): boolean {
 		phoneArray.splice(0, 4);
 	}
 	phone = phoneArray.join('');
-	if (!phone.match(/^[0-9]{9}$/)) return false;
-	return true;
+	if (phone.match(/^[0-9]{9}$/)) return true;
+	return false;
 }
 
-export { getFileName, clearPhone, phoneNumberCheck };
+export { clearPhone, getFileName, phoneNumberCheck };

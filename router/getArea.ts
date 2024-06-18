@@ -17,7 +17,7 @@ export default async function getArea(req: Request<any>, res: Response<any>) {
 		log(`Error while getting area from ` + ip, 'CRITICAL', __filename);
 		return;
 	}
-	log(`Get area from ` + ip, 'INFORMATION', __filename);
+	log(`Get area from ` + ip, 'INFO', __filename);
 	res.status(200).send({
 		message: 'OK',
 		OK: true,

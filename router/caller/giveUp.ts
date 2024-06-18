@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
+import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Caller } from '../../Models/Caller';
-import { Call } from '../../Models/Call';
 
 /**
  * allow a caller to give up a call
@@ -63,5 +63,5 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 
 	await Call.deleteOne({ _id: currentCall._id });
 	res.status(200).send({ message: 'Call ended', OK: true });
-	log(`Call ended from: ${phone} (${ip})`, 'INFORMATION', 'giveUp.ts');
+	log(`Call ended from: ${phone} (${ip})`, 'INFO', 'giveUp.ts');
 }

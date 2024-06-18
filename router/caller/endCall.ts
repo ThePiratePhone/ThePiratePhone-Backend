@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
+
+import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Caller } from '../../Models/Caller';
-import { Call } from '../../Models/Call';
-import { ObjectId } from 'mongodb';
 
 /**
  * End a call
@@ -97,7 +98,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	try {
 		await call.save();
 		res.status(200).send({ message: 'Call ended', OK: true });
-		log(`Call ended by ${caller.name} (${phone})`, 'INFORMATION', __filename);
+		log(`Call ended by ${caller.name} (${phone})`, 'INFO', __filename);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		log(`Internal error: ${e} from: ${caller.name} (${phone}) ${ip}`, 'ERROR', __filename);

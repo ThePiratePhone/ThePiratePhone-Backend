@@ -1,17 +1,18 @@
 import { bgRed, blue, gray, red, yellow } from 'chalk';
 import fs from 'fs';
 import path from 'path';
+
 import { getFileName } from './utils';
 
-type WarningLevel = 'DEBUG' | 'INFORMATION' | 'WARNING' | 'ERROR' | 'CRITICAL';
+type WarningLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
-// Formation:
+// Information:
 // (2023-04-28T11:27:47.509Z) [ERROR]> bad password for test@exemple.com
-// (2023-04-28T11:27:47.509Z) [INFORMATION]> test@exemple.com connected
+// (2023-04-28T11:27:47.509Z) [INFO]> test@exemple.com connected
 /**
  * @param impact The impact level of the log
  * Impact Levels:
- * - INFORMATION: No impact on the system or user.
+ * - INFO: No impact on the system or user.
  * - WARNING: Minor impact that can be easily corrected.
  * - ERROR: Moderate impact that requires attention.
  * - CRITICAL: Significant impact that can cause damage or data loss.
@@ -39,7 +40,7 @@ export async function log(text: string, impact: WarningLevel = 'DEBUG', location
 	}
 	let coloredImpact = '';
 	switch (impact) {
-		case 'INFORMATION':
+		case 'INFO':
 			coloredImpact = blue(impact);
 			break;
 		case 'WARNING':
@@ -58,5 +59,5 @@ export async function log(text: string, impact: WarningLevel = 'DEBUG', location
 
 	console.log(`(${date}) ${location ? '[' + location + ']' : ''}> ${coloredImpact} ${text}\n`);
 	// append log in file
-	fs.appendFile(logFilePath, `(${date}) ${location ? '[' + location + ']' : ''}> ${impact} ${text}\n`, err => {});
+	fs.appendFile(logFilePath, `(${date}) ${location ? '[' + location + ']' : ''}> ${impact} ${text}\n`, () => {});
 }

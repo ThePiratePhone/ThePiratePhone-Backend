@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+
+import { Area } from '../../../Models/Area';
+import { Call } from '../../../Models/Call';
+import { Caller } from '../../../Models/Caller';
+import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
-import { Area } from '../../../Models/Area';
-import { Caller } from '../../../Models/Caller';
-import { Call } from '../../../Models/Call';
-import { Campaign } from '../../../Models/Campaign';
 
 /**
  * get information of caller
@@ -151,5 +152,5 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		}
 	});
 
-	log(`Caller info get from ${area.name} ${ip}`, 'INFORMATION', __filename);
+	log(`Caller info get from ${area.name} ${ip}`, 'INFO', __filename);
 }

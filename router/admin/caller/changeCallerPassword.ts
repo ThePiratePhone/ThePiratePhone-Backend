@@ -53,5 +53,5 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 	}
 
 	res.status(200).send({ message: 'Password changed', OK: true });
-	log(`Password of ${phone} changed from ${area.name} admin (${ip})`, 'INFORMATION', __filename);
+	log(`Password of ${phone} changed from ${area.name} admin (${ip})`, 'INFO', __filename);
 }

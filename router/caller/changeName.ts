@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../tools/log';
-import { Area } from '../../Models/Area';
+
 import { Caller } from '../../Models/Caller';
+import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
@@ -60,6 +60,6 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	}
 
 	res.status(200).send({ message: 'Caller name changed', OK: false });
-	log('Caller name changed from ' + ip, 'INFORMATION', __filename);
+	log('Caller name changed from ' + ip, 'INFO', __filename);
 	return;
 }
