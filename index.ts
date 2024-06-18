@@ -40,15 +40,16 @@ if (process.env.ISDEV == 'false') {
 }
 
 // set up rate limiter: maximum of 30 requests per minute
-const limiter = rateLimit({
-	windowMs: 60_000,
-	max: 30,
-	handler: (req, res, next, options) => {
-		res.status(options.statusCode).send(options.message);
-		log(`Too many requests from: ${req.ip}`, 'WARNING', __filename);
-	}
-});
-app.use(limiter);
+app.use(
+	rateLimit({
+		windowMs: 60_000,
+		max: 30,
+		handler: (req, res, next, options) => {
+			res.status(options.statusCode).send(options.message);
+			log(`Too many requests from: ${req.ip}`, 'WARNING', __filename);
+		}
+	})
+);
 app.use(express.json());
 app.use(cors());
 app.use((err: { status: number }, req: any, res: any, next: Function) => {
