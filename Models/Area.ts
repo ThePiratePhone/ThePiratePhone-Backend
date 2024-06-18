@@ -12,7 +12,7 @@ const AreaModel = new mongoose.Schema({
 		index: true
 	},
 	CampaignList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
+		type: Array<typeof mongoose.Schema.ObjectId>,
 		ref: 'Campaign',
 		required: true
 	},

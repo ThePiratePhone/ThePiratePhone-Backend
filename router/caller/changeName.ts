@@ -52,7 +52,6 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
 		{ name: req.body.newName }
 	);
-	console.log(change);
 	if (change.matchedCount != 1) {
 		res.status(400).send({ message: 'Caller not found', OK: false });
 		log('Caller not found from ' + ip, 'WARNING', __filename);
@@ -61,5 +60,4 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 
 	res.status(200).send({ message: 'Caller name changed', OK: false });
 	log('Caller name changed from ' + ip, 'INFO', __filename);
-	return;
 }

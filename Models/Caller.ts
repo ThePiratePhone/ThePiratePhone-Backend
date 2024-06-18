@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { Area } from './Area';
 
 const CallerSchema = new mongoose.Schema({
 	name: {

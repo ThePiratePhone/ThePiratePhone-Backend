@@ -67,48 +67,11 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		log(`Caller not found from: ` + ip, 'WARNING', __filename);
 		return;
 	}
-	const topfiveUsers = await Call.aggregate([
-		{
-			$match: {
-				Campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
-			}
-		},
-		{
-			$group: {
-				_id: '$Caller',
-				count: { $sum: 1 },
-				totalDuration: { $sum: '$duration' }
-			}
-		},
-		{
-			$sort: { count: -1 }
-		},
-		{
-			$limit: 5
-		},
-		{
-			$lookup: {
-				from: 'callers',
-				localField: '_id',
-				foreignField: '_id',
-				as: 'caller'
-			}
-		},
-		{
-			$project: {
-				_id: 1,
-				name: { $arrayElemAt: ['$caller.name', 0] },
-				count: 1,
-				totalDuration: 1
-			}
-		}
-	]);
-	if (!topfiveUsers.find(user => user._id.toString() == caller._id)) {
-		const user = await Call.aggregate([
+	const topfiveUsers: Array<{ _id: number; name: string; count: number; totalDuration: number }> =
+		await Call.aggregate([
 			{
 				$match: {
-					Campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId),
-					Caller: caller._id
+					Campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
 				}
 			},
 			{
@@ -117,6 +80,12 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 					count: { $sum: 1 },
 					totalDuration: { $sum: '$duration' }
 				}
+			},
+			{
+				$sort: { count: -1 }
+			},
+			{
+				$limit: 5
 			},
 			{
 				$lookup: {
@@ -135,9 +104,43 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 				}
 			}
 		]);
-		topfiveUsers.push(user[0]);
+	if (!topfiveUsers.find(user => user._id.toString() == caller._id.toString())) {
+		topfiveUsers.push(
+			(
+				await Call.aggregate([
+					{
+						$match: {
+							Campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId),
+							Caller: caller._id
+						}
+					},
+					{
+						$group: {
+							_id: '$Caller',
+							count: { $sum: 1 },
+							totalDuration: { $sum: '$duration' }
+						}
+					},
+					{
+						$lookup: {
+							from: 'callers',
+							localField: '_id',
+							foreignField: '_id',
+							as: 'caller'
+						}
+					},
+					{
+						$project: {
+							_id: 1,
+							name: { $arrayElemAt: ['$caller.name', 0] },
+							count: 1,
+							totalDuration: 1
+						}
+					}
+				])
+			)[0]
+		);
 	}
-	console.log(topfiveUsers);
 	res.status(200).send({ topfiveUsers, OK: true });
 	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFO', __filename);
 }

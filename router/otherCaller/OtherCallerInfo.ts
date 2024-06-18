@@ -76,7 +76,7 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		return;
 	}
 
-	const timeCall = (await Call.aggregate([
+	const timeCall = await Call.aggregate([
 		{ $match: { Caller: new ObjectId(otherCaller._id), Campaign: new ObjectId(campaign._id) } },
 		{
 			$group: {
@@ -91,7 +91,7 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 				totalDuration: 1
 			}
 		}
-	])) as any;
+	]);
 	if (!timeCall || timeCall.length === 0) {
 		res.status(500).send({ message: 'Internal server error', OK: false });
 		log(

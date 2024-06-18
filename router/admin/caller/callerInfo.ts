@@ -79,59 +79,60 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const data = await Call.aggregate([
-		{
-			$facet: {
-				callerTotalData: [
-					{ $match: { Caller: new ObjectId(caller._id) } },
-					{
-						$group: {
-							_id: '$Caller',
-							TotalCount: { $sum: 1 },
-							totalDuration: { $sum: '$duration' }
+	const data: Array<{ TotalCount: number; TotalDuration: number; CampaignDuration: number; CampaignCount: number }> =
+		await Call.aggregate([
+			{
+				$facet: {
+					callerTotalData: [
+						{ $match: { Caller: new ObjectId(caller._id) } },
+						{
+							$group: {
+								_id: '$Caller',
+								TotalCount: { $sum: 1 },
+								totalDuration: { $sum: '$duration' }
+							}
+						},
+						{
+							$project: {
+								_id: 0,
+								TotalCount: 1,
+								totalDuration: 1
+							}
 						}
-					},
-					{
-						$project: {
-							_id: 0,
-							TotalCount: 1,
-							totalDuration: 1
+					],
+					campaignData: [
+						{
+							$match: {
+								Caller: new ObjectId(caller._id),
+								Campaign: ObjectId.createFromHexString(req.body.CampaignId)
+							}
+						},
+						{
+							$group: {
+								_id: '$Caller',
+								CampaignCount: { $sum: 1 },
+								CampaignDuration: { $sum: '$duration' }
+							}
+						},
+						{
+							$project: {
+								_id: 0,
+								CampaignCount: 1,
+								CampaignDuration: 1
+							}
 						}
-					}
-				],
-				campaignData: [
-					{
-						$match: {
-							Caller: new ObjectId(caller._id),
-							Campaign: ObjectId.createFromHexString(req.body.CampaignId)
-						}
-					},
-					{
-						$group: {
-							_id: '$Caller',
-							CampaignCount: { $sum: 1 },
-							CampaignDuration: { $sum: '$duration' }
-						}
-					},
-					{
-						$project: {
-							_id: 0,
-							CampaignCount: 1,
-							CampaignDuration: 1
-						}
-					}
-				]
+					]
+				}
+			},
+			{
+				$project: {
+					TotalCount: { $arrayElemAt: ['$callerTotalData.TotalCount', 0] },
+					TotalDuration: { $arrayElemAt: ['$callerTotalData.totalDuration', 0] },
+					CampaignCount: { $arrayElemAt: ['$campaignData.CampaignCount', 0] },
+					CampaignDuration: { $arrayElemAt: ['$campaignData.CampaignDuration', 0] }
+				}
 			}
-		},
-		{
-			$project: {
-				TotalCount: { $arrayElemAt: ['$callerTotalData.TotalCount', 0] },
-				totalDuration: { $arrayElemAt: ['$callerTotalData.totalDuration', 0] },
-				CampaignCount: { $arrayElemAt: ['$campaignData.CampaignCount', 0] },
-				CampaignDuration: { $arrayElemAt: ['$campaignData.CampaignDuration', 0] }
-			}
-		}
-	]);
+		]);
 
 	if (!data || data.length == 0) {
 		res.status(404).send({ message: 'No data found', OK: false });
@@ -146,8 +147,8 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 			name: caller.name,
 			phone: caller.phone,
 			totalTimeCampaign: data[0].CampaignDuration,
-			nbCallsCampaign: data[0].CampaingCount,
-			totalTime: data[0].totalDuration,
+			nbCallsCampaign: data[0].CampaignCount,
+			totalTime: data[0].TotalDuration,
 			nbCalls: data[0].TotalCount
 		}
 	});

@@ -50,5 +50,4 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 
 	res.status(200).send({ OK: true, message: 'name of area changed' });
 	log(`name of area changed to ${req.body.newName} from ${req.body.area} (${ip})`, 'WARNING', __filename);
-	return;
 }

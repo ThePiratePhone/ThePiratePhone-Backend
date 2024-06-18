@@ -58,7 +58,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 
 	const errors: Array<[string | undefined, string | undefined, string]> = [];
 	//format: [phone, name, firstname, institution]
-	const sleep = req.body.data.map(
+	const sleep: Array<Promise<boolean>> = req.body.data.map(
 		async (usr: [string | undefined, string | undefined, string | undefined, string | undefined]) => {
 			const phone = clearPhone(usr[0] ?? '');
 			try {
@@ -66,10 +66,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 					errors.push([usr[1] + ' ' + usr[2], usr[0], 'Wrong phone number']);
 					return false;
 				}
-				const nbClient = await Client.countDocuments({ phone: phone });
-				// if client doesn't exist
-				console.log(nbClient);
-				if (nbClient == 0) {
+				if ((await Client.countDocuments({ phone: phone })) == 0) {
 					const user = new Client({
 						name: usr[1],
 						firstname: usr[2],

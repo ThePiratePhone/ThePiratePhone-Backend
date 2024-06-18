@@ -50,5 +50,4 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 
 	res.status(200).send({ OK: true, message: 'password of area changed' });
 	log(`admin password of area changed from ${ip}`, 'WARNING', __filename);
-	return;
 }

@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { Campaign } from './Campaign';
 
 const ClientSchema = new mongoose.Schema({
 	name: {

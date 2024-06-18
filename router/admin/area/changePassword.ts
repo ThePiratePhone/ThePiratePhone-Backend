@@ -34,5 +34,4 @@ export default async function ChangePasword(req: Request<any>, res: Response<any
 
 	res.status(200).send({ OK: true, message: 'password of area changed' });
 	log(`password of area changed from ${ip}`, 'WARNING', __filename);
-	return;
 }
