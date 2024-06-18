@@ -7,7 +7,7 @@ const CampaignSchema = new mongoose.Schema({
 		index: true
 	},
 	script: {
-		type: Array<String>,
+		type: String,
 		required: true
 	},
 	active: {

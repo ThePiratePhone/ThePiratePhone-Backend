@@ -102,7 +102,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			message: 'Already in a call',
 			OK: true,
 			client: call.Client,
-			script: campaign.script.prototype.at(-1)
+			script: campaign.script
 		});
 		log(`Already in a call from: ${caller.name} (${ip})`, 'INFO', 'getPhoneNumber.ts');
 		return;
@@ -190,7 +190,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		message: 'Client to call',
 		OK: true,
 		client: client[0],
-		script: campaign.script.prototype.at(-1)
+		script: campaign.script
 	});
 	log(`Client to call from: ${caller.name} (${ip})`, 'INFO', 'getPhoneNumber.ts');
 }
