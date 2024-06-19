@@ -5,6 +5,7 @@ import ChangeAreaName from './router/admin/area/changeName';
 import callerInfo from './router/admin/caller/callerInfo';
 import changeCallerPassword from './router/admin/caller/changeCallerPassword';
 import ChangeName from './router/admin/caller/changeName';
+import listCaller from './router/admin/caller/listCaller';
 import newCaller from './router/admin/caller/newCaller';
 import removeCaller from './router/admin/caller/removeCaller';
 import SearchByName from './router/admin/caller/searchByName';
@@ -58,6 +59,6 @@ router.post('/admin/caller/createCaller', newCaller);
 router.post('/admin/caller/removeCaller', removeCaller);
 router.post('/admin/caller/searchByName', SearchByName);
 router.post('/admin/caller/searchByPhone', SearchByPhone);
-
+router.post('/admin/caller/listCaller', listCaller);
 router.get('/getArea', getArea);
 export default router;
