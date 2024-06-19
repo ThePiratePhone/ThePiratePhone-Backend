@@ -15,6 +15,7 @@
 		"@types/express": "^4.17.21"
 	},
 	"dependencies": {
+		"@fast-csv/format": "^5.0.0",
 		"chalk": "^4.1.2",
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.5",

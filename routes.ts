@@ -24,6 +24,7 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
+import exportCallerCsv from './router/admin/caller/exportCallerCsv';
 
 const router = Router();
 
@@ -60,5 +61,7 @@ router.post('/admin/caller/removeCaller', removeCaller);
 router.post('/admin/caller/searchByName', SearchByName);
 router.post('/admin/caller/searchByPhone', SearchByPhone);
 router.post('/admin/caller/listCaller', listCaller);
+router.post('/admin/caller/exportCallersCsv', exportCallerCsv);
+
 router.get('/getArea', getArea);
 export default router;
