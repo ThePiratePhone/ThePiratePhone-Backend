@@ -59,7 +59,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const change = await Caller.updateOne({ phone: phone }, { name: { $eq: req.body.newName } });
+	const change = await Caller.updateOne({ phone: phone }, { name: req.body.newName });
 	if (change.matchedCount != 1) {
 		res.status(400).send({ message: 'Caller not found', OK: false });
 		log('Caller not found from ' + ip, 'WARNING', __filename);

@@ -33,29 +33,29 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'removeCaller.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	req.body.phone = clearPhone(req.body.phone);
+	const phone = clearPhone(req.body.phone);
 
-	if (!phoneNumberCheck(req.body.phone)) {
+	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log('Wrong phone number', 'WARNING', 'removeCaller.ts');
+		log('Wrong phone number', 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid area', OK: false });
-		log(`Invalid area from: ${req.body.phone} (${ip})`, 'WARNING', 'removeCaller.ts');
+		log(`Invalid area from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: req.body.phone });
+	const caller = await Caller.findOne({ phone: phone });
 	if (!caller) {
 		res.status(400).send({ message: 'Caller not found', OK: false });
-		log(`Caller not found from: ${req.body.phone} (${ip})`, 'WARNING', 'removeCaller.ts');
+		log(`Caller not found from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -65,15 +65,15 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 		log(
 			`Call removed (for remove user ${caller.name} (${caller.phone})): ${curentCall.id} from ${area.name} (${ip})`,
 			'INFO',
-			'removeCaller.ts'
+			__filename
 		);
 	}
-	const remove = await Caller.deleteOne({ phone: req.body.phone });
+	const remove = await Caller.deleteOne({ phone: phone });
 	if (remove.deletedCount == 1) {
 		res.status(200).send({ message: 'Caller removed', OK: true });
-		log(`Caller removed: ${req.body.phone} from ${area.name} (${ip})`, 'INFO', 'removeCaller.ts');
+		log(`Caller removed: ${phone} from ${area.name} (${ip})`, 'INFO', __filename);
 	} else {
 		res.status(500).send({ message: 'Error while removing caller', OK: false });
-		log(`Error while removing caller: ${req.body.phone} from ${area.name} (${ip})`, 'ERROR', 'removeCaller.ts');
+		log(`Error while removing caller: ${phone} from ${area.name} (${ip})`, 'ERROR', __filename);
 	}
 }
