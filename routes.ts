@@ -6,6 +6,7 @@ import callerInfo from './router/admin/caller/callerInfo';
 import changeCallerPassword from './router/admin/caller/changeCallerPassword';
 import ChangeName from './router/admin/caller/changeName';
 import newCaller from './router/admin/caller/newCaller';
+import removeCaller from './router/admin/caller/removeCaller';
 import createClients from './router/admin/client/createClients';
 import ChangeClientName from './router/caller/changeName';
 import changePassword from './router/caller/changePassword';
@@ -52,6 +53,7 @@ router.post('/admin/caller/callerInfo', callerInfo);
 router.post('/admin/caller/changePassword', changeCallerPassword);
 router.post('/admin/caller/changeName', ChangeName);
 router.post('/admin/caller/createCaller', newCaller);
+router.post('/admin/caller/removeCaller', removeCaller);
 
 router.get('/getArea', getArea);
 export default router;
