@@ -5,11 +5,14 @@ import ChangeAreaName from './router/admin/area/changeName';
 import callerInfo from './router/admin/caller/callerInfo';
 import changeCallerPassword from './router/admin/caller/changeCallerPassword';
 import ChangeName from './router/admin/caller/changeName';
+import exportCallerCsv from './router/admin/caller/exportCallerCsv';
 import listCaller from './router/admin/caller/listCaller';
 import newCaller from './router/admin/caller/newCaller';
 import removeCaller from './router/admin/caller/removeCaller';
 import SearchByName from './router/admin/caller/searchByName';
 import SearchByPhone from './router/admin/caller/searchByPhone';
+import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
+import setActive from './router/admin/campaign/setActive';
 import createClients from './router/admin/client/createClients';
 import ChangeClientName from './router/caller/changeName';
 import changePassword from './router/caller/changePassword';
@@ -24,8 +27,6 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
-import exportCallerCsv from './router/admin/caller/exportCallerCsv';
-import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
 
 const router = Router();
 
@@ -66,6 +67,7 @@ router.post('/admin/caller/exportCallersCsv', exportCallerCsv);
 
 //admin/campaign
 router.post('/admin/campaign/changePassword', changeCampaingPassword);
+router.post('/admin/campaign/setActive', setActive);
 
 router.get('/getArea', getArea);
 export default router;
