@@ -7,6 +7,21 @@ import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
 import { Campaign } from '../../../Models/Campaign';
 
+/**
+ * Export all callers in a csv file
+ *
+ * @example
+ * body:{
+ * 	"adminCode": string,
+ * 	"area": mongoDBID,
+ * 	"curentCamaign": boolean
+ * }
+ *
+ * @throws {400} - Missing parameters
+ * @throws {401} - Wrong admin code
+ * @throws {200} - No campaign in progress
+ * @throws {200} - OK
+ */
 export default async function exportCallerCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (

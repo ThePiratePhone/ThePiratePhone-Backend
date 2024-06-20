@@ -25,6 +25,7 @@ import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
 import exportCallerCsv from './router/admin/caller/exportCallerCsv';
+import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
 
 const router = Router();
 
@@ -62,6 +63,9 @@ router.post('/admin/caller/searchByName', SearchByName);
 router.post('/admin/caller/searchByPhone', SearchByPhone);
 router.post('/admin/caller/listCaller', listCaller);
 router.post('/admin/caller/exportCallersCsv', exportCallerCsv);
+
+//admin/campaign
+router.post('/admin/campaign/changePassword', changeCampaingPassword);
 
 router.get('/getArea', getArea);
 export default router;

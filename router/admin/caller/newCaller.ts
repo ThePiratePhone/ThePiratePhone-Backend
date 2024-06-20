@@ -9,8 +9,8 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
 /**
  * Create a new caller
  *
- * @exemple
- * body:
+ * @example
+ * body:{
  * {
  * 	"adminCode": string,
  * 	"phone": string,

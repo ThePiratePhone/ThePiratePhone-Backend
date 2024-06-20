@@ -4,6 +4,22 @@ import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
 
+/**
+ * List all callers in an area
+ *
+ * @example
+ * body:{
+ * 	"adminCode": string,
+ * 	"area": mongoDBID,
+ * 	"skip": number,
+ * 	"limit": number
+ * }
+ *
+ * @throws {400} - Missing parameters
+ * @throws {401} - Wrong admin code
+ * @throws {404} - No caller found
+ * @throws {200} - OK
+ **/
 export default async function listCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
