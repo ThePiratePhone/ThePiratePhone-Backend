@@ -7,6 +7,25 @@ import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
 import { clearPhone } from '../../../tools/utils';
 
+/**
+ * Add a client to a campaign
+ *
+ * @example
+ * body:{
+ *	"adminCode": string,
+ *	"area": mongoDBID,
+ *	"phone": string,
+ *	"campaign": mongoDBID
+ * }
+ *
+ * @throws {400} - Missing parameters
+ * @throws {401} - Wrong admin code
+ * @throws {404} - User not found
+ * @throws {404} - Campaign not found
+ * @throws {200} - User added to campaign
+ * @throws {200} - User already in campaign
+ */
+
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
 	console.log(!ObjectId.isValid(req.body.campaign), req.body.campaign);
 	const ip = req.socket?.remoteAddress?.split(':').pop();

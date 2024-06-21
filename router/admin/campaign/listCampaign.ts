@@ -5,6 +5,22 @@ import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 
+/**
+ * List all campaign from an area
+ *
+ * @example
+ * body:{
+ *	"adminCode": string,
+ *	"area": mongoDBID,
+ *	"skip": number,
+ *	"limit": number
+ * }
+ *
+ * @throws {400} - Missing parameters
+ * @throws {401} - Wrong admin code
+ * @throws {200} - OK
+ */
+
 export default async function listCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (

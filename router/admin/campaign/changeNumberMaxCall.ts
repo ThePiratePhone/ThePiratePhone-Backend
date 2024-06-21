@@ -5,6 +5,24 @@ import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 
+/**
+ * Change the max number of call for a campaign
+ *
+ * @example
+ * body:{
+ *	"adminCode": string,
+ *	"area": mongoDBID,
+ *	"newNumberMaxCall": string,
+ *	"CampaignId": mongoDBID
+ * }
+ *
+ * @throws {400} - Missing parameters
+ * @throws {401} - Wrong admin code
+ * @throws {401} - Wrong campaign id
+ * @throws {404} - Campaign not found
+ * @throws {200} - OK
+ */
+
 export default async function changeNumberMaxCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (

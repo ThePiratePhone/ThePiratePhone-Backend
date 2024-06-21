@@ -17,6 +17,7 @@ import changeCampaingPassword from './router/admin/campaign/changeCampaignPasswo
 import changeName from './router/admin/campaign/changeName';
 import changeNumberMaxCall from './router/admin/campaign/changeNumberMaxCall';
 import changeTimeBetwenCall from './router/admin/campaign/changeTimeBetwenCall';
+import getCampaign from './router/admin/campaign/GetCampaign';
 import listCallerCampaign from './router/admin/campaign/listCallerCampaign';
 import listCampaign from './router/admin/campaign/listCampaign';
 import listClientCampaign from './router/admin/campaign/listClientCampaign';
@@ -84,6 +85,7 @@ router.post('/admin/campaign/addClientCampaign', addClientCampaign);
 router.post('/admin/campaign/listCallerCampaign', listCallerCampaign);
 router.post('/admin/campaign/listClientCampaign', listClientCampaign);
 router.post('/admin/campaign/listCampaign', listCampaign);
+router.post('/admin/campaign/getCampaign', getCampaign);
 
 router.get('/getArea', getArea);
 export default router;
