@@ -27,6 +27,7 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
+import changeName from 'router/admin/campaign/changeName';
 
 const router = Router();
 
@@ -68,6 +69,7 @@ router.post('/admin/caller/exportCallersCsv', exportCallerCsv);
 //admin/campaign
 router.post('/admin/campaign/changePassword', changeCampaingPassword);
 router.post('/admin/campaign/setActive', setActive);
+router.post('/admin/campaign/changeName', changeName);
 
 router.get('/getArea', getArea);
 export default router;

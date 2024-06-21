@@ -6,34 +6,35 @@ import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 
 /**
- * Change the password of a campaign
+ * Change the name of a campaign
  *
  * @example
  * body:{
- *	"adminCode": string,
- *	"newCampaignCode": string,
- *	"area": mongoDBID,
- *	"CampaignId": mongoDBID
+ * 	"adminCode": string,
+ * 	"newName": string,
+ * 	"area": mongoDBID,
+ * 	"CampaignId": mongoDBID
  * }
  *
  * @throws {400} - Missing parameters
  * @throws {400} - Campaign not found
- * @throws {400} - Password invalid
+ * @throws {400} - Name invalid
  * @throws {401} - Wrong admin code
  * @throws {401} - Wrong campaign id
  * @throws {200} - OK
  */
-export default async function changeCampaingPassword(req: Request<any>, res: Response<any>) {
+
+export default async function changeName(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
-		typeof req.body.newCampaignCode != 'string' ||
+		typeof req.body.newName != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
 		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		log(`Missing parameters from ` + ip, 'WARNING', 'changeName.ts');
 		return;
 	}
 
@@ -57,13 +58,13 @@ export default async function changeCampaingPassword(req: Request<any>, res: Res
 		return;
 	}
 
-	if (req.body.newCampaignCode.length < 4 || req.body.newCampaignCode.length > 20) {
-		res.status(400).send({ message: 'Password invalid', OK: false });
-		log(`Password invalid from ${ip} (${area.name})`, 'WARNING', __filename);
+	if (req.body.newName.length < 4 || req.body.newName.length > 20) {
+		res.status(400).send({ message: 'Name invalid', OK: false });
+		log(`Name invalid from ${ip} (${area.name})`, 'WARNING', __filename);
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: campaign._id }, { password: req.body.newCampaignCode });
+	const output = await Campaign.updateOne({ _id: campaign._id }, { name: req.body.newName });
 	if (output.matchedCount != 1) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${ip}`, 'WARNING', __filename);
@@ -71,5 +72,5 @@ export default async function changeCampaingPassword(req: Request<any>, res: Res
 	}
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Campaign password changed from ${ip} (${area.name})`, 'INFO', __filename);
+	log(`Campaign name changed from ${ip} (${area.name})`, 'INFO', __filename);
 }
