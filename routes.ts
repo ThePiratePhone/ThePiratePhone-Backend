@@ -14,6 +14,7 @@ import SearchByPhone from './router/admin/caller/searchByPhone';
 import changeCallHours from './router/admin/campaign/changeCallHours';
 import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
 import changeName from './router/admin/campaign/changeName';
+import changeNumberMaxCall from './router/admin/campaign/changeNumberMaxCall';
 import changeTimeBetwenCall from './router/admin/campaign/changeTimeBetwenCall';
 import setActive from './router/admin/campaign/setActive';
 import createClients from './router/admin/client/createClients';
@@ -74,6 +75,7 @@ router.post('/admin/campaign/setActive', setActive);
 router.post('/admin/campaign/changeName', changeName);
 router.post('/admin/campaign/changeCallHours', changeCallHours);
 router.post('/admin/campaign/changeTimeBetwenCall', changeTimeBetwenCall);
+router.post('/admin/campaign/changeNumberMaxCall', changeNumberMaxCall);
 
 router.get('/getArea', getArea);
 export default router;
