@@ -1,7 +1,5 @@
 import { Router } from 'express';
 
-import changeCallHours from './router/admin/campaign/changeCallHours';
-import changeName from './router/admin/campaign/changeName';
 import ChangeAdminPassword from './router/admin/area/changeAdminPassword';
 import ChangeAreaName from './router/admin/area/changeName';
 import callerInfo from './router/admin/caller/callerInfo';
@@ -13,7 +11,10 @@ import newCaller from './router/admin/caller/newCaller';
 import removeCaller from './router/admin/caller/removeCaller';
 import SearchByName from './router/admin/caller/searchByName';
 import SearchByPhone from './router/admin/caller/searchByPhone';
+import changeCallHours from './router/admin/campaign/changeCallHours';
 import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
+import changeName from './router/admin/campaign/changeName';
+import changeTimeBetwenCall from './router/admin/campaign/changeTimeBetwenCall';
 import setActive from './router/admin/campaign/setActive';
 import createClients from './router/admin/client/createClients';
 import ChangeClientName from './router/caller/changeName';
@@ -72,6 +73,7 @@ router.post('/admin/campaign/changePassword', changeCampaingPassword);
 router.post('/admin/campaign/setActive', setActive);
 router.post('/admin/campaign/changeName', changeName);
 router.post('/admin/campaign/changeCallHours', changeCallHours);
+router.post('/admin/campaign/changeTimeBetwenCall', changeTimeBetwenCall);
 
 router.get('/getArea', getArea);
 export default router;
