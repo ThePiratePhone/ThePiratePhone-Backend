@@ -11,11 +11,13 @@ import newCaller from './router/admin/caller/newCaller';
 import removeCaller from './router/admin/caller/removeCaller';
 import SearchByName from './router/admin/caller/searchByName';
 import SearchByPhone from './router/admin/caller/searchByPhone';
+import addClientCampaign from './router/admin/campaign/addClientCampaign';
 import changeCallHours from './router/admin/campaign/changeCallHours';
 import changeCampaingPassword from './router/admin/campaign/changeCampaignPassword';
 import changeName from './router/admin/campaign/changeName';
 import changeNumberMaxCall from './router/admin/campaign/changeNumberMaxCall';
 import changeTimeBetwenCall from './router/admin/campaign/changeTimeBetwenCall';
+import listCallerCampaign from './router/admin/campaign/listCallerCampaign';
 import setActive from './router/admin/campaign/setActive';
 import createClients from './router/admin/client/createClients';
 import ChangeClientName from './router/caller/changeName';
@@ -31,7 +33,6 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
-import addClientCampaign from './router/admin/campaign/addClientCampaign';
 
 const router = Router();
 
@@ -78,6 +79,7 @@ router.post('/admin/campaign/changeCallHours', changeCallHours);
 router.post('/admin/campaign/changeTimeBetwenCall', changeTimeBetwenCall);
 router.post('/admin/campaign/changeNumberMaxCall', changeNumberMaxCall);
 router.post('/admin/campaign/addClientCampaign', addClientCampaign);
+router.post('/admin/campaign/listCallerCampaign', listCallerCampaign);
 
 router.get('/getArea', getArea);
 export default router;
