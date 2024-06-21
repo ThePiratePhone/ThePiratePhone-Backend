@@ -1,5 +1,7 @@
 import { Router } from 'express';
 
+import changeCallHours from './router/admin/campaign/changeCallHours';
+import changeName from './router/admin/campaign/changeName';
 import ChangeAdminPassword from './router/admin/area/changeAdminPassword';
 import ChangeAreaName from './router/admin/area/changeName';
 import callerInfo from './router/admin/caller/callerInfo';
@@ -27,7 +29,6 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
-import changeName from 'router/admin/campaign/changeName';
 
 const router = Router();
 
@@ -70,6 +71,7 @@ router.post('/admin/caller/exportCallersCsv', exportCallerCsv);
 router.post('/admin/campaign/changePassword', changeCampaingPassword);
 router.post('/admin/campaign/setActive', setActive);
 router.post('/admin/campaign/changeName', changeName);
+router.post('/admin/campaign/changeCallHours', changeCallHours);
 
 router.get('/getArea', getArea);
 export default router;
