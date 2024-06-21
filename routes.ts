@@ -31,6 +31,7 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
+import addClientCampaign from './router/admin/campaign/addClientCampaign';
 
 const router = Router();
 
@@ -76,6 +77,7 @@ router.post('/admin/campaign/changeName', changeName);
 router.post('/admin/campaign/changeCallHours', changeCallHours);
 router.post('/admin/campaign/changeTimeBetwenCall', changeTimeBetwenCall);
 router.post('/admin/campaign/changeNumberMaxCall', changeNumberMaxCall);
+router.post('/admin/campaign/addClientCampaign', addClientCampaign);
 
 router.get('/getArea', getArea);
 export default router;
