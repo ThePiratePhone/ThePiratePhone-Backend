@@ -37,6 +37,7 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
+import SearchClientByName from './router/admin/client/searchByName';
 
 const router = Router();
 
@@ -58,6 +59,7 @@ router.post('/otherCaller/info', OtherCallerInfo);
 
 //admin/client
 router.post('/admin/client/createClients', createClients);
+router.post('/admin/client/searchByName', SearchClientByName);
 
 //admin/area
 router.post('/admin/area/changeName', ChangeAreaName);
