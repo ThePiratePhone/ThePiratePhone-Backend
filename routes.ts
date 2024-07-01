@@ -41,6 +41,7 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
+import removeAllClients from './router/admin/client/removeAllClients';
 
 const router = Router();
 
@@ -66,6 +67,7 @@ router.post('/admin/client/searchByName', SearchClientByName);
 router.post('/admin/client/removeClient', removeClient);
 router.post('/admin/client/searchByPhone', SearchClientByPhone);
 router.post('/admin/client/addCallerCampaign', addCallerCampaign);
+router.post('/admin/client/removeClients', removeAllClients);
 
 //admin/area
 router.post('/admin/area/changeName', ChangeAreaName);
