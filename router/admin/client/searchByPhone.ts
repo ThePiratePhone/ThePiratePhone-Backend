@@ -6,6 +6,20 @@ import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
 import { clearPhone } from '../../../tools/utils';
 
+/**
+ * Search for clients by phone
+ *
+ * @example
+ * body: {
+ * 	phone: String,
+ * 	adminCode: String,
+ * 	area: ObjectId
+ * }
+ *
+ * @throws {400} Missing parameters
+ * @throws {401} Wrong admin code
+ * @throws {200} OK
+ */
 export default async function SearchByPhone(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (

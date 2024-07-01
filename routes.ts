@@ -23,9 +23,11 @@ import listCallerCampaign from './router/admin/campaign/listCallerCampaign';
 import listCampaign from './router/admin/campaign/listCampaign';
 import listClientCampaign from './router/admin/campaign/listClientCampaign';
 import setActive from './router/admin/campaign/setActive';
+import addCallerCampaign from './router/admin/client/addCallerCampaign';
 import createClients from './router/admin/client/createClients';
 import removeClient from './router/admin/client/removeClient';
 import SearchClientByName from './router/admin/client/searchByName';
+import SearchClientByPhone from './router/admin/client/searchByPhone';
 import ChangeClientName from './router/caller/changeName';
 import changePassword from './router/caller/changePassword';
 import createCaller from './router/caller/createCaller';
@@ -39,7 +41,6 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
-import SearchClientByPhone from './router/admin/client/searchByPhone';
 
 const router = Router();
 
@@ -64,6 +65,7 @@ router.post('/admin/client/createClients', createClients);
 router.post('/admin/client/searchByName', SearchClientByName);
 router.post('/admin/client/removeClient', removeClient);
 router.post('/admin/client/searchByPhone', SearchClientByPhone);
+router.post('/admin/client/addCallerCampaign', addCallerCampaign);
 
 //admin/area
 router.post('/admin/area/changeName', ChangeAreaName);
