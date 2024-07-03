@@ -41,4 +41,56 @@ function phoneNumberCheck(phone: string): boolean {
 	return false;
 }
 
-export { clearPhone, getFileName, phoneNumberCheck };
+function humainPhone(number: string) {
+	const numberArray = number.split('');
+	let newNumber = '';
+	if (number.length % 2) {
+		newNumber += numberArray.splice(0, 4).join('');
+	} else {
+		newNumber += numberArray.splice(0, 3).join('');
+	}
+	newNumber += ' ' + numberArray.splice(0, 1);
+	for (let i = 0; i < numberArray.length; i = i + 2) {
+		newNumber += ' ' + numberArray[i] + numberArray[i + 1];
+	}
+
+	if (newNumber.startsWith('+33 ')) {
+		newNumber = newNumber.replace('+33 ', '0');
+	}
+
+	return newNumber;
+}
+
+function CleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | undefined) {
+	switch (status) {
+		case 'In progress':
+			return 'En cours';
+		case 'to recall':
+			return 'Doit etre rappelé·e';
+		case 'Done':
+			return 'Applé·e';
+		case 'deleted':
+			return 'Supprimé·e';
+		default:
+			return 'Aucune info';
+	}
+}
+
+function cleanSatisfaction(satisfaction: number | null | undefined) {
+	switch (satisfaction) {
+		case 0:
+			return 'A voté';
+		case 1:
+			return 'Pas interessé·e';
+		case 2:
+			return 'Interessé·e';
+		case 3:
+			return 'Pas de réponse';
+		case 4:
+			return 'A retirer';
+		default:
+			return 'Aucune info';
+	}
+}
+
+export { clearPhone, getFileName, phoneNumberCheck, humainPhone, CleanStatus, cleanSatisfaction };
