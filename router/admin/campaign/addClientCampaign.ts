@@ -27,7 +27,6 @@ import { clearPhone } from '../../../tools/utils';
  */
 
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
-	console.log(!ObjectId.isValid(req.body.campaign), req.body.campaign);
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||

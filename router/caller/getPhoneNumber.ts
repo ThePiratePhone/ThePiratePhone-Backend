@@ -181,7 +181,6 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		await callClient.save();
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		console.error(e);
 		log(`Error while saving call from: ${caller.name} (${ip})`, 'ERROR', 'getPhoneNumber.ts');
 		return;
 	}
