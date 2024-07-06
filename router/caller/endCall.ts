@@ -15,6 +15,8 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  * 	"timeInCall": number,
  * 	"satisfaction": number {-1, 0, 1, 2, 3, 4},
  * 	"comment": string | null,
+ * 	"status": Boolean,
+ *
  * 	"area": mongoDBID
  * }
  *
@@ -36,6 +38,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		typeof req.body.timeInCall != 'number' ||
 		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.satisfaction != 'number' ||
+		typeof req.body.status != 'boolean' ||
 		(req.body.comment && typeof req.body.comment != 'string')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -86,10 +89,13 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	call.status = 'Done';
+	call.status = req.body.status ? 'to recall' : 'Done';
 	if (req.body.satisfaction == -1) {
 		call.status = 'deleted';
+	} else if (req.body.satisfaction == 3) {
+		call.status = 'to recall';
 	}
+
 	call.satisfaction = req.body.satisfaction;
 	call.duration = req.body.timeInCall ?? 0;
 	if (req.body.comment) call.comment = req.body.comment;

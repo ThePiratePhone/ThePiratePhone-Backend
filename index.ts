@@ -25,6 +25,7 @@ mongoose
 // Create an instance of the Express app
 const app = express();
 if (process.env.ISDEV == 'false') {
+	// add https support
 	const options = {
 		key: fs.readFileSync('./certs/privkey.pem'),
 		cert: fs.readFileSync('./certs/fullchain.pem')
@@ -33,23 +34,24 @@ if (process.env.ISDEV == 'false') {
 	server.listen(port, () => {
 		log(`Listening at https://localhost:${port}`, 'DEBUG', __filename);
 	});
+
+	// set up rate limiter: maximum of 30 requests per minute
+	app.use(
+		rateLimit({
+			windowMs: 60_000,
+			max: 30,
+			handler: (req, res, next, options) => {
+				res.status(options.statusCode).send(options.message);
+				log(`Too many requests from: ${req.ip}`, 'WARNING', __filename);
+			}
+		})
+	);
 } else {
 	app.listen(port, () => {
 		log(`Listening at http://localhost:${port}`, 'DEBUG', __filename);
 	});
 }
 
-// set up rate limiter: maximum of 30 requests per minute
-app.use(
-	rateLimit({
-		windowMs: 60_000,
-		max: 30,
-		handler: (req, res, next, options) => {
-			res.status(options.statusCode).send(options.message);
-			log(`Too many requests from: ${req.ip}`, 'WARNING', __filename);
-		}
-	})
-);
 app.use(express.json());
 app.use(cors());
 app.use((err: { status: number }, req: any, res: any, next: Function) => {

@@ -30,7 +30,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.campaignId) ||
+		(req.body.campaign && !ObjectId.isValid(req.body.campaign)) ||
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -50,25 +50,37 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		['name', 'campaigns', 'phone']
 	);
 	if (!caller) {
-		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
-		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
+		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
+		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+	let campaign: InstanceType<typeof Campaign> | null;
+	if (req.body.campaignId) {
+		campaign = await Campaign.findById(req.body.campaignId);
+	} else {
+		campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id']);
+	}
+	if (!campaign) {
+		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
+		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+	if (!caller.campaigns.includes(campaign._id)) {
+		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
+		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true });
-
-	const totalClientCalled = await Call.countDocuments({ Campaign: { $eq: req.body.campaignId }, Caller: caller._id });
-	const totaldiscution = await Call.countDocuments({ Campaign: { $eq: req.body.campaignId }, Caller: caller._id });
+	const totalClientCalled = await Call.countDocuments({ Campaign: campaign?._id, Caller: caller._id });
+	const totaldiscution = await Call.countDocuments({ Campaign: campaign?._id, Caller: caller._id });
 	const totalCall = await Call.countDocuments({
-		Campaign: { $eq: req.body.campaignId },
-		area: { $eq: req.body.area }
+		Campaign: campaign?._id
 	});
 	const totalUser = await Client.countDocuments({
-		campaigns: { $eq: req.body.campaignId },
-		area: { $eq: req.body.area }
+		campaigns: campaign?._id
 	});
 	const totalConvertion = await Call.countDocuments({
-		campaign: { $eq: req.body.campaignId },
+		campaign: campaign?._id,
 		$or: [{ status: 'Done' }, { status: 'deleted' }],
 		satisfaction: 2
 	});
@@ -76,7 +88,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	const totalCallTime = await Call.aggregate([
 		{
 			$match: {
-				Campaign: { $eq: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId) },
+				Campaign: campaign._id,
 				Caller: caller._id
 			}
 		},

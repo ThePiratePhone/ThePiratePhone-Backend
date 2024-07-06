@@ -95,16 +95,22 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			await call.save();
 		} catch (e) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Error while updating call ${caller.name} (${ip})`, 'ERROR', 'getPhoneNumber.ts');
+			log(`Error while updating call ${caller.name} (${ip})`, 'ERROR', __filename);
 			return;
 		}
-		res.status(400).send({
+		res.status(200).send({
 			message: 'Already in a call',
 			OK: true,
-			client: call.Client,
+			client: await Client.findById(call.Client),
+			callHistory: await Call.find({
+				Client: call.Client,
+				campaign: call.Campaign,
+				limit: campaign.nbMaxCallCampaign,
+				sort: { start: -1 }
+			}),
 			script: campaign.script
 		});
-		log(`Already in a call from: ${caller.name} (${ip})`, 'INFO', 'getPhoneNumber.ts');
+		log(`Already in a call from: ${caller.name} (${ip})`, 'INFO', __filename);
 		return;
 	}
 
@@ -130,7 +136,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$addFields: {
 					nbCalls: { $size: '$calls' },
-					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.createdAt', -1] }, null] }
+					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] }
 				}
 			},
 			{
@@ -161,12 +167,11 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		]);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting client from: ${caller.name} (${ip})`, 'ERROR', 'getPhoneNumber.ts');
+		log(`Error while getting client from: ${caller.name} (${ip})`, 'ERROR', __filename);
 	}
-
 	if (!client || client.length == 0) {
 		res.status(404).send({ message: 'No client to call', OK: false });
-		log(`No client to call from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
+		log(`No client to call from: ${caller.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -181,7 +186,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		await callClient.save();
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while saving call from: ${caller.name} (${ip})`, 'ERROR', 'getPhoneNumber.ts');
+		log(`Error while saving call from: ${caller.name} (${ip})`, 'ERROR', __filename);
 		return;
 	}
 
@@ -189,7 +194,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		message: 'Client to call',
 		OK: true,
 		client: client[0],
+		callHistory: await Call.find({
+			Client: client[0]._id,
+			campaign: campaign._id,
+			limit: campaign.nbMaxCallCampaign,
+			sort: { start: -1 }
+		}),
 		script: campaign.script
 	});
-	log(`Client to call from: ${caller.name} (${ip})`, 'INFO', 'getPhoneNumber.ts');
+	log(`Client to call from: ${caller.name} (${ip})`, 'INFO', __filename);
 }
