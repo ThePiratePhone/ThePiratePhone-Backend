@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
-import mongoose from 'mongoose';
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
