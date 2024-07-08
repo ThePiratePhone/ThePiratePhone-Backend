@@ -28,7 +28,6 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  */
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||
@@ -41,9 +40,11 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	if (!req.body.campaignId) {
-		req.body.campaignId = (await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id']))?._id;
-		if (!req.body.campaignId) {
+	if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
+		req.body.campaignId = (
+			await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id'])
+		)?._id.toString();
+		if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
 			res.status(404).send({ message: 'no campaing in progress', OK: false });
 			log(`no campaing in progress from: ` + ip, 'WARNING', __filename);
 			return;
