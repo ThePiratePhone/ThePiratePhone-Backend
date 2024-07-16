@@ -24,6 +24,7 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  * @throws {400}: Wrong phone number
  * @throws {404}: no campaing in progress
  * @throws {404}: Caller not found
+ * @throws {500}: No data found
  * @throws {200}: topfiveUsers
  */
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
@@ -68,43 +69,48 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		log(`Caller not found from: ` + ip, 'WARNING', __filename);
 		return;
 	}
-	const topfiveUsers: Array<{ _id: number; name: string; count: number; totalDuration: number }> =
-		await Call.aggregate([
-			{
-				$match: {
-					Campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
-				}
-			},
-			{
-				$group: {
-					_id: '$Caller',
-					count: { $sum: 1 },
-					totalDuration: { $sum: '$duration' }
-				}
-			},
-			{
-				$sort: { count: -1 }
-			},
-			{
-				$limit: 5
-			},
-			{
-				$lookup: {
-					from: 'callers',
-					localField: '_id',
-					foreignField: '_id',
-					as: 'caller'
-				}
-			},
-			{
-				$project: {
-					_id: 1,
-					name: { $arrayElemAt: ['$caller.name', 0] },
-					count: 1,
-					totalDuration: 1
-				}
+	const topfiveUsers: Array<{
+		you: boolean | null;
+		_id: number;
+		name: string;
+		count: number;
+		totalDuration: number;
+	}> = await Call.aggregate([
+		{
+			$match: {
+				Campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
 			}
-		]);
+		},
+		{
+			$group: {
+				_id: '$Caller',
+				count: { $sum: 1 },
+				totalDuration: { $sum: '$duration' }
+			}
+		},
+		{
+			$sort: { count: -1 }
+		},
+		{
+			$limit: 5
+		},
+		{
+			$lookup: {
+				from: 'callers',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'caller'
+			}
+		},
+		{
+			$project: {
+				_id: 1,
+				name: { $arrayElemAt: ['$caller.name', 0] },
+				count: 1,
+				totalDuration: 1
+			}
+		}
+	]);
 	if (!topfiveUsers.find(user => user._id.toString() == caller._id.toString())) {
 		topfiveUsers.push(
 			(
@@ -142,6 +148,15 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			)[0]
 		);
 	}
+	if (!topfiveUsers) {
+		res.status(500).send({ message: 'No data found', OK: false });
+		log(`No data found from: ` + ip, 'WARNING', __filename);
+		return;
+	}
+
+	topfiveUsers.forEach(user => {
+		user.you = user._id.toString() == caller._id.toString();
+	});
 	res.status(200).send({ topfiveUsers, OK: true });
 	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFO', __filename);
 }
