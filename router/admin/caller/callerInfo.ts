@@ -49,7 +49,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } }, [
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } }, [
 		'_id',
 		'name'
 	]);
@@ -79,7 +79,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const data: Array<{ TotalCount: number; TotalDuration: number; CampaignDuration: number; CampaignCount: number }> =
+	const data: Array<{ totalCount: number; totalDuration: number; campaignDuration: number; campaignCount: number }> =
 		await Call.aggregate([
 			{
 				$facet: {
@@ -88,14 +88,14 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 						{
 							$group: {
 								_id: '$Caller',
-								TotalCount: { $sum: 1 },
+								totalCount: { $sum: 1 },
 								totalDuration: { $sum: '$duration' }
 							}
 						},
 						{
 							$project: {
 								_id: 0,
-								TotalCount: 1,
+								totalCount: 1,
 								totalDuration: 1
 							}
 						}
@@ -103,22 +103,22 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 					campaignData: [
 						{
 							$match: {
-								Caller: new ObjectId(caller._id),
-								Campaign: ObjectId.createFromHexString(req.body.CampaignId)
+								caller: new ObjectId(caller._id),
+								campaign: ObjectId.createFromHexString(req.body.CampaignId)
 							}
 						},
 						{
 							$group: {
-								_id: '$Caller',
-								CampaignCount: { $sum: 1 },
-								CampaignDuration: { $sum: '$duration' }
+								_id: '$caller',
+								campaignCount: { $sum: 1 },
+								campaignDuration: { $sum: '$duration' }
 							}
 						},
 						{
 							$project: {
 								_id: 0,
-								CampaignCount: 1,
-								CampaignDuration: 1
+								campaignCount: 1,
+								campaignDuration: 1
 							}
 						}
 					]
@@ -126,10 +126,10 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 			},
 			{
 				$project: {
-					TotalCount: { $arrayElemAt: ['$callerTotalData.TotalCount', 0] },
+					TotalCount: { $arrayElemAt: ['$callerTotalData.totalCount', 0] },
 					TotalDuration: { $arrayElemAt: ['$callerTotalData.totalDuration', 0] },
-					CampaignCount: { $arrayElemAt: ['$campaignData.CampaignCount', 0] },
-					CampaignDuration: { $arrayElemAt: ['$campaignData.CampaignDuration', 0] }
+					campaignCount: { $arrayElemAt: ['$campaignData.campaignCount', 0] },
+					campaignDuration: { $arrayElemAt: ['$campaignData.campaignDuration', 0] }
 				}
 			}
 		]);
@@ -146,10 +146,10 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 			id: caller._id,
 			name: caller.name,
 			phone: caller.phone,
-			totalTimeCampaign: data[0].CampaignDuration,
-			nbCallsCampaign: data[0].CampaignCount,
-			totalTime: data[0].TotalDuration,
-			nbCalls: data[0].TotalCount
+			totalTimeCampaign: data[0].campaignDuration,
+			nbCallsCampaign: data[0].campaignCount,
+			totalTime: data[0].totalDuration,
+			nbCalls: data[0].totalCount
 		}
 	});
 

@@ -70,10 +70,10 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		return;
 	}
 
-	const totalClientCalled = await Call.countDocuments({ Campaign: campaign?._id, Caller: caller._id });
-	const totaldiscution = await Call.countDocuments({ Campaign: campaign?._id, Caller: caller._id });
+	const totalClientCalled = await Call.countDocuments({ campaign: campaign?._id, caller: caller._id });
+	const totaldiscution = await Call.countDocuments({ campaign: campaign?._id, caller: caller._id });
 	const totalCall = await Call.countDocuments({
-		Campaign: campaign?._id
+		campaign: campaign?._id
 	});
 	const totalUser = await Client.countDocuments({
 		campaigns: campaign?._id
@@ -87,8 +87,8 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	const totalCallTime = await Call.aggregate([
 		{
 			$match: {
-				Campaign: campaign._id,
-				Caller: caller._id
+				campaign: campaign._id,
+				caller: caller._id
 			}
 		},
 		{ $group: { _id: null, totalDuration: { $sum: '$duration' } } }

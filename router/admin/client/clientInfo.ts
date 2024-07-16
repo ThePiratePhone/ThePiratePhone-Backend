@@ -48,7 +48,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -98,7 +98,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 
 	const calls = await Promise.all(
 		call.map(async c => {
-			const caller = await Caller.findOne({ _id: c.Caller, area: area._id });
+			const caller = await Caller.findOne({ _id: c.caller, area: area._id });
 			return { call: c, caller: caller };
 		})
 	);

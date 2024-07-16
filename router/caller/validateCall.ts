@@ -91,8 +91,8 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 	}
 
 	const call = await Call.findOne({
-		Caller: caller._id,
-		Client: client._id
+		caller: caller._id,
+		client: client._id
 	});
 	if (!call) {
 		res.status(403).send({ message: 'you dont call this client', OK: false });
@@ -102,7 +102,7 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 	const newCall = new Call({
 		Client: client._id,
 		Caller: caller._id,
-		Campaign: call.Campaign,
+		campaign: call.campaign,
 		satisfaction: req.body.satisfaction,
 		comment: req.body.comment,
 		status: req.body.status ? 'to recall' : 'Done',

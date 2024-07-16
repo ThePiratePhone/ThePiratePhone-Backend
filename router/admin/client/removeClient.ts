@@ -47,7 +47,7 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -57,9 +57,9 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, Area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
 	} else {
-		campaign = await Campaign.findOne({ Area: area._id, Active: true });
+		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
@@ -74,7 +74,7 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 		return;
 	}
 	try {
-		await Call.deleteOne({ Client: output._id, Campaign: campaign._id, duration: null });
+		await Call.deleteOne({ client: output._id, Campaign: campaign._id, duration: null });
 	} catch (e) {
 		res.status(500).send({ message: 'Error removing client', OK: false });
 		log(`Error removing client from ${area.name} (${ip})`, 'ERROR', __filename);

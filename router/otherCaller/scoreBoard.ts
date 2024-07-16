@@ -27,6 +27,7 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  * @throws {500}: No data found
  * @throws {200}: topfiveUsers
  */
+
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -78,12 +79,12 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}> = await Call.aggregate([
 		{
 			$match: {
-				Campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
+				campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
 			}
 		},
 		{
 			$group: {
-				_id: '$Caller',
+				_id: '$caller',
 				count: { $sum: 1 },
 				totalDuration: { $sum: '$duration' }
 			}

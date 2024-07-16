@@ -36,4 +36,4 @@ const CallerSchema = new mongoose.Schema({
 	}
 });
 
-export const Caller = mongoose.model('Caller', CallerSchema);
+export const Caller = mongoose.model('caller', CallerSchema);

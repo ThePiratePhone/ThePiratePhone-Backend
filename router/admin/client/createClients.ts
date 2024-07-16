@@ -40,7 +40,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } }, [
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } }, [
 		'name'
 	]);
 	if (!area) {

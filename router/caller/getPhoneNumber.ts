@@ -85,7 +85,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const call = await Call.findOne({ Caller: { $eq: caller._id }, status: 'In progress', Campaign: campaign.id }, [
+	const call = await Call.findOne({ caller: { $eq: caller._id }, status: 'In progress', campaign: campaign.id }, [
 		'Client',
 		'Campaign'
 	]);
@@ -101,10 +101,10 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		res.status(200).send({
 			message: 'Already in a call',
 			OK: true,
-			client: await Client.findById(call.Client),
+			client: await Client.findById(call.client),
 			callHistory: await Call.find({
-				Client: call.Client,
-				campaign: call.Campaign,
+				client: call.client,
+				campaign: call.campaign,
 				limit: campaign.nbMaxCallCampaign,
 				sort: { start: -1 }
 			}),
@@ -121,7 +121,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				$lookup: {
 					from: 'calls',
 					localField: '_id',
-					foreignField: 'Client',
+					foreignField: 'client',
 					as: 'calls'
 				}
 			},
@@ -176,9 +176,9 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	}
 
 	const callClient = new Call({
-		Client: client[0]._id,
-		Caller: caller._id,
-		Campaign: campaign._id,
+		client: client[0]._id,
+		caller: caller._id,
+		campaign: campaign._id,
 		status: 'In progress'
 	});
 
@@ -195,7 +195,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		OK: true,
 		client: client[0],
 		callHistory: await Call.find({
-			Client: client[0]._id,
+			client: client[0]._id,
 			campaign: campaign._id,
 			limit: campaign.nbMaxCallCampaign,
 			sort: { start: -1 }

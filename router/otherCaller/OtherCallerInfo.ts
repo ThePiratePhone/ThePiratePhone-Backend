@@ -77,7 +77,7 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 	}
 
 	const timeCall = await Call.aggregate([
-		{ $match: { Caller: new ObjectId(otherCaller._id), Campaign: new ObjectId(campaign._id) } },
+		{ $match: { caller: new ObjectId(otherCaller._id), campaign: new ObjectId(campaign._id) } },
 		{
 			$group: {
 				_id: '$Caller',

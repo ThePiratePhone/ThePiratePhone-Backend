@@ -37,7 +37,7 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ _id: req.body.area, adminPassword: req.body.adminCode });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);

@@ -18,7 +18,7 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
 		'_id',
 		'name'
 	]);

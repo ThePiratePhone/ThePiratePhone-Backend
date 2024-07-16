@@ -36,7 +36,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: req.body.adminCode, _id: req.body.area });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -46,9 +46,9 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+		campaign = await Campaign.findOne({ _id: req.body.CampaignId, area: area._id });
 	} else {
-		campaign = await Campaign.findOne({ Area: area._id, active: true });
+		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
@@ -58,7 +58,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 
 	// find all call in progress (with client) in the campaign
 	const calls = await Call.deleteMany({
-		Campaign: campaign._id,
+		campaign: campaign._id,
 		$and: [{ Status: 'IN_PROGRESS' }]
 	});
 	if (!calls) {
@@ -69,7 +69,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 
 	// remove all clients in the campaign
 	const clients = await Client.deleteMany({
-		Campaign: campaign._id
+		campaign: campaign._id
 	});
 
 	if (!clients) {

@@ -1,19 +1,19 @@
 import mongoose from 'mongoose';
 
 const CallModel = new mongoose.Schema({
-	Client: {
+	client: {
 		type: mongoose.Schema.ObjectId,
-		ref: 'Client',
+		ref: 'client',
 		required: true
 	},
-	Caller: {
+	caller: {
 		type: mongoose.Schema.ObjectId,
-		ref: 'Caller',
+		ref: 'caller',
 		required: true
 	},
-	Campaign: {
+	campaign: {
 		type: mongoose.Schema.ObjectId,
-		ref: 'Campaign',
+		ref: 'campaign',
 		required: true
 	},
 	satisfaction: {
@@ -45,4 +45,4 @@ const CallModel = new mongoose.Schema({
 	}
 });
 
-export const Call = mongoose.model('Call', CallModel);
+export const Call = mongoose.model('call', CallModel);

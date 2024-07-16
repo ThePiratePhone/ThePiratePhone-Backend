@@ -56,7 +56,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid credentials', OK: false });
 		log(`Invalid area from: ${phone} (${ip})`, 'WARNING', __filename);

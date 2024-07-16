@@ -40,7 +40,7 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
 		'name'
 	]);
 	if (!area) {

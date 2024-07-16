@@ -11,12 +11,12 @@ const AreaModel = new mongoose.Schema({
 		required: true,
 		index: true
 	},
-	CampaignList: {
+	campaignList: {
 		type: Array<typeof mongoose.Schema.ObjectId>,
 		ref: 'Campaign',
 		required: true
 	},
-	AdminPassword: {
+	adminPassword: {
 		type: String,
 		required: true
 	},
@@ -33,4 +33,4 @@ const AreaModel = new mongoose.Schema({
 	}
 });
 
-export const Area = mongoose.model('Area', AreaModel);
+export const Area = mongoose.model('area', AreaModel);

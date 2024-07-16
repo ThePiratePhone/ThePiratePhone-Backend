@@ -39,8 +39,8 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 		return;
 	}
 	const update = await Area.updateOne(
-		{ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } },
-		{ AdminPassword: req.body.newPassword }
+		{ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } },
+		{ adminPassword: req.body.newPassword }
 	);
 	if (update.matchedCount != 1) {
 		res.status(404).send({ OK: false, message: 'no area found' });

@@ -23,7 +23,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
 		'name'
 	]);
 	if (!area) {
@@ -36,7 +36,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, Area: area._id }, []);
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id }, []);
 	} else {
 		campaign = await Campaign.findOne({ area: area._id, active: true }, []);
 	}
@@ -70,7 +70,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 			csvData.statut = CleanStatus(lastCall?.status);
 			csvData.resultat = cleanSatisfaction(lastCall?.satisfaction);
 			csvData.appeleant =
-				(await Caller.findOne({ client: lastCall.Caller, area: area._id }, ['name']))?.name ?? 'Erreur';
+				(await Caller.findOne({ client: lastCall.caller, area: area._id }, ['name']))?.name ?? 'Erreur';
 			csvData.commentaire = lastCall?.comment ?? '';
 			csvData.nombreAppel = (await Call.countDocuments({ client: client._id, campaign: campaign._id })) ?? -1;
 		}
