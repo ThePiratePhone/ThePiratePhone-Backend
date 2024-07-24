@@ -34,6 +34,7 @@ import removeAllClients from './router/admin/client/removeAllClients';
 import removeClient from './router/admin/client/removeClient';
 import SearchClientByName from './router/admin/client/searchByName';
 import SearchClientByPhone from './router/admin/client/searchByPhone';
+import loginAdmin from './router/admin/login';
 import ChangeClientName from './router/caller/changeName';
 import changePassword from './router/caller/changePassword';
 import createCaller from './router/caller/createCaller';
@@ -108,8 +109,9 @@ router.post('/admin/campaign/getCampaign', getCampaign);
 router.post('/admin/campaign/changeScript', changeScript);
 
 //admin/
-router.get('/getArea', getArea);
 router.post('/admin/changePassword', changePasswordAdmin);
 router.post('/admin/createCampaign', createCampaign);
+router.post('/admin/login', loginAdmin);
 
+router.get('/getArea', getArea);
 export default router;
