@@ -35,6 +35,9 @@ import removeClient from './router/admin/client/removeClient';
 import SearchClientByName from './router/admin/client/searchByName';
 import SearchClientByPhone from './router/admin/client/searchByPhone';
 import loginAdmin from './router/admin/login';
+import call from './router/admin/stats/call';
+import numberOfCallers from './router/admin/stats/numberOfCallers';
+import response from './router/admin/stats/response';
 import ChangeClientName from './router/caller/changeName';
 import changePassword from './router/caller/changePassword';
 import createCaller from './router/caller/createCaller';
@@ -48,8 +51,6 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
-import numberOfCallers from './router/admin/stats/numberOfCallers';
-import call from './router/admin/stats/call';
 
 const router = Router();
 
@@ -118,6 +119,7 @@ router.post('/admin/login', loginAdmin);
 //stats/
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
+router.post('/stats/response', response);
 
 router.get('/getArea', getArea);
 export default router;
