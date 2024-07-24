@@ -46,7 +46,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: req.body.CampaignId, area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
 	} else {
 		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}
