@@ -2,11 +2,9 @@ import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
+import { Call } from '../../../Models/Call';
 import { Campaign } from '../../../Models/Campaign';
-import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import call from './call';
-import { Call } from 'Models/Call';
 
 export default async function response(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

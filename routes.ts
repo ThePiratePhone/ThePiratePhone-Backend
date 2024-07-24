@@ -36,6 +36,7 @@ import SearchClientByName from './router/admin/client/searchByName';
 import SearchClientByPhone from './router/admin/client/searchByPhone';
 import loginAdmin from './router/admin/login';
 import call from './router/admin/stats/call';
+import callByDate from './router/admin/stats/callByDate';
 import numberOfCallers from './router/admin/stats/numberOfCallers';
 import response from './router/admin/stats/response';
 import ChangeClientName from './router/caller/changeName';
@@ -120,6 +121,7 @@ router.post('/admin/login', loginAdmin);
 router.post('/stats/numberOfCallers', numberOfCallers);
 router.post('/stats/call', call);
 router.post('/stats/response', response);
+router.post('/stats/callByDate', callByDate);
 
 router.get('/getArea', getArea);
 export default router;

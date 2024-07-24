@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { Area } from '../../Models/Area';
 import { log } from '../../tools/log';
-import { Campaign } from 'Models/Campaign';
+import { Campaign } from '../../Models/Campaign';
 
 export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();

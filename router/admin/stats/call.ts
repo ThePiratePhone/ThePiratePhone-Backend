@@ -5,7 +5,7 @@ import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { Call } from 'Models/Call';
+import { Call } from '../../../Models/Call';
 
 export default async function call(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
