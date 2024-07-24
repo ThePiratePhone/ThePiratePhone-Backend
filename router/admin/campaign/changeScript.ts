@@ -19,7 +19,7 @@ export default async function changeScript(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, adminPassword: req.body.adminCode });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -45,7 +45,7 @@ export default async function changeScript(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: campaign._id }, { $push: { script: req.body.newScript } });
+	const output = await Campaign.updateOne({ _id: { $eq: campaign._id } }, { $push: { script: req.body.newScript } });
 	if (output.matchedCount != 1) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${ip}`, 'WARNING', __filename);

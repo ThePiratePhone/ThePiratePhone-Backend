@@ -40,7 +40,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	const area = await Area.findOne({ adminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
@@ -49,7 +49,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 
 	req.body.phone = clearPhone(req.body.phone);
 
-	const client = await Client.findOne({ phone: req.body.phone });
+	const client = await Client.findOne({ phone: { $eq: req.body.phone } });
 	if (!client) {
 		res.status(404).send({ message: 'User not found', OK: false });
 		log(`User not found from ${area.name} (${ip})`, 'WARNING', __filename);

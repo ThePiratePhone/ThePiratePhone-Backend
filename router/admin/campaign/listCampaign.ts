@@ -35,7 +35,10 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ adminPassword: req.body.adminCode, _id: req.body.area }, ['_id', 'name']);
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
+		'_id',
+		'name'
+	]);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', 'listCampaign.ts');

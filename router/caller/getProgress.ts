@@ -55,7 +55,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	}
 	let campaign: InstanceType<typeof Campaign> | null;
 	if (req.body.campaignId) {
-		campaign = await Campaign.findById(req.body.campaignId);
+		campaign = await Campaign.findById({ $eq: req.body.campaignId });
 	} else {
 		campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id']);
 	}
@@ -70,16 +70,16 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		return;
 	}
 
-	const totalClientCalled = await Call.countDocuments({ campaign: campaign?._id, caller: caller._id });
-	const totaldiscution = await Call.countDocuments({ campaign: campaign?._id, caller: caller._id });
+	const totalClientCalled = await Call.countDocuments({ campaign: campaign._id, caller: caller._id });
+	const totaldiscution = await Call.countDocuments({ campaign: campaign._id, caller: caller._id });
 	const totalCall = await Call.countDocuments({
-		campaign: campaign?._id
+		campaign: campaign._id
 	});
 	const totalUser = await Client.countDocuments({
-		campaigns: campaign?._id
+		campaigns: campaign._id
 	});
 	const totalConvertion = await Call.countDocuments({
-		campaign: campaign?._id,
+		campaign: campaign._id,
 		$or: [{ status: 'Done' }, { status: 'deleted' }],
 		satisfaction: 2
 	});

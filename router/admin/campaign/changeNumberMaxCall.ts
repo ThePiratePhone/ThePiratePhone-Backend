@@ -37,7 +37,7 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, adminPassword: req.body.adminCode });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -64,7 +64,10 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: campaign._id }, { nbMaxCallCampaign: req.body.newNumberMaxCall });
+	const output = await Campaign.updateOne(
+		{ _id: { $eq: campaign._id } },
+		{ nbMaxCallCampaign: req.body.newNumberMaxCall }
+	);
 	if (output.matchedCount != 1) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', __filename);
