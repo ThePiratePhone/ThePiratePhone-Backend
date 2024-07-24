@@ -55,7 +55,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	}
 	let campaign: InstanceType<typeof Campaign> | null;
 	if (req.body.campaignId) {
-		campaign = await Campaign.findById(req.body.campaignId);
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId } });
 	} else {
 		campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id']);
 	}
