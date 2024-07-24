@@ -48,6 +48,7 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
+import numberOfCallers from 'router/admin/stats/numberOfCallers';
 
 const router = Router();
 
@@ -112,6 +113,9 @@ router.post('/admin/campaign/changeScript', changeScript);
 router.post('/admin/changePassword', changePasswordAdmin);
 router.post('/admin/createCampaign', createCampaign);
 router.post('/admin/login', loginAdmin);
+
+//stats/
+router.post('/stats/numberOfCallers', numberOfCallers);
 
 router.get('/getArea', getArea);
 export default router;
