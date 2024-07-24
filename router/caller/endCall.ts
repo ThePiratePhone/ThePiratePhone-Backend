@@ -76,7 +76,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const call = await Call.findOne({ Caller: caller._id, status: 'In progress' }, [
+	const call = await Call.findOne({ caller: caller._id, status: 'In progress' }, [
 		'status',
 		'satisfaction',
 		'duration',

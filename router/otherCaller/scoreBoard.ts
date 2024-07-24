@@ -72,7 +72,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}
 	const topfiveUsers: Array<{
 		you: boolean | null;
-		_id: number;
+		_id: mongoose.Types.ObjectId;
 		name: string;
 		count: number;
 		totalDuration: number;
@@ -87,6 +87,11 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 				_id: '$caller',
 				count: { $sum: 1 },
 				totalDuration: { $sum: '$duration' }
+			}
+		},
+		{
+			$match: {
+				count: { $gt: 0 }
 			}
 		},
 		{
@@ -112,52 +117,91 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			}
 		}
 	]);
+	let yourPlace = topfiveUsers.findIndex(user => user._id.toString() == caller._id.toString());
 	if (!topfiveUsers.find(user => user._id.toString() == caller._id.toString())) {
-		topfiveUsers.push(
-			(
-				await Call.aggregate([
-					{
-						$match: {
-							Campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId),
-							Caller: caller._id
-						}
-					},
-					{
-						$group: {
-							_id: '$Caller',
-							count: { $sum: 1 },
-							totalDuration: { $sum: '$duration' }
-						}
-					},
-					{
-						$lookup: {
-							from: 'callers',
-							localField: '_id',
-							foreignField: '_id',
-							as: 'caller'
-						}
-					},
-					{
-						$project: {
-							_id: 1,
-							name: { $arrayElemAt: ['$caller.name', 0] },
-							count: 1,
-							totalDuration: 1
-						}
+		const user = (
+			await Call.aggregate([
+				{
+					$match: {
+						campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId),
+						caller: caller._id
 					}
-				])
-			)[0]
-		);
+				},
+				{
+					$group: {
+						_id: '$caller',
+						count: { $sum: 1 },
+						totalDuration: { $sum: '$duration' }
+					}
+				},
+				{
+					$lookup: {
+						from: 'callers',
+						localField: '_id',
+						foreignField: '_id',
+						as: 'caller'
+					}
+				},
+				{
+					$project: {
+						_id: 1,
+						name: { $arrayElemAt: ['$caller.name', 0] },
+						count: 1,
+						totalDuration: 1
+					}
+				},
+				{
+					$limit: 1
+				}
+			])
+		)[0];
+
+		if (user) {
+			topfiveUsers.push(user);
+			yourPlace =
+				(
+					await Call.aggregate([
+						{
+							$group: {
+								_id: '$caller',
+								count: { $sum: 1 },
+								totalDuration: { $sum: '$duration' }
+							}
+						},
+						{
+							$match: {
+								count: { $gte: user.count },
+								caller: { $ne: caller._id }
+							}
+						},
+						{
+							$sort: { count: -1 }
+						},
+						{
+							$count: 'place'
+						}
+					])
+				)[0].place - 1;
+		} else {
+			topfiveUsers.push({
+				you: true,
+				_id: caller._id,
+				name: caller.name,
+				count: 0,
+				totalDuration: 0
+			});
+			yourPlace = (await Caller.countDocuments()) - 1;
+		}
 	}
+	yourPlace++;
 	if (!topfiveUsers) {
 		res.status(500).send({ message: 'No data found', OK: false });
 		log(`No data found from: ` + ip, 'WARNING', __filename);
 		return;
 	}
-
 	topfiveUsers.forEach(user => {
 		user.you = user._id.toString() == caller._id.toString();
 	});
-	res.status(200).send({ topfiveUsers, OK: true });
+	res.status(200).send({ topfiveUsers, yourPlace, OK: true });
 	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFO', __filename);
 }
