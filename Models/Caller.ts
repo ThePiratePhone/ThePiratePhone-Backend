@@ -19,34 +19,6 @@ const CallerSchema = new mongoose.Schema({
 		required: true,
 		length: 4
 	},
-	timeInCall: {
-		required: true,
-		type: [
-			{
-				date: { type: Date, require: true },
-				client: { type: mongoose.Schema.ObjectId, ref: 'Client', required: true },
-				time: { type: Number, required: true },
-				campaign: { type: mongoose.Schema.ObjectId, ref: 'Campaign', required: true }
-			}
-		]
-	},
-	currentCall: {
-		campaign: {
-			type: mongoose.Schema.ObjectId,
-			ref: 'Campaign',
-			required: false
-		},
-		client: {
-			type: mongoose.Schema.ObjectId,
-			ref: 'Client',
-			required: false
-		}
-	},
-	area: {
-		type: mongoose.Schema.ObjectId,
-		ref: 'Area',
-		required: true
-	},
 	campaigns: {
 		type: [mongoose.Schema.ObjectId],
 		ref: 'Campaign',
@@ -56,7 +28,12 @@ const CallerSchema = new mongoose.Schema({
 	createdAt: {
 		type: Date,
 		default: Date.now()
+	},
+	area: {
+		type: mongoose.Schema.ObjectId,
+		ref: 'Area',
+		required: true
 	}
 });
 
-export const Caller = mongoose.model('Caller', CallerSchema);
+export const Caller = mongoose.model('caller', CallerSchema);

@@ -1,11 +1,29 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
-import { Client } from '../../Models/Client';
-import checkCredentials from '../../tools/checkCredentials';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
+/**
+ * allow a caller to give up a call
+ *
+ * @example
+ * body:
+ * {
+ * 	"phone": string,
+ * 	"pinCode": string  {max 4 number}
+ * 	"area": mongoDBID
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Invalid phone number
+ * @throws {403}: Invalid credential
+ * @throws {404}: No call in progress
+ * @throws {500}: Internal error
+ * @throws {200}: Call ended
+ */
 export default async function giveUp(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -15,45 +33,35 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters`, 'WARNING', 'giveUp.ts');
+		log(`Missing parameters from : ${ip}`, 'WARNING', 'giveUp.ts');
 		return;
 	}
-	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
+
+	const phone = clearPhone(req.body.phone);
+	if (!phoneNumberCheck(phone)) {
+		res.status(400).send({ message: 'Invalid phone number', OK: false });
+		log(`Invalid phone number from: ${ip}`, 'WARNING', 'giveUp.ts');
+		return;
+	}
+
+	const caller = await Caller.findOne(
+		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		['name', 'phone']
+	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from ` + ip, 'WARNING', 'giveUp.ts');
-		return;
-	}
-	if (!caller.currentCall || !caller.currentCall.client) {
-		res.status(400).send({ message: 'Not in a call', OK: false });
-		log(`Not in a call from ${caller.name} (${ip})`, 'WARNING', 'giveUp.ts');
+		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', 'giveUp.ts');
 		return;
 	}
 
-	const curentCampaign = await getCurrentCampaign(req.body.area);
-	if (!curentCampaign) {
-		res.status(404).send({ message: 'no actual Camaing', OK: false });
-		log(`no actual Camaing from ${caller.name} (${ip})`, 'WARNING', 'giveUp.ts');
+	const currentCall = await Call.findOne({ Caller: caller._id, status: 'In progress' }, ['_id']);
+	if (!currentCall) {
+		res.status(404).send({ message: 'No call in progress', OK: false });
+		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', 'giveUp.ts');
 		return;
 	}
 
-	const client = await Client.findOne({ _id: caller.currentCall.client.toString() });
-	if (!client) {
-		res.status(400).send({ message: 'Not in a call', OK: false });
-		log(`Not in a call from ${caller.name} (${ip})`, 'WARNING', 'giveUp.ts');
-		return;
-	}
-
-	const data = client.data.get(curentCampaign._id.toString());
-	if (data && data.length < 2) {
-		data[data.length - 1].status = 'not called';
-		data[data.length - 1].caller = null;
-		data[data.length - 1].scriptVersion = null;
-	} else {
-		data?.pop();
-	}
-	caller.currentCall = null;
-	await Promise.all([caller.save(), client.save()]);
-	res.status(200).send({ message: 'Call gived up', OK: true });
-	log(`Call gived up from ${caller.name} (${ip})`, 'INFORMATION', 'giveUp.ts');
+	await Call.deleteOne({ _id: currentCall._id });
+	res.status(200).send({ message: 'Call ended', OK: true });
+	log(`Call ended from: ${phone} (${ip})`, 'INFO', 'giveUp.ts');
 }

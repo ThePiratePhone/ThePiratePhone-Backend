@@ -11,12 +11,12 @@ const AreaModel = new mongoose.Schema({
 		required: true,
 		index: true
 	},
-	CampaignList: {
-		type: Array<typeof mongoose.Schema.ObjectId>(),
+	campaignList: {
+		type: Array<typeof mongoose.Schema.ObjectId>,
 		ref: 'Campaign',
 		required: true
 	},
-	AdminPassword: {
+	adminPassword: {
 		type: String,
 		required: true
 	},
@@ -27,16 +27,10 @@ const AreaModel = new mongoose.Schema({
 		maxlength: 13,
 		unique: true
 	},
-	campaignInProgress: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Campaign',
-		default: null,
-		required: false
-	},
 	createdAt: {
 		type: Date,
 		default: Date.now()
 	}
 });
 
-export const Area = mongoose.model('Area', AreaModel);
+export const Area = mongoose.model('area', AreaModel);

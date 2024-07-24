@@ -5,6 +5,22 @@ import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 
+/**
+ * List all campaign from an area
+ *
+ * @example
+ * body:{
+ *	"adminCode": string,
+ *	"area": mongoDBID,
+ *	"skip": number,
+ *	"limit": number
+ * }
+ *
+ * @throws {400} - Missing parameters
+ * @throws {401} - Wrong admin code
+ * @throws {200} - OK
+ */
+
 export default async function listCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -19,7 +35,10 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
+		'_id',
+		'name'
+	]);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', 'listCampaign.ts');
@@ -27,7 +46,14 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 	}
 
 	const numberOfCampaign = await Campaign.countDocuments({ area: area._id });
-	const campaign = await Campaign.find({ area: area._id })
+	const campaign = await Campaign.find({ area: area._id }, [
+		'_id',
+		'name',
+		'active',
+		'callHours',
+		'timeBetweenCall',
+		'numberMaxCall'
+	])
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!campaign) {
@@ -37,4 +63,5 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: { campaign: campaign, numberOfCampaign: numberOfCampaign } });
+	log(`list campaign from ${area.name} (${ip})`, 'INFO', 'listCampaign.ts');
 }

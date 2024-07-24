@@ -6,35 +6,34 @@ import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 
 /**
- * Change the name of a campaign
+ * Change the max number of call for a campaign
  *
  * @example
  * body:{
- * 	"adminCode": string,
- * 	"newName": string,
- * 	"area": mongoDBID,
- * 	"CampaignId": mongoDBID
+ *	"adminCode": string,
+ *	"area": mongoDBID,
+ *	"newNumberMaxCall": string,
+ *	"CampaignId": mongoDBID
  * }
  *
  * @throws {400} - Missing parameters
- * @throws {400} - Campaign not found
- * @throws {400} - Name invalid
  * @throws {401} - Wrong admin code
  * @throws {401} - Wrong campaign id
+ * @throws {404} - Campaign not found
  * @throws {200} - OK
  */
 
-export default async function changeName(req: Request<any>, res: Response<any>) {
+export default async function changeNumberMaxCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
+		typeof req.body.newNumberMaxCall != 'string' ||
 		typeof req.body.adminCode != 'string' ||
-		typeof req.body.newName != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
 		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'changeName.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
@@ -45,8 +44,7 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	let campaign: InstanceType<typeof Campaign> | null = null;
-
+	let campaign: InstanceType<typeof Campaign> | null;
 	if (req.body.CampaignId) {
 		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
 	} else {
@@ -58,19 +56,24 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	if (req.body.newName.length < 4 || req.body.newName.length > 20) {
-		res.status(400).send({ message: 'Name invalid', OK: false });
-		log(`Name invalid from ${ip} (${area.name})`, 'WARNING', __filename);
+	req.body.newNumberMaxCall = parseInt(req.body.newNumberMaxCall);
+
+	if (isNaN(req.body.newTimeBetweenCall) || req.body.newTimeBetweenCall < 1) {
+		res.status(400).send({ message: 'Invalid time between call', OK: false });
+		log(`Invalid time between call from ${ip} (${area.name})`, 'WARNING', __filename);
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: campaign._id }, { name: req.body.newName });
+	const output = await Campaign.updateOne(
+		{ _id: { $eq: campaign._id } },
+		{ nbMaxCallCampaign: req.body.newNumberMaxCall }
+	);
 	if (output.matchedCount != 1) {
-		res.status(400).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from ${ip}`, 'WARNING', __filename);
+		res.status(404).send({ message: 'Campaign not found', OK: false });
+		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Campaign name changed from ${ip} (${area.name})`, 'INFO', __filename);
+	log(`max number of call changed from ${ip} (${area.name})`, 'INFO', __filename);
 }

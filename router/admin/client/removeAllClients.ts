@@ -1,11 +1,28 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+
 import { log } from '../../../tools/log';
 import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
 import { Campaign } from '../../../Models/Campaign';
-import getCurrentCampaign from '../../../tools/getCurrentCampaign';
+import { Call } from '../../../Models/Call';
 
+/**
+ * remove all clients from a campaign
+ *
+ * @example
+ * body: {
+ * 	adminCode: string,
+ * 	area: string,
+ * 	CampaignId?: string
+ * }
+ *
+ * @throws {400} if missing parameters
+ * @throws {401} if wrong admin code
+ * @throws {401} if wrong campaign id
+ * @throws {500} if error removing clients
+ * @throws {200} if OK
+ */
 export default async function removeAllClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -15,47 +32,52 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'removeAllClients.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', 'removeAllClients.ts');
+		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
 	} else {
-		campaign = await getCurrentCampaign(area._id);
+		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'removeAllClients.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	const client = (await Client.find({
-		['data.' + campaign._id]: { $ne: [] },
-		area: area._id
-	})) as unknown as InstanceType<typeof Client>[];
-
-	if (client.length) {
-		await Promise.all(
-			client.map(async el => {
-				el.data.delete(campaign?._id?.toString() ?? '');
-				if (el.data.size == 0) {
-					await Client.deleteOne(el._id);
-				} else {
-					await el.save();
-				}
-			})
-		);
+	// find all call in progress (with client) in the campaign
+	const calls = await Call.deleteMany({
+		campaign: campaign._id,
+		$and: [{ Status: 'IN_PROGRESS' }]
+	});
+	if (!calls) {
+		res.status(500).send({ message: 'Error removing clients', OK: false });
+		log(`Error removing clients from ${ip} (${area.name})`, 'ERROR', __filename);
+		return;
 	}
+
+	// remove all clients in the campaign
+	const clients = await Client.deleteMany({
+		campaign: campaign._id
+	});
+
+	if (!clients) {
+		res.status(500).send({ message: 'Error removing clients', OK: false });
+		log(`Error removing clients from ${ip} (${area.name})`, 'ERROR', __filename);
+		return;
+	}
+
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Clients removed from ${ip} (${area.name})`, 'INFORMATION', 'removeAllClients.ts');
+	log(`Clients removed from ${ip} (${area.name})`, 'INFO', __filename);
 }

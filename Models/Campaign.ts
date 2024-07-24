@@ -7,7 +7,7 @@ const CampaignSchema = new mongoose.Schema({
 		index: true
 	},
 	script: {
-		type: Array<String>(),
+		type: String,
 		required: true
 	},
 	active: {
@@ -54,7 +54,12 @@ const CampaignSchema = new mongoose.Schema({
 		type: Date,
 		required: true,
 		default: new Date(0)
+	},
+	callPermited: {
+		type: Boolean,
+		require: true,
+		default: true
 	}
 });
 
-export const Campaign = mongoose.model('Campaign', CampaignSchema);
+export const Campaign = mongoose.model('campaign', CampaignSchema);

@@ -1,202 +1,206 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
 
-import { Area } from '../../Models/Area';
+import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
-import checkCredentials from '../../tools/checkCredentials';
 import { log } from '../../tools/log';
-import sendSms from '../../tools/sendSms';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
-export default async function getPhoneNumber(
-	req: Request<any>,
-	res: Response<any>,
-	aspirationDetector: Map<String, number>
-) {
+/**
+ * Get a phone number to call
+ * @example
+ * body:{
+ * 	"phone": string,
+ * 	"pinCode": string  {max 4 number},
+ * 	"area":mongoDBID
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Invalid pin code
+ * @throws {400}: Invalid phone number
+ * @throws {403}: Invalid credential
+ * @throws {403}: Call not permited
+ * @throws {403}: Campaign not active
+ * @throws {404}: Campaign not found
+ * @throws {404}: No client to call
+ * @throws {500}: Internal error
+ * @throws {200}: Client to call
+ */
+export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
+	if (typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string' || !ObjectId.isValid(req.body.area)) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
+	if (req.body.pinCode.length != 4) {
+		res.status(400).send({ message: 'Invalid pin code', OK: false });
+		log(`Invalid pin code from: ` + ip, 'WARNING', __filename);
+		return;
+	}
+
+	const phone = clearPhone(req.body.phone);
+	if (!phoneNumberCheck(phone)) {
+		res.status(400).send({ message: 'Invalid phone number', OK: false });
+		log(`Invalid phone number from ${ip}`, 'WARNING', __filename);
+		return;
+	}
+
+	const campaign = await Campaign.findOne({ active: true, area: { $eq: req.body.area } }, [
+		'script',
+		'callPermited',
+		'timeBetweenCall',
+		'nbMaxCallCampaign',
+		'trashUser',
+		'active'
+	]);
+	if (!campaign) {
+		res.status(404).send({ message: 'Campaign not found', OK: false });
+		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
+	const caller = await Caller.findOne(
+		{
+			phone: phone,
+			pinCode: { $eq: req.body.pinCode },
+			campaigns: campaign.id,
+			area: { $eq: req.body.area }
+		},
+		['name']
+	);
 	if (!caller) {
-		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from:  ${req.body.phone} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
+		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
+		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	if (aspirationDetector.get(caller.phone) ?? 0 >= 5) {
-		res.status(429).send({ message: 'Too many error with call', OK: false });
-		log(`aspirator refused from ${caller.name} (${ip}) (${caller.phone})`, 'ERROR', 'getPhoneNumber.ts');
+	if (!campaign.callPermited) {
+		res.status(403).send({ message: 'Call not permited', OK: false });
+		log(`Call not permited from: ${caller.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area });
-	if (!area) {
-		res.status(404).send({ message: 'area not found', OK: false });
-		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
-		return;
-	}
-
-	const campaign = await getCurrentCampaign(area._id);
-
-	if (!campaign || campaign == null) {
-		res.status(200).send({ message: 'no campaign in progress', OK: false });
-		log(`No campaign in progress from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
-		return;
-	}
-
-	if (campaign.area.toString() != area._id.toString() && !caller.campaigns.includes(campaign._id)) {
-		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
-		log(`Caller not allowed to call this campaign from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
-		return;
-	}
-
-	if (typeof caller.currentCall == 'object') {
-		const client = await Client.findOne({ _id: caller.currentCall?.client });
-		if (!client) {
-			caller.currentCall = null;
-		} else {
-			//if client is in the same campaign
-			if (caller.currentCall?.campaign?.toString() == campaign._id.toString()) {
-				res.status(400).send({
-					message: 'Already in a call',
-					OK: true,
-					client: client,
-					script: campaign.script[campaign.script.length - 1]
-				});
-				log(`Already in a call from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
-				return;
-			} else {
-				//if client is in another campaign
-				const callCampaign = await Campaign.findOne({ _id: caller.currentCall?.campaign });
-				if (!callCampaign) {
-					caller.currentCall = null;
-				} else {
-					res.status(400).send({
-						message: 'Already in a call',
-						OK: true,
-						client: client,
-						script: callCampaign.script[callCampaign.script.length - 1]
-					});
-					log(`Already in a call from: ${caller.name} (${ip})`, 'WARNING', 'getPhoneNumber.ts');
-					return;
-				}
-			}
+	const call = await Call.findOne({ caller: { $eq: caller._id }, status: 'In progress', campaign: campaign.id }, [
+		'Client',
+		'Campaign'
+	]);
+	if (call) {
+		call.lastInteraction = new Date();
+		try {
+			await call.save();
+		} catch (e) {
+			res.status(500).send({ message: 'Internal error', OK: false });
+			log(`Error while updating call ${caller.name} (${ip})`, 'ERROR', __filename);
+			return;
 		}
-	}
-	const nbCallInMinutes = caller.timeInCall.filter(
-		time =>
-			time.campaign.toString() == campaign._id.toString() &&
-			(time.date ?? new Date()).getTime() > new Date().setMinutes(new Date().getMinutes() - 1)
-	).length;
-
-	if (nbCallInMinutes >= 12) {
-		aspirationDetector.set(caller.phone, (aspirationDetector.get(caller.phone) ?? 0) + 1);
-		res.status(429).send({ message: 'Too many call in the last minute', OK: false });
-		if (aspirationDetector.get(caller.phone) ?? 0 >= 5) {
-			log(`aspiration detected from: ${caller.name} (${ip}) (${caller.phone})`, 'ERROR', 'getPhoneNumber.ts');
-			await sendSms(
-				area.adminPhone,
-				`aspiration detected from: ${caller.name} (${ip}) (${caller.phone})
-this user has been banned, contact the devlopper to unban him.`
-			);
-			if (process.env.DEV_PHONE)
-				await sendSms(
-					process.env.DEV_PHONE,
-					`aspiration detected from: ${caller.name} (${ip}) (${caller.phone})`
-				);
-		} else
-			log(
-				`Too many call in the last minute from: ${caller.name} (${ip}) (${caller.phone})`,
-				'WARNING',
-				'getPhoneNumber.ts'
-			);
-
+		res.status(200).send({
+			message: 'Already in a call',
+			OK: true,
+			client: await Client.findById(call.client),
+			callHistory: await Call.find({
+				client: call.client,
+				campaign: call.campaign,
+				limit: campaign.nbMaxCallCampaign,
+				sort: { start: -1 }
+			}),
+			script: campaign.script
+		});
+		log(`Already in a call from: ${caller.name} (${ip})`, 'INFO', __filename);
 		return;
 	}
 
-	//find first client with status not called
-	const threeHoursAgo = new Date();
-	threeHoursAgo.setHours(threeHoursAgo.getHours() - 3);
-	let client: any;
+	let client: mongoose.Document[] | null = null;
 	try {
 		client = await Client.aggregate([
 			{
+				$lookup: {
+					from: 'calls',
+					localField: '_id',
+					foreignField: 'client',
+					as: 'calls'
+				}
+			},
+			{
 				$match: {
-					['data.' + campaign._id]: { $exists: true, $ne: [] }
+					$and: [
+						{ $or: [{ 'calls.status': 'to recall' }, { calls: { $size: 0 } }] }, // keep only client with status to recall or not called
+						{ campaigns: campaign._id } // only client from the campaign
+					]
 				}
 			},
 			{
 				$addFields: {
-					lastElement: { $arrayElemAt: ['$data.' + campaign._id, -1] },
-					dataSize: { $size: '$data.' + campaign._id }
+					nbCalls: { $size: '$calls' },
+					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] }
 				}
 			},
 			{
 				$match: {
-					$or: [
+					$and: [
+						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // client not called too much
 						{
-							'lastElement.status': 'not answered',
-							'lastElement.endCall': { $lte: new Date(Date.now() - campaign.timeBetweenCall) }
-						},
-						{ 'lastElement.status': 'not called' }
-					],
-					dataSize: { $lte: campaign.nbMaxCallCampaign - 1 }
+							$or: [
+								{ lastCall: { $lte: new Date(Date.now() - campaign.timeBetweenCall) } }, // client not called too recently
+								{ lastCall: null } // handle clients who have never been called
+							]
+						}
+					]
 				}
 			},
-			{ $unset: 'lastElement' },
-			{ $unset: 'dataSize' },
-			{ $limit: 1 }
+			{
+				$limit: 1
+			},
+			{
+				$project: {
+					_id: 1,
+					name: 1,
+					firstname: 1,
+					institution: 1,
+					phone: 1
+				}
+			}
 		]);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting client`, 'ERROR', 'getPhoneNumber.ts');
+		log(`Error while getting client from: ${caller.name} (${ip})`, 'ERROR', __filename);
 	}
-
 	if (!client || client.length == 0) {
-		res.status(400).send({ message: 'No client available', OK: false });
-		log(`No client available from: ` + ip, 'WARNING', 'getPhoneNumber.ts');
-		return;
-	} else {
-		const clientCampaign = client[0].data[campaign._id.toString()];
-		if (!clientCampaign) {
-			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Error while getting client campaign`, 'WARNING', 'getPhoneNumber.ts');
-			return;
-		}
-
-		caller.currentCall = { client: client[0]._id, campaign: campaign._id };
-		if (clientCampaign.length <= 1 && clientCampaign[0].status == 'not called') {
-			const last = clientCampaign.length - 1;
-			clientCampaign[last].status = 'inprogress';
-			clientCampaign[last].caller = caller._id;
-			clientCampaign[last].scriptVersion = campaign.script.length - 1;
-		} else {
-			clientCampaign.push({
-				status: 'inprogress',
-				caller: caller._id,
-				scriptVersion: campaign.script.length - 1,
-				startCall: new Date(),
-				CampaignCallStart: campaign.callHoursStart,
-				CampaignCallEnd: campaign.callHoursEnd
-			});
-		}
-		await Promise.all([caller.save(), Client.updateOne({ _id: client[0]._id }, { data: client[0].data })]);
-		res.status(200).send({
-			message: 'OK',
-			OK: true,
-			data: { client: client[0], script: campaign.script[campaign.script.length - 1] }
-		});
-		log(`Get phone number success for ${caller.name} (${ip})`, 'INFORMATION', 'getPhoneNumber.ts');
+		res.status(404).send({ message: 'No client to call', OK: false });
+		log(`No client to call from: ${caller.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
+
+	const callClient = new Call({
+		client: client[0]._id,
+		caller: caller._id,
+		campaign: campaign._id,
+		status: 'In progress'
+	});
+
+	try {
+		await callClient.save();
+	} catch (e) {
+		res.status(500).send({ message: 'Internal error', OK: false });
+		log(`Error while saving call from: ${caller.name} (${ip})`, 'ERROR', __filename);
+		return;
+	}
+
+	res.status(200).send({
+		message: 'Client to call',
+		OK: true,
+		client: client[0],
+		callHistory: await Call.find({
+			client: client[0]._id,
+			campaign: campaign._id,
+			limit: campaign.nbMaxCallCampaign,
+			sort: { start: -1 }
+		}),
+		script: campaign.script
+	});
+	log(`Client to call from: ${caller.name} (${ip})`, 'INFO', __filename);
 }

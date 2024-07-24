@@ -1,26 +1,35 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
-import { Area } from '../../Models/Area';
+import { Call } from '../../Models/Call';
+import { Caller } from '../../Models/Caller';
+import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
-import checkCredentials from '../../tools/checkCredentials';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
-type data = {
-	status: 'called' | 'not called' | 'not answered' | 'inprogress';
-	caller: ObjectId;
-	startCall: Date;
-	endCall: Date;
-	satisfaction: -1 | 0 | 1 | 2;
-};
-
+/**
+ * Get the progress of a caller
+ * @example
+ * body:
+ * {
+ * 	"phone": "string",
+ * 	"pinCode": string  {max 4 number},
+ * 	"area":mongoDBID
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Invalid phone number
+ * @throws {403}: Invalid credential or incorrect campaing
+ * @throws {200}: OK
+ */
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
+		(req.body.campaign && !ObjectId.isValid(req.body.campaign)) ||
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -28,58 +37,62 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		return;
 	}
 
-	const caller = await checkCredentials(req.body.phone, req.body.pinCode);
+	const phone = clearPhone(req.body.phone);
+	if (!phoneNumberCheck(phone)) {
+		res.status(400).send({ message: 'Invalid phone number', OK: false });
+		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
+		return;
+	}
+
+	const caller = await Caller.findOne(
+		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		['name', 'campaigns', 'phone']
+	);
 	if (!caller) {
-		res.status(401).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ` + ip, 'WARNING', 'getProgress.ts');
+		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
+		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
-
-	const area = await Area.findOne({ _id: req.body.area });
-	if (!area) {
-		res.status(404).send({ message: 'area not found', OK: false });
-		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'getProgress.ts');
-		return;
+	let campaign: InstanceType<typeof Campaign> | null;
+	if (req.body.campaignId) {
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId } });
+	} else {
+		campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id']);
 	}
-	const campaign = await getCurrentCampaign(area._id);
 	if (!campaign) {
-		res.status(404).send({ message: 'campaign not found', OK: false });
-		log(`Campaign not found from: ${caller.name} (${ip})`, 'WARNING', 'getProgress.ts');
+		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
+		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+	if (!caller.campaigns.includes(campaign._id)) {
+		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
+		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	//invalid if more of 10 000
-	const clientInThisCampaign = await Client.find({
-		[`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } },
-		_id: { $nin: campaign.trashUser }
-	}).cursor();
-
-	let totalClientCalled = 0;
-	let totaldiscution = 0;
-	let totalCall = 0;
-	let totalUser = 0;
-	let totalConvertion = 0;
-	let TimeInCall = 0;
-	let callInProgress = 0;
-	await clientInThisCampaign.eachAsync(client => {
-		totalUser++;
-		const data = client.data.get(campaign._id.toString());
-		data?.forEach(call => {
-			if (call.status == 'not called') return;
-			totalCall += data?.length ?? 0;
-			if (call.status == 'inprogress') {
-				totalCall--;
-				callInProgress++;
-			} else {
-				totalClientCalled++;
-			}
-			if (call?.caller?.toString() ?? '' == caller._id.toString()) {
-				if (call.status == 'called') totaldiscution++;
-				TimeInCall += (call.endCall ?? new Date()).getTime() - (call.startCall ?? new Date()).getTime() ?? 0;
-				if (call.status == 'called' && call.satisfaction == 2) totalConvertion++;
-			}
-		});
+	const totalClientCalled = await Call.countDocuments({ campaign: campaign._id, caller: caller._id });
+	const totaldiscution = await Call.countDocuments({ campaign: campaign._id, caller: caller._id });
+	const totalCall = await Call.countDocuments({
+		campaign: campaign._id
 	});
+	const totalUser = await Client.countDocuments({
+		campaigns: campaign._id
+	});
+	const totalConvertion = await Call.countDocuments({
+		campaign: campaign._id,
+		$or: [{ status: 'Done' }, { status: 'deleted' }],
+		satisfaction: 2
+	});
+
+	const totalCallTime = await Call.aggregate([
+		{
+			$match: {
+				campaign: campaign._id,
+				caller: caller._id
+			}
+		},
+		{ $group: { _id: null, totalDuration: { $sum: '$duration' } } }
+	]);
 
 	res.status(200).send({
 		message: 'OK',
@@ -88,11 +101,11 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			totalClientCalled: totalClientCalled,
 			totalDiscution: totaldiscution,
 			totalCall: totalCall,
+
 			totalUser: totalUser,
 			totalConvertion: totalConvertion,
-			timeInCall: TimeInCall ?? 0,
-			callInProgress: callInProgress
+			totalCallTime: totalCallTime[0]?.totalDuration ?? 0
 		}
 	});
-	log(`Get progress from: ${caller.name} (${ip})`, 'INFORMATION', 'getProgress.ts');
+	log(`Caller ${caller.name} (${caller.phone}) requested his progress`, 'INFO', __filename);
 }

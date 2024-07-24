@@ -1,14 +1,33 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../../tools/log';
-import phoneNumberCheck from '../../../tools/phoneNumberCheck';
-import clearPhone from '../../../tools/clearPhone';
+
 import { Area } from '../../../Models/Area';
-import { Client } from '../../../Models/Client';
+import { Call } from '../../../Models/Call';
 import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
-import getCurrentCampaign from '../../../tools/getCurrentCampaign';
+import { Client } from '../../../Models/Client';
+import { log } from '../../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
 
+/**
+ * get client info
+ *
+ * @example
+ * body:{
+ * 	phone: string,
+ * 	adminCode: string,
+ * 	area: string,
+ * 	campaign: string
+ * }
+ *
+ * @throws {400} if missing parameters
+ * @throws {400} if wrong phone number
+ * @throws {401} if wrong admin code
+ * @throws {404} if user not found
+ * @throws {404} if client not found
+ * @throws {200} if OK
+ * @throws {200} if no call found for this client
+ */
 export default async function clientInfo(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -19,70 +38,75 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		(req.body.campaign && !ObjectId.isValid(req.body.campaign))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'clientInfo.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
 	req.body.phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from ${ip}`, 'WARNING', 'clientInfo.ts');
+		log(`Wrong phone number from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', 'clientInfo.ts');
+		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.campaign) {
-		campaign = await Campaign.findOne({ _id: req.body.campaign, area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.campaign }, area: area._id });
 	} else {
-		campaign = await getCurrentCampaign(area._id);
+		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', 'clientInfo.ts');
+		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	const client = await Client.findOne({ phone: req.body.phone, area: req.body.area });
 	if (!client) {
 		res.status(404).send({ message: 'User not found', OK: false });
-		log(`User not found from ${area.name} (${ip})`, 'WARNING', 'clientInfo.ts');
+		log(`User not found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	const callers = client.data.get(campaign._id.toString())?.map(async clientCallObj => {
-		const caller = await Caller.findById(clientCallObj.caller);
-		if (!caller) return null;
-		return {
-			id: caller._id,
-			name: caller.name,
-			phone: caller.phone
-		};
-	});
-	if (!callers) {
-		res.status(200).send({
+	const clients = Caller.find({ client: client._id, area: area._id });
+	if (!clients) {
+		res.status(404).send({
 			OK: true,
-			data: { client: client, callers: [] }
+			data: { client: null, call: null },
+			message: 'Client not found'
 		});
-	} else {
-		let callerResolve: any[] = [];
-		await Promise.all(callers).then(resolvedCallers => {
-			callerResolve = resolvedCallers.filter(caller => caller != null);
-		});
-
-		res.status(200).send({
-			OK: true,
-			data: {
-				client: client,
-				callers: callerResolve
-			}
-		});
+		log(`Client not found from ${area.name} (${ip})`, 'WARNING', __filename);
+		return;
 	}
-	log(`Client info got from ${area.name} (${ip})`, 'INFORMATION', 'clientInfo.ts');
+	const call = await Call.find({ client: client._id, area: area._id, campaign: campaign._id });
+	if (!call) {
+		res.status(200).send({
+			OK: true,
+			data: { client: client, call: null },
+			message: 'no call found for this client'
+		});
+		log(`No call found for this client from ${area.name} (${ip})`, 'INFO', __filename);
+		return;
+	}
+
+	const calls = await Promise.all(
+		call.map(async c => {
+			const caller = await Caller.findOne({ _id: c.caller, area: area._id });
+			return { call: c, caller: caller };
+		})
+	);
+
+	res.status(200).send({
+		OK: true,
+		data: { client: client, call: calls },
+		message: 'Client info got'
+	});
+	log(`Client info got from ${area.name} (${ip})`, 'INFO', __filename);
 }

@@ -1,14 +1,26 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { Types } from 'mongoose';
 
 import { Area } from '../../../Models/Area';
+import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
-import clearPhone from '../../../tools/clearPhone';
-import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 import { log } from '../../../tools/log';
-import phoneNumberCheck from '../../../tools/phoneNumberCheck';
+import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
 
+/**
+ * create clients, max size 500
+ * @example
+ * body:{
+ * 	"adminCode": string,
+ * 	"area": string,
+ * 	"data": [phone, name, firstname, institution]
+ * }
+ * @throws {400}: missing parameters,
+ * @throws {400}: to manu users (more of 500)
+ * @throws {403}: bad area or adminCode
+ * @throws {404}: no campaing in progress
+ * @throws {200}: all fine
+ */
 export default async function createClients(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -18,95 +30,67 @@ export default async function createClients(req: Request<any>, res: Response<any
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'createClient.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
 	if (req.body.data.length > 500) {
 		res.status(400).send({ message: 'Too many users', OK: false });
-		log(`Too many users from ` + ip, 'WARNING', 'createClient.ts');
+		log(`Too many users from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } }, [
+		'name'
+	]);
 	if (!area) {
-		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', 'createClient.ts');
+		res.status(403).send({ message: 'area not found or bad admin password', OK: false });
+		log(`area not found or bad admin password from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	const campaign = await getCurrentCampaign(area._id);
+	const campaign = await Campaign.findOne({ area: { $eq: area._id }, active: true }, []);
 	if (!campaign) {
-		res.status(404).send({ message: 'No campaign in progress', OK: false });
-		log(`No campaign in progress from ${ip}`, 'WARNING', 'createClient.ts');
+		res.status(404).send({ message: 'no campaign in progress', OK: false });
+		log(`no campaign in progress from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
-	const errors: Array<[string, string, string]> = [];
-	const sleep = req.body.data.map(async (usr: [string, string]) => {
-		const phone = clearPhone(usr[1]);
 
-		if (!phoneNumberCheck(phone)) {
-			errors.push([usr[0], phone, 'Wrong phone number']);
-			return false;
-		}
-		const data = new Map();
-		if (campaign) {
-			data.set(campaign._id.toString(), {
-				status: 'not called'
-			});
-		}
-		const nbClient = await Client.countDocuments({ phone: phone, area: area._id });
-		const user = new Client({
-			area: area._id,
-			name: usr[0] ?? null,
-			phone: phone,
-			data: data,
-			promotion: req.body.promotion ?? null,
-			institution: req.body.institution ?? null
-		});
-		try {
-			if (nbClient != 0) throw { code: 11000 };
-			else {
-				await user.save();
-				return true;
-			}
-		} catch (error: any) {
-			if (error.code != 11000) {
-				errors.push([usr[0], phone, error.message]);
-			} else {
-				if (!(await addClientCampaign(phone, area._id, campaign._id.toString()))) {
-					errors.push([usr[0], phone, 'internal error']);
-					log(
-						`Internal error from ${area.name} (${ip}) for adding user to camaign. ${usr[0]}, ${usr[1]}`,
-						'WARNING',
-						'createClient.ts'
-					);
+	const errors: Array<[string | undefined, string | undefined, string]> = [];
+	//format: [phone, name, firstname, institution]
+	const sleep: Array<Promise<boolean>> = req.body.data.map(
+		async (usr: [string | undefined, string | undefined, string | undefined, string | undefined]) => {
+			const phone = clearPhone(usr[0] ?? '');
+			try {
+				if (!phoneNumberCheck(phone)) {
+					errors.push([usr[1] + ' ' + usr[2], usr[0], 'Wrong phone number']);
+					return false;
+				}
+				if ((await Client.countDocuments({ phone: phone })) == 0) {
+					const user = new Client({
+						name: usr[1],
+						firstname: usr[2],
+						phone: phone,
+						campaigns: [campaign._id]
+					});
+					// create it
+					await user.save();
+					return true;
+				} else if ((await Client.countDocuments({ phone: phone, campaigns: { $ne: campaign._id } })) == 1) {
+					// client exist in another campaing
+					await Client.updateOne({ phone: phone }, { $push: { campaigns: campaign._id } });
+				} else {
+					// duplicate
+					throw { code: 11000 };
+				}
+			} catch (error: any) {
+				if (error.code != 11000) {
+					errors.push([usr[0], phone, error.message]);
 				}
 			}
 		}
-	});
-	await Promise.all(sleep);
-	log(
-		`Created ${req.body.data.length - errors.length} users from ${area.name} (${ip})`,
-		'INFORMATION',
-		'createClient.ts'
 	);
+	await Promise.all(sleep);
+	log(`Created ${req.body.data.length - errors.length} users from ${area.name} (${ip})`, 'INFO', __filename);
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
-}
-
-async function addClientCampaign(phone: string, area: ObjectId, CampaignId: string) {
-	const client = await Client.findOne({ phone: phone, area: area });
-	if (!client) {
-		return false;
-	}
-	if (client.data.has(CampaignId)) {
-		return true;
-	}
-	try {
-		client.data.set(CampaignId, [{ status: 'not called' }] as any);
-		return (await client.save()) != undefined;
-	} catch (e: any) {
-		//isn't true error
-		return true;
-	}
 }

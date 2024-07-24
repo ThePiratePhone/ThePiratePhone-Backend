@@ -5,8 +5,23 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import getCurrentCampaign from '../../../tools/getCurrentCampaign';
+import { Campaign } from '../../../Models/Campaign';
 
+/**
+ * Export all callers in a csv file
+ *
+ * @example
+ * body:{
+ * 	"adminCode": string,
+ * 	"area": mongoDBID,
+ * 	"curentCamaign": boolean
+ * }
+ *
+ * @throws {400} - Missing parameters
+ * @throws {401} - Wrong admin code
+ * @throws {200} - No campaign in progress
+ * @throws {200} - OK
+ */
 export default async function exportCallerCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -16,23 +31,23 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'exportCallerCsv.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', 'exportCallerCsv.ts');
+		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 	let selector: {} = { area: area._id };
 
-	const campaign = await getCurrentCampaign(area._id);
+	const campaign = await Campaign.findOne({ area: area._id, active: true });
 	if (req.body.curentCamaign) {
 		if (!campaign) {
 			res.status(200).send({ message: 'No campaign in progress', OK: false });
-			log(`No campaign in progress from ${ip}`, 'WARNING', 'exportCallerCsv.ts');
+			log(`No campaign in progress from ${ip}`, 'WARNING', __filename);
 			return;
 		}
 		selector = { $or: [{ campaigns: campaign._id }, { area: area._id }] };
@@ -57,5 +72,5 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 	}
 	csvStream.end();
 	res.end();
-	log(`Exported ${numberOfCaller} callers from ${ip} (${area.name})`, 'INFORMATION', 'exportCallerCsv.ts');
+	log(`Exported ${numberOfCaller} callers from ${ip} (${area.name})`, 'INFO', __filename);
 }

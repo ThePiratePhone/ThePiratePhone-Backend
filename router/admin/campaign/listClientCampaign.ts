@@ -4,8 +4,26 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
-import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 import { log } from '../../../tools/log';
+
+/**
+ * List all clients from a campaign
+ *
+ * @example
+ * body:{
+ *	adminCode: string,
+ *	CampaignId?: string,
+ *	skip?: number,
+ *	limit?: number,
+ *	area: string
+ * }
+ *
+ *	@throws {400} - Missing parameters
+ *	@throws {401} - Wrong admin code
+ *	@throws {401} - Wrong campaign id
+ *	@throws {401} - No clients found
+ *	@throws {200} - OK
+ */
 
 export default async function listClientCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -18,27 +36,27 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'listClientCampaign.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ` + ip, 'WARNING', 'listClientCampaign.ts');
+		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, Area: area._id });
 	} else {
-		campaign = await getCurrentCampaign(area._id);
+		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'listClientCampaign.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -48,10 +66,10 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!clients) {
 		res.status(401).send({ message: 'No clients found', OK: false });
-		log(`No clients found from${area.name} (${ip})`, 'WARNING', 'listClientCampaign.ts');
+		log(`No clients found from${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: { clients: clients, numberOfClients: numberOfClients } });
-	log(`client list campaign send to ${area.name} (${ip})`, 'INFORMATION', 'listClientCampaign.ts');
+	log(`client list campaign send to ${area.name} (${ip})`, 'INFO', __filename);
 }

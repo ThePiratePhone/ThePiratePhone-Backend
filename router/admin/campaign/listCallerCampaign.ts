@@ -1,11 +1,28 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import { Area } from '../../../Models/Area';
+import { Caller } from '../../../Models/Caller';
+import { Campaign } from '../../../Models/Campaign';
+import { log } from '../../../tools/log';
 
-import { Area } from '../../Models/Area';
-import { Caller } from '../../Models/Caller';
-import { Campaign } from '../../Models/Campaign';
-import { log } from '../../tools/log';
-
+/**
+ * List all callers from a campaign
+ *
+ * @example
+ * body:{
+ *	adminCode: string,
+ *	CampaignId: string,
+ *	skip?: number,
+ *	limit?: number,
+ *	area: string
+ * }
+ *
+ *	@throws {400} - Missing parameters
+ *	@throws {401} - Wrong admin code
+ *	@throws {401} - Wrong campaign id
+ *	@throws {401} - No callers found
+ *	@throws {200} - OK
+ */
 export default async function listCallerCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -17,21 +34,21 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'listCallerCampaign.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ` + ip, 'WARNING', 'listCallerCampaign.ts');
+		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+	const campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, Area: area._id });
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'listCallerCampaign.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -42,9 +59,10 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!callers) {
 		res.status(401).send({ message: 'No callers found', OK: false });
-		log(`No callers found from ${area.name} (${ip})`, 'WARNING', 'listCallerCampaign.ts');
+		log(`No callers found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: { callers: callers, numberOfCallers: numberOfCallers } });
+	log(`Callers found from ${area.name} (${ip})`, 'INFO', __filename);
 }

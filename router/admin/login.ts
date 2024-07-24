@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { Area } from '../../Models/Area';
 import { log } from '../../tools/log';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
+import { Campaign } from '../../Models/Campaign';
 
 export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -13,14 +13,14 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', 'login.ts');
 		return;
 	}
 
-	let campaign = await getCurrentCampaign(area._id);
+	let campaign = await Campaign.findOne({ area: area._id, active: true });
 
 	res.status(200).send({
 		message: 'OK',
@@ -31,10 +31,10 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			actualCampaignCallStart: campaign?.callHoursStart ?? undefined,
 			actualCampaignCallEnd: campaign?.callHoursEnd ?? undefined,
 			actualCampaignMaxCall: campaign?.nbMaxCallCampaign ?? undefined,
-			actualCampaignScript: campaign?.script[campaign.script.length - 1] ?? undefined,
+			actualCampaignScript: campaign?.script ?? undefined,
 			actualCampaignTimeBetweenCall: campaign?.timeBetweenCall ?? undefined
 		},
 		OK: true
 	});
-	log(`Login from ${area.name} (${ip})`, 'INFORMATION', 'login.ts');
+	log(`Login from ${area.name} (${ip})`, 'INFO', 'login.ts');
 }

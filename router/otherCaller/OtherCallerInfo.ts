@@ -1,12 +1,31 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 
-import { Area } from '../../Models/Area';
+import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
-import clearPhone from '../../tools/clearPhone';
+import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
-import phoneNumberCheck from '../../tools/phoneNumberCheck';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
+/**
+ * get information of other caller
+ *
+ * @example
+ * body:
+ * {
+ * 	"phone": string,
+ * 	"pinCode": string  {max 4 number},
+ * 	"otherPhone": string
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Invalid phone number
+ * @throws {403}: Invalid credential
+ * @throws {404}: Caller not found
+ * @throws {404}: No active campaign
+ * @throws {500}: Internal server error
+ * @throws {200}: OK
+ */
 export default async function OtherCallerInfo(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 
@@ -18,54 +37,73 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'scoreBoard.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	req.body.phone = clearPhone(req.body.phone);
-	if (!phoneNumberCheck(req.body.phone)) {
-		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from: ` + ip, 'WARNING', 'scoreBoard.ts');
+	const phone = clearPhone(req.body.phone);
+	if (!phoneNumberCheck(phone)) {
+		res.status(400).send({ message: 'Invalid phone number', OK: false });
+		log(`Invalid phone number from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	req.body.otherPhone = clearPhone(req.body.otherPhone);
-	if (!phoneNumberCheck(req.body.otherPhone)) {
-		res.status(400).send({ message: 'Wrong phone number (otherPhone)', OK: false });
-		log(`Wrong phone number (otherPhone) from: ` + ip, 'WARNING', 'scoreBoard.ts');
+	const otherPhone = clearPhone(req.body.otherPhone);
+	if (!phoneNumberCheck(otherPhone)) {
+		res.status(400).send({ message: 'Invalid phone number', OK: false });
+		log(`Invalid phone number from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: req.body.phone, area: req.body.area, pinCode: req.body.pinCode });
+	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['_id', 'name']);
 	if (!caller) {
+		res.status(403).send({ message: 'Invalid credential', OK: false });
+		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
+	const campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true });
+	if (!campaign) {
+		res.status(404).send({ message: 'No active campaign', OK: false });
+		log(`No active campaign from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
+	const otherCaller = await Caller.findOne({ phone: otherPhone }, ['_id', 'name', 'phone']);
+	if (!otherCaller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
-		log(`Caller not found from: ` + ip, 'WARNING', 'scoreBoard.ts');
+		log(`Caller not found: ${otherPhone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area });
-	if (!area) {
-		res.status(404).send({ message: 'area not found', OK: false });
-		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
-		return;
+	const timeCall = await Call.aggregate([
+		{ $match: { caller: new ObjectId(otherCaller._id), campaign: new ObjectId(campaign._id) } },
+		{
+			$group: {
+				_id: '$Caller',
+				count: { $sum: 1 },
+				totalDuration: { $sum: '$duration' }
+			}
+		},
+		{
+			$project: {
+				count: 1,
+				totalDuration: 1
+			}
+		}
+	]);
+	if (!timeCall || timeCall.length === 0) {
+		res.status(500).send({ message: 'Internal server error', OK: false });
+		log(
+			`Internal server error: ${otherCaller.phone} (${otherCaller.name}) from: ${phone} (${ip})`,
+			'ERROR',
+			__filename
+		);
 	}
-
-	const call = await Caller.findOne({ area: req.body.area, phone: req.body.otherPhone });
-	if (!call) {
-		res.status(404).send({ message: 'Caller not found', OK: false });
-		log(`Caller not found from: ` + ip, 'WARNING', 'scoreBoard.ts');
-		return;
-	}
-
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
-		data: {
-			name: call.name,
-			phone: call.phone,
-			totalTime: call.timeInCall.reduce((acc, cur) => acc + cur.time, 0),
-			nbCalls: call.timeInCall.length
-		}
+		data: { count: timeCall[0].count, duration: timeCall[0].totalDuration }
 	});
-	log(`Caller info get from: ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
+	log(`get information of ${otherCaller.phone} (${otherCaller.name}) from: ${phone} (${ip})`, 'INFO', __filename);
 }

@@ -5,19 +5,20 @@ import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { Client } from '../../Models/Client';
 
 /**
- * End a call
+ * Validate inprogress call
+ *
  * @example
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"timeInCall": number,
- * 	"satisfaction": number {-1, 0, 1, 2, 3, 4},
- * 	"comment": string | null,
- * 	"status": Boolean,
- *
- * 	"area": mongoDBID
+ * 	"area": string,
+ * 	"satisfaction": number,
+ * 	"status": boolean,
+ * 	"phoneNumber": string,
+ * 	"comment": string
  * }
  *
  * @throws {400}: Missing parameters
@@ -25,24 +26,24 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  * @throws {400}: Invalid phone number
  * @throws {400}: satisfaction is not a valid number
  * @throws {403}: Invalid credential
- * @throws {403}: No call in progress
- * @throws {500}: Internal error
+ * @throws {404}: Client not found
+ * @throws {403}: you dont call this client
  * @throws {200}: Call ended
  */
-export default async function endCall(req: Request<any>, res: Response<any>) {
+export default async function validateCall(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
-		typeof req.body.timeInCall != 'number' ||
 		!ObjectId.isValid(req.body.area) ||
 		typeof req.body.satisfaction != 'number' ||
 		typeof req.body.status != 'boolean' ||
+		typeof req.body.phoneNumber != 'string' ||
 		(req.body.comment && typeof req.body.comment != 'string')
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ${ip}`, 'WARNING', __filename);
+		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
@@ -55,7 +56,14 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
+		log(`Invalid phone number from:${ip}`, 'WARNING', __filename);
+		return;
+	}
+
+	const phoneNumber = clearPhone(req.body.phoneNumber);
+	if (!phoneNumberCheck(phoneNumber)) {
+		res.status(400).send({ message: 'Invalid client phone number', OK: false });
+		log(`Invalid client phone number from:${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -64,7 +72,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`satisfaction is not a valid number from ` + ip, 'WARNING', __filename);
 		return;
 	}
-	req.body.timeInCall = Math.min(req.body.timeInCall, 1_200_000);
 
 	const caller = await Caller.findOne(
 		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
@@ -76,37 +83,32 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const call = await Call.findOne({ caller: caller._id, status: 'In progress' }, [
-		'status',
-		'satisfaction',
-		'duration',
-		'comment',
-		'lastInteraction'
-	]);
-	if (!call) {
-		res.status(403).send({ message: 'No call in progress', OK: false });
-		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', __filename);
+	const client = await Client.findOne({ phone: phoneNumber }, ['_id']);
+	if (!client || !client._id || client == null) {
+		res.status(404).send({ message: 'Client not found', OK: false });
+		log(`Client not found from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	call.status = req.body.status ? 'to recall' : 'Done';
-	if (req.body.satisfaction == -1) {
-		call.status = 'deleted';
-	} else if (req.body.satisfaction == 3) {
-		call.status = 'to recall';
+	const call = await Call.findOne({
+		caller: caller._id,
+		client: client._id
+	});
+	if (!call) {
+		res.status(403).send({ message: 'you dont call this client', OK: false });
+		log(`you dont call this client from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
 	}
-
-	call.satisfaction = req.body.satisfaction;
-	call.duration = req.body.timeInCall ?? 0;
-	if (req.body.comment) call.comment = req.body.comment;
-	call.lastInteraction = new Date();
-
-	try {
-		await call.save();
-		res.status(200).send({ message: 'Call ended', OK: true });
-		log(`Call ended by ${caller.name} (${phone})`, 'INFO', __filename);
-	} catch (e) {
-		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Internal error: ${e} from: ${caller.name} (${phone}) ${ip}`, 'ERROR', __filename);
-	}
+	const newCall = new Call({
+		Client: client._id,
+		Caller: caller._id,
+		campaign: call.campaign,
+		satisfaction: req.body.satisfaction,
+		comment: req.body.comment,
+		status: req.body.status ? 'to recall' : 'Done',
+		duration: 0
+	});
+	await newCall.save();
+	res.status(200).send({ message: 'Call ended', OK: true });
+	log(`Call ended from: ${phone} (${ip})`, 'INFO', __filename);
 }

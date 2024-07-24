@@ -6,11 +6,12 @@ const ClientSchema = new mongoose.Schema({
 		index: 'text',
 		required: false
 	},
-	institution: {
+	firstname: {
 		type: String,
-		required: false
+		index: 'text',
+		require: false
 	},
-	promotion: {
+	institution: {
 		type: String,
 		required: false
 	},
@@ -21,50 +22,11 @@ const ClientSchema = new mongoose.Schema({
 		minlength: 12,
 		maxlength: 13
 	},
-	data: {
+	campaigns: {
+		type: [mongoose.Schema.ObjectId],
+		ref: 'Campaign',
 		required: true,
-		type: Map,
-		of: [
-			{
-				status: {
-					type: String,
-					enum: ['called', 'not called', 'not answered', 'inprogress'],
-					required: true
-				},
-				caller: {
-					type: mongoose.Schema.ObjectId,
-					ref: 'Caller',
-					required: false
-				},
-				scriptVersion: {
-					type: Number,
-					required: false
-				},
-				startCall: {
-					type: Date,
-					required: false
-				},
-				endCall: {
-					type: Date,
-					required: false
-				},
-				satisfaction: {
-					type: Number,
-					min: -2,
-					max: 2,
-					required: false
-				},
-				comment: {
-					type: String,
-					required: false
-				}
-			}
-		]
-	},
-	area: {
-		type: mongoose.Schema.ObjectId,
-		ref: 'Area',
-		required: true
+		default: []
 	},
 	createdAt: {
 		type: Date,
@@ -72,4 +34,4 @@ const ClientSchema = new mongoose.Schema({
 	}
 });
 
-export const Client = mongoose.model('Client', ClientSchema);
+export const Client = mongoose.model('client', ClientSchema);

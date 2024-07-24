@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 
-import { Area } from '../../Models/Area';
-import { Campaign } from '../../Models/Campaign';
-import { log } from '../../tools/log';
+import { Area } from '../../../Models/Area';
+import { Campaign } from '../../../Models/Campaign';
+import { log } from '../../../tools/log';
 import { ObjectId } from 'mongodb';
-import { Caller } from '../../Models/Caller';
+import { Caller } from '../../../Models/Caller';
 
 export default async function numberOfCallers(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
@@ -15,21 +15,21 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters from ' + ip, 'WARNING', 'numberOfCallers.ts');
+		log('Missing parameters from ' + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ _id: req.body.area, AdminPassword: req.body.adminCode });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong Creantial', OK: false });
-		log('Wrong Creantial from ' + ip, 'WARNING', 'numberOfCallers.ts');
+		log('Wrong Creantial from ' + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: req.body.campaign });
+	const campaign = await Campaign.findOne({ _id: { $eq: req.body.campaign } });
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'numberOfCallers.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -40,5 +40,5 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 		OK: true,
 		data: { numberOfCallers: countCallers }
 	});
-	log(`number of caller get by ${area.name} (${ip})`, 'INFORMATION', 'numberOfCallers.ts');
+	log(`number of caller get by ${area.name} (${ip})`, 'INFO', __filename);
 }

@@ -1,170 +1,207 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
 
-import { Area } from '../../Models/Area';
+import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
-import clearPhone from '../../tools/clearPhone';
-import getCurrentCampaign from '../../tools/getCurrentCampaign';
 import { log } from '../../tools/log';
-import phoneNumberCheck from '../../tools/phoneNumberCheck';
-import mongoose from 'mongoose';
+import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+
+/**
+ * get the top 5 callers in a campaign and our score
+ *
+ * @example
+ * body:
+ * {
+ * 	"phone": string,
+ * 	"pinCode": string  {max 4 number},
+ * 	"area": mongoDBID,
+ * 	"campaignId": mongoDBID | null
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Wrong phone number
+ * @throws {404}: no campaing in progress
+ * @throws {404}: Caller not found
+ * @throws {500}: No data found
+ * @throws {200}: topfiveUsers
+ */
 
 export default async function scoreBoard(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
-
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||
 		typeof req.body.pinCode != 'string' ||
 		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
+		(req.body.campaignId && !ObjectId.isValid(req.body.campaignId))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'scoreBoard.ts');
+		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	req.body.phone = clearPhone(req.body.phone);
-	if (!phoneNumberCheck(req.body.phone)) {
+	if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
+		req.body.campaignId = (
+			await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id'])
+		)?._id.toString();
+		if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
+			res.status(404).send({ message: 'no campaing in progress', OK: false });
+			log(`no campaing in progress from: ` + ip, 'WARNING', __filename);
+			return;
+		}
+	}
+
+	const phone = clearPhone(req.body.phone);
+	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from: ` + ip, 'WARNING', 'scoreBoard.ts');
+		log(`Wrong phone number from: ` + ip, 'WARNING', __filename);
 		return;
 	}
-
-	const caller = await Caller.findOne({ phone: req.body.phone, pinCode: req.body.pinCode });
+	const caller = await Caller.findOne({
+		phone: phone,
+		pinCode: { $eq: req.body.pinCode },
+		area: { $eq: req.body.area },
+		campaigns: { $eq: req.body.campaignId }
+	});
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
-		log(`Caller not found from: ` + ip, 'WARNING', 'scoreBoard.ts');
+		log(`Caller not found from: ` + ip, 'WARNING', __filename);
 		return;
 	}
-
-	const area = await Area.findOne({ _id: req.body.area });
-	if (!area) {
-		res.status(404).send({ message: 'area not found', OK: false });
-		log(`Area not found from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
-		return;
-	}
-
-	let campaign;
-	if (!req.body.campaign) campaign = await getCurrentCampaign(area.id);
-	else campaign = await Campaign.findOne({ _id: req.body.campaign, area: req.body.area });
-
-	if (!campaign || campaign == null) {
-		res.status(404).send({ message: 'no campaign in progress or campaign not found', OK: false });
-		log(`No campaign in progress or campaign not found from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
-		return;
-	}
-
-	if (campaign.area.toString() != area._id.toString() && !caller.campaigns.includes(campaign._id)) {
-		res.status(403).send({ message: 'You are not allowed to call this campaign', OK: false });
-		log(`Caller not allowed to call this campaign from: ${caller.name} (${ip})`, 'WARNING', 'scoreBoard.ts');
-		return;
-	}
-
-	let callers = await Caller.aggregate([
+	const topfiveUsers: Array<{
+		you: boolean | null;
+		_id: mongoose.Types.ObjectId;
+		name: string;
+		count: number;
+		totalDuration: number;
+	}> = await Call.aggregate([
 		{
-			$project: {
-				name: 1,
-				phone: 2,
-				totalCalls: {
-					$size: {
-						$filter: {
-							input: '$timeInCall',
-							as: 'call',
-							cond: { $eq: ['$$call.campaign', campaign._id] }
-						}
-					}
-				},
-				totalTime: {
-					$sum: {
-						$map: {
-							input: {
-								$filter: {
-									input: '$timeInCall',
-									as: 'call',
-									cond: { $eq: ['$$call.campaign', campaign._id] }
-								}
-							},
-							as: 'call',
-							in: '$$call.time'
-						}
-					}
-				}
+			$match: {
+				campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
 			}
 		},
 		{
-			$sort: { totalCalls: -1 }
+			$group: {
+				_id: '$caller',
+				count: { $sum: 1 },
+				totalDuration: { $sum: '$duration' }
+			}
+		},
+		{
+			$match: {
+				count: { $gt: 0 }
+			}
+		},
+		{
+			$sort: { count: -1 }
 		},
 		{
 			$limit: 5
+		},
+		{
+			$lookup: {
+				from: 'callers',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'caller'
+			}
+		},
+		{
+			$project: {
+				_id: 1,
+				name: { $arrayElemAt: ['$caller.name', 0] },
+				count: 1,
+				totalDuration: 1
+			}
 		}
 	]);
-
-	callers.sort((a, b) => {
-		return b.totalCalls - a.totalCalls;
-	});
-
-	callers = callers.filter(el => el.totalCalls > 0);
-	let place = callers.findIndex(el => el.phone == req.body.phone);
-
-	if (place == -1) {
-		await Caller.aggregate([
-			{
-				$project: {
-					name: 1,
-					phone: 2,
-					totalCalls: {
-						$size: {
-							$filter: {
-								input: '$timeInCall',
-								as: 'call',
-								cond: { $eq: ['$$call.campaign', campaign._id] }
-							}
-						}
-					},
-					totalTime: {
-						$sum: {
-							$map: {
-								input: {
-									$filter: {
-										input: '$timeInCall',
-										as: 'call',
-										cond: { $eq: ['$$call.campaign', campaign._id] }
-									}
-								},
-								as: 'call',
-								in: '$$call.time'
-							}
-						}
+	let yourPlace = topfiveUsers.findIndex(user => user._id.toString() == caller._id.toString());
+	if (!topfiveUsers.find(user => user._id.toString() == caller._id.toString())) {
+		const user = (
+			await Call.aggregate([
+				{
+					$match: {
+						campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId),
+						caller: caller._id
 					}
+				},
+				{
+					$group: {
+						_id: '$caller',
+						count: { $sum: 1 },
+						totalDuration: { $sum: '$duration' }
+					}
+				},
+				{
+					$lookup: {
+						from: 'callers',
+						localField: '_id',
+						foreignField: '_id',
+						as: 'caller'
+					}
+				},
+				{
+					$project: {
+						_id: 1,
+						name: { $arrayElemAt: ['$caller.name', 0] },
+						count: 1,
+						totalDuration: 1
+					}
+				},
+				{
+					$limit: 1
 				}
-			},
-			{
-				$sort: { totalCalls: -1 }
-			}
-		])
-			.cursor()
-			.eachAsync((caller, index) => {
-				if (caller.phone === req.body.phone) {
-					place = index + 1;
-					callers.push({
-						name: caller.name,
-						totalCalls: caller.totalCalls,
-						totalTime: caller.totalTime
-					});
-				}
+			])
+		)[0];
+
+		if (user) {
+			topfiveUsers.push(user);
+			yourPlace =
+				(
+					await Call.aggregate([
+						{
+							$group: {
+								_id: '$caller',
+								count: { $sum: 1 },
+								totalDuration: { $sum: '$duration' }
+							}
+						},
+						{
+							$match: {
+								count: { $gte: user.count },
+								caller: { $ne: caller._id }
+							}
+						},
+						{
+							$sort: { count: -1 }
+						},
+						{
+							$count: 'place'
+						}
+					])
+				)[0].place - 1;
+		} else {
+			topfiveUsers.push({
+				you: true,
+				_id: caller._id,
+				name: caller.name,
+				count: 0,
+				totalDuration: 0
 			});
+			yourPlace = (await Caller.countDocuments()) - 1;
+		}
 	}
-
-	callers.sort((a, b) => {
-		return b.nbCall - a.nbCall;
+	yourPlace++;
+	if (!topfiveUsers) {
+		res.status(500).send({ message: 'No data found', OK: false });
+		log(`No data found from: ` + ip, 'WARNING', __filename);
+		return;
+	}
+	topfiveUsers.forEach(user => {
+		user.you = user._id.toString() == caller._id.toString();
 	});
-
-	res.status(200).send({
-		message: 'OK',
-		data: { scoreBoard: callers, yourPlace: place },
-		OK: true
-	});
-	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFORMATION', 'scoreBoard.ts');
+	res.status(200).send({ topfiveUsers, yourPlace, OK: true });
+	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFO', __filename);
 }

@@ -1,13 +1,31 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { log } from '../../../tools/log';
-import { Area } from '../../../Models/Area';
-import { Client } from '../../../Models/Client';
-import clearPhone from '../../../tools/clearPhone';
-import phoneNumberCheck from '../../../tools/phoneNumberCheck';
-import { Campaign } from '../../../Models/Campaign';
-import getCurrentCampaign from '../../../tools/getCurrentCampaign';
 
+import { Area } from '../../../Models/Area';
+import { Call } from '../../../Models/Call';
+import { Campaign } from '../../../Models/Campaign';
+import { Client } from '../../../Models/Client';
+import { log } from '../../../tools/log';
+import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+/**
+ * remove one client from the database
+ *
+ * @example
+ * body: {
+ * 	phone: string,
+ * 	adminCode: string,
+ * 	area: string,
+ * 	CampaignId: string
+ * }
+ *
+ * @throws {400} if missing parameters
+ * @throws {400} if wrong phone number
+ * @throws {401} if wrong admin code
+ * @throws {401} if wrong campaign id
+ * @throws {404} if client not found
+ * @throws {500} if error removing client
+ * @throws {200} if OK
+ */
 export default async function removeClient(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -18,51 +36,50 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'removeClient.ts');
+		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
 	req.body.phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from ${ip}`, 'WARNING', 'removeClient.ts');
+		log(`Wrong phone number from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ AdminPassword: req.body.adminCode, _id: req.body.area });
+	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', 'removeClient.ts');
+		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: req.body.CampaignId, Area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
 	} else {
-		campaign = await getCurrentCampaign(area._id);
+		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'removeClient.ts');
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	const output = await Client.findOne({ phone: req.body.phone, area: area._id });
 	if (!output) {
 		res.status(404).send({ message: 'Client not found', OK: false });
-		log(`Client not found from ${area.name} (${ip})`, 'WARNING', 'removeClient.ts');
+		log(`Client not found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
-	if (output.data.has(campaign._id.toString())) {
-		output.data.delete(campaign._id.toString());
-		if (output.data.size == 0) {
-			Client.deleteOne(output._id);
-		} else {
-			await output.save();
-		}
+	try {
+		await Call.deleteOne({ client: output._id, Campaign: campaign._id, duration: null });
+	} catch (e) {
+		res.status(500).send({ message: 'Error removing client', OK: false });
+		log(`Error removing client from ${area.name} (${ip})`, 'ERROR', __filename);
+		return;
 	}
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Client removed from ${ip} (${area.name})`, 'INFORMATION', 'removeClient.ts');
+	log(`Client removed from ${ip} (${area.name})`, 'INFO', __filename);
 }

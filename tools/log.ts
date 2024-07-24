@@ -2,27 +2,34 @@ import { bgRed, blue, gray, red, yellow } from 'chalk';
 import fs from 'fs';
 import path from 'path';
 
-type WarningLevel = 'DEBUG' | 'INFORMATION' | 'WARNING' | 'ERROR' | 'CRITICAL';
+import { getFileName } from './utils';
 
-// Formation:
+type WarningLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
+
+// Information:
 // (2023-04-28T11:27:47.509Z) [ERROR]> bad password for test@exemple.com
-// (2023-04-28T11:27:47.509Z) [INFORMATION]> test@exemple.com connected
+// (2023-04-28T11:27:47.509Z) [INFO]> test@exemple.com connected
 /**
+ * @param impact The impact level of the log
  * Impact Levels:
- * - INFORMATION: No impact on the system or user.
+ * - INFO: No impact on the system or user.
  * - WARNING: Minor impact that can be easily corrected.
  * - ERROR: Moderate impact that requires attention.
  * - CRITICAL: Significant impact that can cause damage or data loss.
+ * @param location The file name where the log is called (use **__filename**)
+ * @param text The text to log
  */
 export async function log(text: string, impact: WarningLevel = 'DEBUG', location: string | undefined) {
 	if (process?.env?.npm_lifecycle_script?.includes('jest')) return;
+	location = getFileName(location ?? 'no location');
 	const date = new Date().toLocaleDateString('en-GB', {
 		timeZone: 'Europe/Paris',
 		year: '2-digit',
 		month: '2-digit',
 		day: '2-digit',
 		hour: '2-digit',
-		minute: '2-digit'
+		minute: '2-digit',
+		second: '2-digit'
 	});
 	const logDir = './log';
 	const logFilePath = path.resolve(`${logDir}/log.log`);
@@ -33,7 +40,7 @@ export async function log(text: string, impact: WarningLevel = 'DEBUG', location
 	}
 	let coloredImpact = '';
 	switch (impact) {
-		case 'INFORMATION':
+		case 'INFO':
 			coloredImpact = blue(impact);
 			break;
 		case 'WARNING':
@@ -52,5 +59,5 @@ export async function log(text: string, impact: WarningLevel = 'DEBUG', location
 
 	console.log(`(${date}) ${location ? '[' + location + ']' : ''}> ${coloredImpact} ${text}\n`);
 	// append log in file
-	fs.appendFile(logFilePath, `(${date}) ${location ? '[' + location + ']' : ''}> ${impact} ${text}\n`, err => {});
+	fs.appendFile(logFilePath, `(${date}) ${location ? '[' + location + ']' : ''}> ${impact} ${text}\n`, () => {});
 }
