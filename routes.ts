@@ -48,7 +48,8 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
-import numberOfCallers from 'router/admin/stats/numberOfCallers';
+import numberOfCallers from './router/admin/stats/numberOfCallers';
+import call from './router/admin/stats/call';
 
 const router = Router();
 
@@ -116,6 +117,7 @@ router.post('/admin/login', loginAdmin);
 
 //stats/
 router.post('/stats/numberOfCallers', numberOfCallers);
+router.post('/stats/call', call);
 
 router.get('/getArea', getArea);
 export default router;
