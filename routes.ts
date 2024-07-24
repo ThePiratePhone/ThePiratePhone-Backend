@@ -45,6 +45,7 @@ import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';
 import OtherCallerInfo from './router/otherCaller/OtherCallerInfo';
 import scoreBoard from './router/otherCaller/scoreBoard';
+import changePasswordAdmin from './router/admin/management/changePassword';
 
 const router = Router();
 
@@ -105,5 +106,8 @@ router.post('/admin/campaign/listCampaign', listCampaign);
 router.post('/admin/campaign/getCampaign', getCampaign);
 router.post('/admin/campaign/changeScript', changeScript);
 
+//admin/
 router.get('/getArea', getArea);
+router.post('/admin/changePassword', changePasswordAdmin);
+
 export default router;
