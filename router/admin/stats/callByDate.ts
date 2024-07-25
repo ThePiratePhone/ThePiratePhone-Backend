@@ -51,7 +51,8 @@ export default async function callByDate(req: Request<any>, res: Response<any>) 
 			res.write(
 				JSON.stringify({
 					date: call.start ?? 0,
-					response: call.status
+					response: call.status,
+					satisfaction: call.satisfaction
 				}) + (NbCall - 1 == i ? '' : ',')
 			);
 			i++;
