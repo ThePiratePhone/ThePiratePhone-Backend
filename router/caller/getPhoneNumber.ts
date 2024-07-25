@@ -63,13 +63,19 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
-
+	console.log(phone, req.body.pinCode, req.body.area, campaign.id);
 	const caller = await Caller.findOne(
 		{
 			phone: phone,
 			pinCode: { $eq: req.body.pinCode },
-			campaigns: campaign.id,
-			area: { $eq: req.body.area }
+			$or: [
+				{
+					campaigns: campaign.id
+				},
+				{
+					area: { $eq: req.body.area }
+				}
+			]
 		},
 		['name']
 	);

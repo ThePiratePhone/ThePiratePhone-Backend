@@ -46,8 +46,9 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 
 	const caller = await Caller.findOne(
 		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
-		['name', 'campaigns', 'phone']
+		['name', 'campaigns', 'phone', 'area']
 	);
+
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
 		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', __filename);
@@ -55,18 +56,18 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	}
 	let campaign: InstanceType<typeof Campaign> | null;
 	if (req.body.campaignId) {
-		campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId } });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId } }, ['_id', 'area']);
 	} else {
-		campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id']);
+		campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id', 'area']);
 	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
 		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
-	if (!caller.campaigns.includes(campaign._id)) {
-		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
-		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', __filename);
+	if (!caller.campaigns.includes(campaign._id) && !(campaign.area.toString() == caller.area.toString())) {
+		res.status(403).send({ message: 'Invalid campaigns', OK: false });
+		log(`Invalid campaigns from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 

@@ -44,7 +44,8 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, [
 		'name',
 		'area',
-		'campaigns'
+		'campaigns',
+		'phone'
 	]);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
