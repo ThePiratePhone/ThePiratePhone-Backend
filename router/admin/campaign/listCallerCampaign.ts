@@ -45,7 +45,7 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, Area: area._id });
+	const campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
 		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);

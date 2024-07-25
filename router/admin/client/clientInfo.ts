@@ -41,8 +41,8 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		log(`Missing parameters from ` + ip, 'WARNING', __filename);
 		return;
 	}
-	req.body.phone = clearPhone(req.body.phone);
-	if (!phoneNumberCheck(req.body.phone)) {
+	const phone = clearPhone(req.body.phone);
+	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
 		log(`Wrong phone number from ${ip}`, 'WARNING', __filename);
 		return;
@@ -68,7 +68,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const client = await Client.findOne({ phone: req.body.phone, area: req.body.area });
+	const client = await Client.findOne({ phone: phone, area: area.id });
 	if (!client) {
 		res.status(404).send({ message: 'User not found', OK: false });
 		log(`User not found from ${area.name} (${ip})`, 'WARNING', __filename);

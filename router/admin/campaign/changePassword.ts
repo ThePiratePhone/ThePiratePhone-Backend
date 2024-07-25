@@ -18,14 +18,14 @@ export default async function changePasword(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: area._id }, { AdminPassword: req.body.newAdminCode });
+	const output = await Campaign.updateOne({ _id: area._id }, { adminPassword: req.body.newAdminCode });
 
 	if (output.modifiedCount == 0) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });

@@ -50,7 +50,7 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, Area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
 	} else {
 		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}

@@ -40,7 +40,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	} else {
 		campaign = await Campaign.findOne({ area: area._id, active: true }, []);
 	}
-	if (!campaign) {
+	if (!campaign || campaign == null) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
 		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'changeCallHours.ts');
 		return;
@@ -64,7 +64,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 			commentaire?: string;
 			nombreAppel?: number;
 		} = {};
-		const lastCall = await Call.findOne({ client: client._id, campaign: campaign._id }).sort({ start: -1 });
+		const lastCall = await Call.findOne({ client: client._id, campaign: campaign?._id }).sort({ start: -1 });
 
 		if (lastCall) {
 			csvData.statut = CleanStatus(lastCall?.status);
@@ -72,7 +72,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 			csvData.appeleant =
 				(await Caller.findOne({ client: lastCall.caller, area: area._id }, ['name']))?.name ?? 'Erreur';
 			csvData.commentaire = lastCall?.comment ?? '';
-			csvData.nombreAppel = (await Call.countDocuments({ client: client._id, campaign: campaign._id })) ?? -1;
+			csvData.nombreAppel = (await Call.countDocuments({ client: client._id, campaign: campaign?._id })) ?? -1;
 		}
 		csvStream.write({
 			nom: client.name,

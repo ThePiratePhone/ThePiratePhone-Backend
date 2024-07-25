@@ -21,7 +21,7 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, AdminPassword: { $eq: req.body.adminCode } });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong Creantial', OK: false });
 		log('Wrong Creantial from ' + ip, 'WARNING', __filename);

@@ -1,5 +1,5 @@
 function getFileName(filename: string) {
-	return filename.split('\\').at(-1);
+	return filename.split('\\').at(-1)?.split('/').at(-1) ?? 'error';
 }
 
 function clearPhone(phoneNumber: string): string {
