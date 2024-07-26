@@ -62,8 +62,14 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	const caller = await Caller.findOne({
 		phone: phone,
 		pinCode: { $eq: req.body.pinCode },
-		area: { $eq: req.body.area },
-		campaigns: { $eq: req.body.campaignId }
+		$or: [
+			{
+				campaigns: req.body.campaignId
+			},
+			{
+				area: { $eq: req.body.area }
+			}
+		]
 	});
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
