@@ -132,17 +132,19 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				}
 			},
 			{
-				$match: {
-					$and: [
-						{ $or: [{ 'calls.status': 'to recall' }, { calls: { $size: 0 } }] }, // keep only client with status to recall or not called
-						{ campaigns: campaign._id } // only client from the campaign
-					]
+				$addFields: {
+					nbCalls: { $size: '$calls' },
+					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] },
+					lastStatus: { $ifNull: [{ $arrayElemAt: ['$calls.status', -1] }, null] }
 				}
 			},
 			{
-				$addFields: {
-					nbCalls: { $size: '$calls' },
-					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] }
+				$match: {
+					$and: [
+						{ trashUser: { $ne: caller._id } }, // not a trash
+						{ $or: [{ lastStatus: 'to recall' }, { calls: { $size: 0 } }] }, // keep only client with status to recall or not called
+						{ campaigns: campaign._id } // only client from the campaign
+					]
 				}
 			},
 			{
