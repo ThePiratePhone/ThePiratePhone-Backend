@@ -134,6 +134,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				}
 			},
 			{
+				$addFields: {
+					nbCalls: { $size: '$calls' },
+					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] },
+					lastStatus: { $ifNull: [{ $arrayElemAt: ['$calls.status', -1] }, null] }
+				}
+			},
+			{
 				$match: {
 					$and: [
 						{ campaigns: campaign._id }, // only client from the campaign
