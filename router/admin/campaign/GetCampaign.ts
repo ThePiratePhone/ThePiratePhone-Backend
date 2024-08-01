@@ -33,7 +33,11 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 		'active',
 		'callHours',
 		'timeBetweenCall',
-		'numberMaxCall'
+		'numberMaxCall',
+		'script',
+		'callPermited',
+		'nbMaxCallCampaign',
+		'satisfactions'
 	]);
 	if (!campaign) {
 		res.status(404).send({ message: 'no campaign', OK: false });

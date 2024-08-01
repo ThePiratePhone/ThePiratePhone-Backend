@@ -55,15 +55,14 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		'callPermited',
 		'timeBetweenCall',
 		'nbMaxCallCampaign',
-		'trashUser',
-		'active'
+		'active',
+		'status'
 	]);
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
-	console.log(phone, req.body.pinCode, req.body.area, campaign.id);
 	const caller = await Caller.findOne(
 		{
 			phone: phone,
@@ -91,10 +90,10 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const call = await Call.findOne({ caller: { $eq: caller._id }, status: 'In progress', campaign: campaign.id }, [
-		'Client',
-		'Campaign'
-	]);
+	const call = await Call.findOne(
+		{ caller: { $eq: caller._id }, satisfaction: 'In progress', campaign: { $eq: campaign.id } },
+		['client', 'campaign']
+	);
 	if (call) {
 		call.lastInteraction = new Date();
 		try {
@@ -105,16 +104,19 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			return;
 		}
 		res.status(200).send({
-			message: 'Already in a call',
+			message: 'Client to call',
 			OK: true,
-			client: await Client.findById(call.client),
-			callHistory: await Call.find({
-				client: call.client,
-				campaign: call.campaign,
-				limit: campaign.nbMaxCallCampaign,
-				sort: { start: -1 }
-			}),
-			script: campaign.script
+			client: call.client,
+			callHistory: await Call.find(
+				{
+					client: { $eq: call.client },
+					campaign: { $eq: campaign.id },
+					satisfaction: { $ne: 'In progress' }
+				},
+				['status', 'satisfaction', 'duration', 'comment', 'start']
+			),
+			script: campaign.script,
+			status: campaign.status
 		});
 		log(`Already in a call from: ${caller.name} (${ip})`, 'INFO', __filename);
 		return;
@@ -141,15 +143,22 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$match: {
 					$and: [
-						{ trashUser: { $ne: caller._id } }, // not a trash
-						{ $or: [{ lastStatus: 'to recall' }, { calls: { $size: 0 } }] }, // keep only client with status to recall or not called
-						{ campaigns: campaign._id } // only client from the campaign
+						{ campaigns: campaign._id }, // only client from the campaign
+						{ delete: { $ne: true } } // client not deleted
 					]
+				}
+			},
+			{
+				$addFields: {
+					nbCalls: { $size: '$calls' },
+					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] },
+					lastStatus: { $ifNull: [{ $arrayElemAt: ['$calls.status', -1] }, null] }
 				}
 			},
 			{
 				$match: {
 					$and: [
+						{ $or: [{ 'lastStatus.status': true }, { calls: { $size: 0 } }] }, // keep only client with status true or not called
 						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // client not called too much
 						{
 							$or: [
@@ -187,7 +196,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		client: client[0]._id,
 		caller: caller._id,
 		campaign: campaign._id,
-		status: 'In progress'
+		satisfaction: 'In progress'
 	});
 
 	try {
@@ -195,6 +204,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		log(`Error while saving call from: ${caller.name} (${ip})`, 'ERROR', __filename);
+		console.error(e);
 		return;
 	}
 
@@ -202,13 +212,16 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		message: 'Client to call',
 		OK: true,
 		client: client[0],
-		callHistory: await Call.find({
-			client: client[0]._id,
-			campaign: campaign._id,
-			limit: campaign.nbMaxCallCampaign,
-			sort: { start: -1 }
-		}),
-		script: campaign.script
+		callHistory: await Call.findOne(
+			{
+				client: { $eq: client[0]?._id },
+				campaign: { $eq: campaign.id },
+				satisfaction: { $ne: 'In progress' }
+			},
+			['status', 'satisfaction', 'duration', 'comment', 'start']
+		),
+		script: campaign.script,
+		status: campaign.status
 	});
 	log(`Client to call from: ${caller.name} (${ip})`, 'INFO', __filename);
 }

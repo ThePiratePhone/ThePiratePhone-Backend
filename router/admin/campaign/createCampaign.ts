@@ -5,6 +5,28 @@ import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 
+/**
+ * Create a campaign
+ * @example
+ * body:{
+ * 	"name": string,
+ * 	"script": string,
+ * 	"adminCode": string,
+ * 	"password": string,
+ * 	"callHoursStart": number,
+ * 	"callHoursEnd": number,
+ * 	"satisfactions": string[],
+ * 	"area": mongoDBID
+ * }
+ *
+ * @throws {400}: Missing parameters
+ * @throws {400}: Invalid satisfaction satisfactions must be a array<string>
+ * @throws {400}: Invalid satisfaction satisfactions must contain "à suprimer"
+ * @throws {401}: Wrong admin code
+ * @throws {400}: Campaign already exist
+ * @throws {200}: Campaign created
+ * @throws {500}: Internal error
+ **/
 export default async function createCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.socket?.remoteAddress?.split(':').pop();
 	if (
@@ -15,10 +37,26 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		typeof req.body.password != 'string' ||
 		(typeof req.body.callHoursStart != 'undefined' && typeof req.body.callHoursStart != 'number') ||
 		(typeof req.body.callHoursEnd != 'undefined' && typeof req.body.callHoursEnd != 'number') ||
+		(typeof req.body.satisfactions != 'undefined' && !Array.isArray(req.body.satisfactions)) ||
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		return;
+	}
+
+	if (req.body.satisfactions && req.body.satisfactions.some((s: any) => typeof s != 'string')) {
+		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
+		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
+		return;
+	}
+
+	if (req.body.satisfactions && !req.body.satisfactions.includes('à suprimer')) {
+		res.status(400).send({
+			message: 'Invalid satisfaction, satisfactions must contain "à suprimer"',
+			OK: false
+		});
+		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -39,10 +77,10 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		area: area._id,
 		name: req.body.name,
 		script: req.body.script,
-		trashUser: [],
 		password: req.body.password,
 		callHoursStart: req.body.callHoursStart,
-		callHoursEnd: req.body.callHoursEnd
+		callHoursEnd: req.body.callHoursEnd,
+		status: req.body.satisfactions
 	});
 	await campaign.save();
 	await Area.updateOne({ _id: area._id }, { $push: { CampaignList: campaign._id } });
