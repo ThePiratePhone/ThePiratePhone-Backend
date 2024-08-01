@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
-import { log } from '../../../tools/log';
 import { ObjectId } from 'mongodb';
+
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
+import { log } from '../../../tools/log';
+import { sanitizeString } from '../../../tools/utils';
 
 function escapeRegExp(input: string): string {
 	return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -43,7 +45,7 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const escapedNameParts = (req.body.name as string).split(' ').map(escapeRegExp);
+	const escapedNameParts = sanitizeString(req.body.name).split(' ').map(escapeRegExp);
 	const regexParts = escapedNameParts.map(part => `(?=.*${part})`).join('');
 	const regex = new RegExp(`^${regexParts}`, 'i');
 	const output = await Caller.find({ name: regex }).limit(10);

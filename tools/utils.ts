@@ -76,4 +76,9 @@ function cleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | 
 	}
 }
 
-export { clearPhone, getFileName, phoneNumberCheck, humainPhone, cleanStatus };
+function sanitizeString(str: string) {
+	str = str.replace(/[^\p{L}\p{N} \.,_-]/gu, '');
+	return str.trim();
+}
+
+export { cleanStatus, clearPhone, getFileName, humainPhone, phoneNumberCheck, sanitizeString };

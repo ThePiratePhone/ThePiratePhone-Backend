@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * create a client
@@ -69,7 +69,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	}
 
 	const user = new Client({
-		name: req.body.name,
+		name: sanitizeString(req.body.name),
 		phone: phone,
 		pinCode: req.body.pinCode,
 		area: area._id

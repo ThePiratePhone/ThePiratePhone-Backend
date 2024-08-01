@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * Create a new caller
@@ -70,7 +70,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 	}
 
 	const newCaller = new Caller({
-		name: req.body.name,
+		name: sanitizeString(req.body.name),
 		phone: phone,
 		pinCode: req.body.pinCode,
 		area: area._id
