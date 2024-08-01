@@ -106,7 +106,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 
 	call.status = req.body.status;
-	if (req.body.satisfaction == 'à suprimer') {
+	if (req.body.satisfaction == 'À retirer') {
 		const client = await Client.findById(call.client);
 		if (!client) {
 			res.status(500).send({ message: 'Invalid client in call', OK: false });

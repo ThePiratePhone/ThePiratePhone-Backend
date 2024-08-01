@@ -1,5 +1,5 @@
 function getFileName(filename: string) {
-	return filename.split('\\').at(-1)?.split('/').at(-1) ?? 'error';
+	return filename?.split('\\')?.at(-1)?.split('/')?.at(-1) ?? 'error';
 }
 
 function clearPhone(phoneNumber: string): string {
@@ -61,36 +61,19 @@ function humainPhone(number: string) {
 	return newNumber;
 }
 
-function CleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | undefined) {
+function cleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | undefined) {
 	switch (status) {
 		case 'In progress':
 			return 'En cours';
 		case 'to recall':
-			return 'Doit etre rappelé·e';
+			return 'Doit être rappelé·e';
 		case 'Done':
-			return 'Applé·e';
+			return 'Appelé·e';
 		case 'deleted':
 			return 'Supprimé·e';
 		default:
-			return 'Aucune info';
+			return 'Pas appelé·e';
 	}
 }
 
-function cleanSatisfaction(satisfaction: number | null | undefined) {
-	switch (satisfaction) {
-		case 0:
-			return 'A voté';
-		case 1:
-			return 'Pas interessé·e';
-		case 2:
-			return 'Interessé·e';
-		case 3:
-			return 'Pas de réponse';
-		case 4:
-			return 'A retirer';
-		default:
-			return 'Aucune info';
-	}
-}
-
-export { clearPhone, getFileName, phoneNumberCheck, humainPhone, CleanStatus, cleanSatisfaction };
+export { clearPhone, getFileName, phoneNumberCheck, humainPhone, cleanStatus };
