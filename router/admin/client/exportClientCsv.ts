@@ -58,8 +58,8 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	const clients = Client.find(selector).cursor();
 	await clients.eachAsync(async client => {
 		const csvData: {
-			statut?: 'En cours' | 'Doit etre rappelé·e' | 'Applé·e' | 'Supprimé·e' | 'Aucune info';
-			resultat?: 'A voté' | 'Pas interessé·e' | 'Interessé·e' | 'Pas de réponse' | 'A retirer' | 'Aucune info';
+			statut?: 'Doit etre rappelé·e' | 'Applé·e';
+			resultat?: string;
 			appeleant?: string;
 			commentaire?: string;
 			nombreAppel?: number;
@@ -67,8 +67,8 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		const lastCall = await Call.findOne({ client: client._id, campaign: campaign?._id }).sort({ start: -1 });
 
 		if (lastCall) {
-			csvData.statut = CleanStatus(lastCall?.status);
-			csvData.resultat = cleanSatisfaction(lastCall?.satisfaction);
+			csvData.statut = lastCall.status ? 'Applé·e' : 'Doit etre rappelé·e';
+			csvData.resultat = lastCall?.satisfaction ?? 'Aucune info';
 			csvData.appeleant =
 				(await Caller.findOne({ client: lastCall.caller, area: area._id }, ['name']))?.name ?? 'Erreur';
 			csvData.commentaire = lastCall?.comment ?? '';

@@ -17,19 +17,16 @@ const CallModel = new mongoose.Schema({
 		required: true
 	},
 	satisfaction: {
-		type: Number,
-		required: false,
-		//[voted, not interested, interested, not answered, removed]
-		enum: [0, 1, 2, 3, 4]
+		type: String,
+		required: false
 	},
 	comment: {
 		type: String,
 		required: false
 	},
 	status: {
-		type: String,
-		required: true,
-		enum: ['In progress', 'to recall', 'Done', 'deleted']
+		type: Boolean,
+		required: false
 	},
 	start: {
 		type: Date,

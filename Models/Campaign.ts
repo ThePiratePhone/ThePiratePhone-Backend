@@ -25,11 +25,6 @@ const CampaignSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now()
 	},
-	trashUser: {
-		type: [mongoose.Schema.Types.ObjectId],
-		ref: 'Client',
-		required: true
-	},
 	password: {
 		type: String,
 		required: true
@@ -59,6 +54,11 @@ const CampaignSchema = new mongoose.Schema({
 		type: Boolean,
 		require: true,
 		default: true
+	},
+	status: {
+		type: [String],
+		require: true,
+		default: ['à suprimer', 'à rapeler', 'tout bon']
 	}
 });
 

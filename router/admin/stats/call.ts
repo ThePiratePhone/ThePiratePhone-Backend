@@ -39,14 +39,14 @@ export default async function call(req: Request<any>, res: Response<any>) {
 	}
 
 	let totalCalled = await Call.countDocuments({ campaign: campaign._id });
-	let totalNotRespond = await Call.countDocuments({ campaign: campaign._id, status: 'notRespond' });
+	let totalToRecall = await Call.countDocuments({ campaign: campaign._id, status: true });
 	let totalUser = await Client.countDocuments({ campaign: campaign._id });
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
 		data: {
 			totalCalled,
-			totalNotRespond,
+			totalToRecall,
 			totalUser
 		}
 	});

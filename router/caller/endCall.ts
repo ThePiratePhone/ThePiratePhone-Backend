@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb';
 
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
+import { Campaign } from '../../Models/Campaign';
+import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
 import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 
@@ -26,7 +28,10 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  * @throws {400}: satisfaction is not a valid number
  * @throws {403}: Invalid credential
  * @throws {403}: No call in progress
- * @throws {500}: Internal error
+ * @throws {500}: Invalid campaign in call
+ * @throws {500}: satisfaction is not in campaign
+ * @throws {500}: client deleted error
+ * @throws {500}: invalid client in call
  * @throws {200}: Call ended
  */
 export default async function endCall(req: Request<any>, res: Response<any>) {
@@ -37,7 +42,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		typeof req.body.pinCode != 'string' ||
 		typeof req.body.timeInCall != 'number' ||
 		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.satisfaction != 'number' ||
+		typeof req.body.satisfaction != 'string' ||
 		typeof req.body.status != 'boolean' ||
 		(req.body.comment && typeof req.body.comment != 'string')
 	) {
@@ -59,11 +64,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (![-1, 0, 1, 2, 3].includes(req.body.satisfaction)) {
-		res.status(400).send({ message: 'satisfaction is not a valid number', OK: false });
-		log(`satisfaction is not a valid number from ` + ip, 'WARNING', __filename);
-		return;
-	}
 	req.body.timeInCall = Math.min(req.body.timeInCall, 1_200_000);
 
 	const caller = await Caller.findOne(
@@ -76,24 +76,51 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const call = await Call.findOne({ caller: caller._id, status: 'In progress' }, [
+	const call = await Call.findOne({ caller: caller._id, satisfaction: 'In progress' }, [
 		'status',
 		'satisfaction',
 		'duration',
 		'comment',
-		'lastInteraction'
+		'lastInteraction',
+		'campaign',
+		'client'
 	]);
+
+	const campaign = await Campaign.findById(call?.campaign);
+	if (!campaign) {
+		res.status(500).send({ message: 'Invalid campaign in call', OK: false });
+		log(`invalid campaing in call ${call?.id} from: ${ip}`, 'ERROR', __filename);
+		return;
+	}
+
+	if (!campaign.status.find(s => s == req.body.satisfaction)) {
+		res.status(500).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
+		log(`satisfaction is not in campaign ${call?.id} from: ${ip}`, 'WARNING', __filename);
+		return;
+	}
+
 	if (!call) {
 		res.status(403).send({ message: 'No call in progress', OK: false });
 		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	call.status = req.body.status ? 'to recall' : 'Done';
-	if (req.body.satisfaction == -1) {
-		call.status = 'deleted';
-	} else if (req.body.satisfaction == 3) {
-		call.status = 'to recall';
+	call.status = req.body.status;
+	if (req.body.satisfaction == 'à suprimer') {
+		const client = await Client.findById(call.client);
+		if (!client) {
+			res.status(500).send({ message: 'Invalid client in call', OK: false });
+			log(`invalid client in call ${call.id} from: ${phone} (${ip})`, 'ERROR', __filename);
+			return;
+		}
+		client.delete = true;
+		try {
+			client.save();
+		} catch (error) {
+			log(`client deleted error with call ${call.id} from ${phone} (${ip})`, 'ERROR', __filename);
+			res.status(500).send({ message: 'client deleted error', OK: false });
+			return;
+		}
 	}
 
 	call.satisfaction = req.body.satisfaction;

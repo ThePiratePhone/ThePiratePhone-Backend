@@ -25,6 +25,7 @@ import listCallerCampaign from './router/admin/campaign/listCallerCampaign';
 import listCampaign from './router/admin/campaign/listCampaign';
 import listClientCampaign from './router/admin/campaign/listClientCampaign';
 import setActive from './router/admin/campaign/setActive';
+import setSatisfaction from './router/admin/campaign/setSatisfaction';
 import addCallerCampaign from './router/admin/client/addCallerCampaign';
 import clientInfo from './router/admin/client/clientInfo';
 import createClient from './router/admin/client/createClient';
@@ -111,6 +112,7 @@ router.post('/admin/campaign/listClientCampaign', listClientCampaign);
 router.post('/admin/campaign/listCampaign', listCampaign);
 router.post('/admin/campaign/getCampaign', getCampaign);
 router.post('/admin/campaign/changeScript', changeScript);
+router.post('/admin/campaign/setSatisfaction', setSatisfaction);
 
 //admin/
 router.post('/admin/changePassword', changePasswordAdmin);
