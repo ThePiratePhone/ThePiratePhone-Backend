@@ -63,9 +63,9 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 		return;
 	}
 
-	if (req.body.satisfactions && !req.body.satisfactions.includes('à suprimer')) {
+	if (req.body.satisfactions && !req.body.satisfactions.includes('À retirer')) {
 		res.status(400).send({
-			message: 'Invalid satisfaction, satisfactions must contain "à suprimer"',
+			message: 'Invalid satisfaction, satisfactions must contain "À retirer"',
 			OK: false
 		});
 		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);

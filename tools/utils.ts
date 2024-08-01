@@ -1,5 +1,5 @@
 function getFileName(filename: string) {
-	return filename.split('\\').at(-1)?.split('/').at(-1) ?? 'error';
+	return filename?.split('\\')?.at(-1)?.split('/')?.at(-1) ?? 'error';
 }
 
 function clearPhone(phoneNumber: string): string {
@@ -61,18 +61,18 @@ function humainPhone(number: string) {
 	return newNumber;
 }
 
-function CleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | undefined) {
+function cleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | undefined) {
 	switch (status) {
 		case 'In progress':
 			return 'En cours';
 		case 'to recall':
-			return 'Doit etre rappelé·e';
+			return 'Doit être rappelé·e';
 		case 'Done':
-			return 'Applé·e';
+			return 'Appelé·e';
 		case 'deleted':
 			return 'Supprimé·e';
 		default:
-			return 'Aucune info';
+			return 'Pas appelé·e';
 	}
 }
 
@@ -81,15 +81,15 @@ function cleanSatisfaction(satisfaction: number | null | undefined) {
 		case 0:
 			return 'A voté';
 		case 1:
-			return 'Pas interessé·e';
+			return 'Pas intéressé·e';
 		case 2:
-			return 'Interessé·e';
+			return 'Intéressé·e';
 		case 3:
 			return 'Pas de réponse';
 		case 4:
-			return 'A retirer';
+			return 'À retirer';
 		default:
-			return 'Aucune info';
+			return 'Pas appelé·e';
 	}
 }
 
