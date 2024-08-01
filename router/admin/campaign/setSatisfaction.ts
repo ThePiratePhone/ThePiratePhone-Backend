@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
+import { sanitizeString } from '../../../tools/utils';
 
 /**
  * Set the satisfaction of a campaign
@@ -71,6 +72,8 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}
+
+	req.body.satisfactions = req.body.satisfactions.map(sanitizeString);
 
 	await Campaign.updateOne({ _id: campaign._id }, { status: req.body.satisfactions });
 	res.status(200).send({ message: 'Satisfaction updated', OK: true });

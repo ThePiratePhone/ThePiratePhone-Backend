@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils';
 
 /**
  * Change caller name
@@ -47,6 +47,8 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		log('Wrong newName from ' + ip, 'WARNING', __filename);
 		return;
 	}
+
+	req.body.newName = sanitizeString(req.body.newName);
 
 	const change = await Caller.updateOne(
 		{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },

@@ -93,4 +93,9 @@ function cleanSatisfaction(satisfaction: number | null | undefined) {
 	}
 }
 
-export { clearPhone, getFileName, phoneNumberCheck, humainPhone, CleanStatus, cleanSatisfaction };
+function sanitizeString(str: string) {
+	str = str.replace(/[^\p{L}\p{N} \.,_-]/gu, '');
+	return str.trim();
+}
+
+export { cleanSatisfaction, cleanStatus, clearPhone, getFileName, humainPhone, phoneNumberCheck, sanitizeString };

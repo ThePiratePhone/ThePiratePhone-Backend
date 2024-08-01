@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
+import { sanitizeString } from '../../../tools/utils';
 
 /**
  * change the name of an area
@@ -38,6 +39,8 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		log(`bad new name from ${ip}`, 'WARNING', __filename);
 		return;
 	}
+
+	req.body.newName = sanitizeString(req.body.newName);
 	const update = await Area.updateOne(
 		{ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } },
 		{ name: req.body.newName }
