@@ -76,26 +76,9 @@ function cleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | 
 	}
 }
 
-function cleanSatisfaction(satisfaction: number | null | undefined) {
-	switch (satisfaction) {
-		case 0:
-			return 'A voté';
-		case 1:
-			return 'Pas intéressé·e';
-		case 2:
-			return 'Intéressé·e';
-		case 3:
-			return 'Pas de réponse';
-		case 4:
-			return 'À retirer';
-		default:
-			return 'Pas appelé·e';
-	}
-}
-
 function sanitizeString(str: string) {
 	str = str.replace(/[^\p{L}\p{N} \.,_-]/gu, '');
 	return str.trim();
 }
 
-export { cleanSatisfaction, cleanStatus, clearPhone, getFileName, humainPhone, phoneNumberCheck, sanitizeString };
+export { cleanStatus, clearPhone, getFileName, humainPhone, phoneNumberCheck, sanitizeString };
