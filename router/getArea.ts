@@ -12,7 +12,7 @@ export default async function getArea(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 
 	const area = await Area.find();
-	if (!area) {
+	if (!area || area.length == 0) {
 		res.status(404).send({ message: 'No area fond', OK: false });
 		log(`Error while getting area from ` + ip, 'WARNING', __filename);
 		return;
