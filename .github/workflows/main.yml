@@ -25,4 +25,4 @@ jobs:
               run: npm run testGit
               env:
                   CI: true
-                  URI: ${{ secrets.URI }}
+                  URITEST: ${{ secrets.URITEST }}
