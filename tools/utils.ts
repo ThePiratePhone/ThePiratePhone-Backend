@@ -1,3 +1,6 @@
+import mongoose from 'mongoose';
+import { log } from './log';
+
 function getFileName(filename: string) {
 	return filename.split('\\').at(-1)?.split('/').at(-1) ?? 'error';
 }
@@ -93,4 +96,72 @@ function cleanSatisfaction(satisfaction: number | null | undefined) {
 	}
 }
 
-export { clearPhone, getFileName, phoneNumberCheck, humainPhone, CleanStatus, cleanSatisfaction };
+/**
+ * Check if the parameters are in the body
+ * @param body
+ * @param res
+ * @param parameters - Array of [string, any] where the first string is the name of the parameter and the second is the type of the parameter
+ * @param orgin
+ * @returns boolean - true if all parameters are in the body
+ *
+ * @throws 400 - Missing parameters body is empty
+ * @throws 400 - Missing parameters ( first parameter missing)
+ */
+function checkParameters(
+	body: any,
+	res: any,
+	parameters: Array<
+		[
+			string,
+			'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function' | 'ObjectId'
+		]
+	>,
+	orgin: string
+): boolean {
+	const ip = res.req.hostname;
+	if (parameters.length == 0) return true;
+	if (!body || Object.keys(body).length == 0) {
+		res.status(400).send({ message: 'Missing parameters body is empty', OK: false });
+		log(`Missing parameters body is empty from ` + ip, 'WARNING', orgin);
+		return false;
+	}
+	for (let parameter of parameters) {
+		if (!body[parameter[0]]) {
+			res.status(400).send({ message: `Missing parameters (${parameter.join(':')})`, OK: false });
+			log(`Missing parameters (${parameter.join(':')}) from ` + ip, 'WARNING', orgin);
+			return false;
+		}
+
+		const errorText = `Wrong type for parameter (${parameter[0]} is type: ${typeof body[
+			parameter[0]
+		]} but required type is ${parameter[1]})`;
+		if (parameter[1] == 'ObjectId') {
+			if (body[parameter[0]].length != 24) {
+				res.status(400).send({
+					message: errorText,
+					OK: false
+				});
+				log(errorText + ` from ` + ip, 'WARNING', orgin);
+				return false;
+			}
+			if (!mongoose.isValidObjectId(body[parameter[0]])) {
+				res.status(400).send({
+					message: errorText,
+					OK: false
+				});
+				log(errorText + ` from ` + ip, 'WARNING', orgin);
+				return false;
+			}
+		} else if (typeof body[parameter[0]] != parameter[1]) {
+			res.status(400).send({
+				message: errorText,
+				OK: false
+			});
+			log(errorText + ` from ` + ip, 'WARNING', orgin);
+			return false;
+		}
+	}
+	return true;
+}
+
+export { checkParameters, cleanSatisfaction, CleanStatus, clearPhone, getFileName, humainPhone, phoneNumberCheck };

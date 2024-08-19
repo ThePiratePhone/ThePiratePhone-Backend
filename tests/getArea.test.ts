@@ -1,6 +1,6 @@
+import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import request from 'supertest';
-import dotenv from 'dotenv';
 import { Area } from '../Models/Area';
 import app from '../index';
 

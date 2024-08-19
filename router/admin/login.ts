@@ -5,6 +5,34 @@ import { Area } from '../../Models/Area';
 import { log } from '../../tools/log';
 import { Campaign } from '../../Models/Campaign';
 
+/**
+ * Check if the admin code is correct and return the area name and the actual campaign
+ * @example
+ *
+ * body: {
+ * 	adminCode: 'adminCode',
+ * 	area: 'areaId'
+ * }
+ *
+ * response: {
+ * 	message: 'OK',
+ * 	data: {
+ * 		areaName: 'areaName',
+ * 		actualCampaignId: 'campaignId',
+ * 		actualCampaignName: 'campaignName',
+ * 		actualCampaignCallStart: 'HH:MM',
+ * 		actualCampaignCallEnd: 'HH:MM',
+ * 		actualCampaignMaxCall: 10,
+ * 		actualCampaignScript: 'script',
+ * 		actualCampaignTimeBetweenCall: 10
+ * 	},
+ * 	OK: true
+ * }
+ *
+ * @throws 400 - Missing parameters
+ * @throws 401 - Wrong admin code
+ * @throws 500 - Internal error
+ */
 export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (!req.body || typeof req.body.adminCode != 'string' || !ObjectId.isValid(req.body.area)) {

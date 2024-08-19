@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * Change caller name
@@ -24,16 +24,19 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	const ip = req.hostname;
 
 	if (
-		!req.body ||
-		typeof req.body.pinCode != 'string' ||
-		typeof req.body.phone != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.newName != 'string'
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['newName', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	req.body.phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(req.body.phone)) {
