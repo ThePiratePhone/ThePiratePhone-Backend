@@ -8,7 +8,7 @@ import { log } from '../../../tools/log';
 import { Call } from '../../../Models/Call';
 
 export default async function call(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 
 	if (
 		!req.body ||

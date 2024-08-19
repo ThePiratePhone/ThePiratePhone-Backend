@@ -6,7 +6,7 @@ import { log } from '../../tools/log';
 import { Campaign } from '../../Models/Campaign';
 
 export default async function login(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (!req.body || typeof req.body.adminCode != 'string' || !ObjectId.isValid(req.body.area)) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from ` + ip, 'WARNING', 'login.ts');

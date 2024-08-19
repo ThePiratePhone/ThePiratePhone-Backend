@@ -25,7 +25,7 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  * @throws {200}: Call ended
  */
 export default async function giveUp(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||

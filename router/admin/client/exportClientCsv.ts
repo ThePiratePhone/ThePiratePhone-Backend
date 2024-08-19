@@ -11,7 +11,7 @@ import { log } from '../../../tools/log';
 import { cleanSatisfaction, CleanStatus, humainPhone } from '../../../tools/utils';
 
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||

@@ -23,7 +23,7 @@ import { Campaign } from '../../../Models/Campaign';
  * @throws {200} - OK
  */
 export default async function exportCallerCsv(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		(req.body.curentCamaign && typeof req.body.curentCamaign != 'boolean') ||

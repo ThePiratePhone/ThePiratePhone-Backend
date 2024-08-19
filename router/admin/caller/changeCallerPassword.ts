@@ -19,7 +19,7 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
  * }
  */
 export default async function changeCallerPassword(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||

@@ -24,7 +24,7 @@ function escapeRegExp(input: string): string {
  * @throws {200} OK
  */
 export default async function SearchByName(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.name != 'string' ||

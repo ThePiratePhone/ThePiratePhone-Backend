@@ -21,7 +21,7 @@ import { log } from '../../../tools/log';
  * @throws {200}: name of area changed
  */
 export default async function ChangeName(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||

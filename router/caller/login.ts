@@ -24,7 +24,7 @@ import { Types } from 'mongoose';
  * @throws {200}: Logged in
  */
 export default async function login(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (!req.body || typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string') {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', __filename);

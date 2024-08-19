@@ -28,7 +28,7 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
  * @throws {200}: Caller {newCaller.name} created
  */
 export default async function newCaller(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||

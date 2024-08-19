@@ -24,7 +24,7 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
  * @throws {200}: Caller removed
  */
 export default async function removeCaller(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
