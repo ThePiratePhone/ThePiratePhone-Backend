@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
@@ -39,7 +38,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	)
 		return;
 
-	if (req.body.pinCode.length != 4) {
+	if (req.body.pinCode.length != 4 || Number.isNaN(parseInt(req.body.pinCode))) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
 		log(`Invalid pin code from: ` + ip, 'WARNING', __filename);
 		return;
@@ -57,7 +56,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (req.body.newPin.length != 4) {
+	if (req.body.newPin.length != 4 || Number.isNaN(parseInt(req.body.newPin))) {
 		res.status(400).send({ message: 'Invalid new pin code', OK: false });
 		log(`Invalid new pin code from: (${phone}) ${ip}`, 'WARNING', __filename);
 		return;

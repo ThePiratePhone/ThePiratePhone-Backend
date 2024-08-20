@@ -25,10 +25,21 @@ afterAll(async () => {
 });
 
 describe('post on /caller/chagePassword', () => {
-	it('Should return 400 if pin code is not 4 digit', async () => {
+	it('Should return 400 if pin code is invalid', async () => {
 		const res = await request(app).post('/api/caller/changePassword').send({
 			phone: '0712345678',
 			pinCode: '123',
+			newPin: '1234',
+			area: areaId
+		});
+		expect(res.status).toBe(400);
+		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
+	});
+
+	it('Should return 400 if pin code is invalid', async () => {
+		const res = await request(app).post('/api/caller/changePassword').send({
+			phone: '0712345678',
+			pinCode: 'abcd',
 			newPin: '1234',
 			area: areaId
 		});
@@ -64,7 +75,7 @@ describe('post on /caller/chagePassword', () => {
 		expect(res.body).toEqual({ message: 'Invalid new pin code', OK: false });
 	});
 
-	it('Should return 200 if user is found', async () => {
+	it('Should return 400 if new pin code is not valid', async () => {
 		await Caller.create({
 			phone: '+33712345679',
 			pinCode: '1234',
@@ -74,6 +85,23 @@ describe('post on /caller/chagePassword', () => {
 		const res = await request(app).post('/api/caller/changePassword').send({
 			phone: '0712345679',
 			pinCode: '1234',
+			newPin: 'ABCD',
+			area: areaId
+		});
+		expect(res.status).toBe(400);
+		expect(res.body).toEqual({ message: 'Invalid new pin code', OK: false });
+	});
+
+	it('Should return 200 if user is found', async () => {
+		await Caller.create({
+			phone: '+33712345681',
+			pinCode: '1234',
+			name: 'name',
+			area: areaId
+		});
+		const res = await request(app).post('/api/caller/changePassword').send({
+			phone: '0712345681',
+			pinCode: '1234',
 			newPin: '1234',
 			area: areaId
 		});
@@ -82,7 +110,7 @@ describe('post on /caller/chagePassword', () => {
 	});
 
 	it('user password should be changed', async () => {
-		const caller = await Caller.findOne({ phone: '+33712345679' });
+		const caller = await Caller.findOne({ phone: '+33712345681' });
 		expect(caller?.pinCode).toBe('1234');
 	});
 });

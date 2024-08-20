@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * create caller, from caller page
@@ -28,19 +28,23 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 export default async function createCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.AreaPassword != 'string' ||
-		typeof req.body.CallerName != 'string'
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['area', 'ObjectId'],
+				['AreaPassword', 'string'],
+				['CallerName', 'string']
+			],
+			__filename
+		)
 	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	if (req.body.pinCode.length != 4) {
+	if (req.body.pinCode.length != 4 || Number.isNaN(parseInt(req.body.pinCode))) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
 		log(`Invalid pin code from: ` + ip, 'WARNING', __filename);
 		return;
@@ -51,12 +55,6 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
 		log(`Wrong phone number from: (${phone}) ${ip}`, 'WARNING', __filename);
-		return;
-	}
-
-	if (Number.isNaN(parseInt(req.body.pinCode))) {
-		res.status(400).send({ message: "Invalid pin code, pin code isn't only number", OK: false });
-		log(`Invalid pin code, pin code isn't only number from: (${phone}) ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -89,6 +87,6 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	res.status(200).send({ message: 'caller ' + newCaller.name + ' created from ' + ip, OK: true });
+	res.status(200).send({ message: 'Caller created', OK: true });
 	log(`Caller ${newCaller.name} created from ${area.name} (${ip})`, 'INFO', 'createCaller.ts');
 }

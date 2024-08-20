@@ -38,6 +38,12 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	)
 		return;
 
+	if (req.body.pinCode.length != 4 || Number.isNaN(parseInt(req.body.pinCode))) {
+		res.status(400).send({ message: 'Invalid pin code', OK: false });
+		log(`Invalid pin code from: ` + ip, 'WARNING', __filename);
+		return;
+	}
+
 	req.body.phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });

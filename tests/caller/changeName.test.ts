@@ -31,6 +31,28 @@ describe('post on /caller/changeName', () => {
 		expect(res.body).toEqual({ message: 'Wrong newName', OK: false });
 	});
 
+	it('Should return 400 if pin code is invalid', async () => {
+		const res = await request(app).post('/api/caller/changeName').send({
+			phone: '0712345678',
+			pinCode: '123',
+			newName: 'newName',
+			area: areaId
+		});
+		expect(res.status).toBe(400);
+		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
+	});
+
+	it('Should return 400 if pin code is invalid', async () => {
+		const res = await request(app).post('/api/caller/changeName').send({
+			phone: '071234567',
+			pinCode: 'abcd',
+			newName: 'newName',
+			area: areaId
+		});
+		expect(res.status).toBe(400);
+		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
+	});
+
 	it('Should return 400 if caller dont exist', async () => {
 		const res = await request(app).post('/api/caller/changeName').send({
 			phone: '0712345678',
