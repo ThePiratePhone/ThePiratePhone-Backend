@@ -61,6 +61,6 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	res.status(200).send({ message: 'Caller name changed', OK: false });
+	res.status(200).send({ message: 'Caller name changed', OK: true });
 	log('Caller name changed from ' + ip, 'INFO', __filename);
 }

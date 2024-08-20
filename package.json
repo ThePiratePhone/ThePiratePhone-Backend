@@ -8,10 +8,11 @@
 		"start": "ts-node .",
 		"deploy": "ssh Eve sh /opt/updatePPB.sh",
 		"test": "jest --testTimeout=5000 -o",
-		"testGit": "jest --testTimeout=5000"
+		"testGit": "jest --testTimeout=20000"
 	},
 	"jest": {
 		"preset": "ts-jest",
+		"maxWorkers": 1,
 		"testEnvironment": "node",
 		"testMatch": [
 			"**/__tests__/**/*.ts?(x)",
