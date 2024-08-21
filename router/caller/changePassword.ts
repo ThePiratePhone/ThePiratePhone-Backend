@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { checkParameters, clearPhone } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone } from '../../tools/utils';
 
 /**
  * Change the password of a caller
@@ -38,11 +38,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	)
 		return;
 
-	if (req.body.pinCode.length != 4 || Number.isNaN(parseInt(req.body.pinCode))) {
-		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ` + ip, 'WARNING', __filename);
-		return;
-	}
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 

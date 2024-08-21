@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * Change caller name
@@ -38,11 +37,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	)
 		return;
 
-	if (req.body.pinCode.length != 4 || Number.isNaN(parseInt(req.body.pinCode))) {
-		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ` + ip, 'WARNING', __filename);
-		return;
-	}
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	req.body.phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(req.body.phone)) {

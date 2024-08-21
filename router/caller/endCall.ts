@@ -1,12 +1,11 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * End a call
@@ -37,25 +36,24 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 export default async function endCall(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		typeof req.body.timeInCall != 'number' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.satisfaction != 'string' ||
-		typeof req.body.status != 'boolean' ||
-		(req.body.comment && typeof req.body.comment != 'string')
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ${ip}`, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['timeInCall', 'number'],
+				['satisfaction', 'string'],
+				['status', 'boolean'],
+				['area', 'ObjectId'],
+				['comment', 'string', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	if (req.body.pinCode.length != 4) {
-		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ${ip}`, 'WARNING', __filename);
-		return;
-	}
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {

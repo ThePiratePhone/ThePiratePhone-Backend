@@ -100,7 +100,7 @@ function cleanSatisfaction(satisfaction: number | null | undefined) {
  * Check if the parameters are in the body
  * @param body
  * @param res
- * @param parameters - Array of [string, any] where the first string is the name of the parameter and the second is the type of the parameter
+ * @param parameters - Array of [string, any, bolean?] where the first string is the name of the parameter and the second is the type of the parameter, the third is optional and is a boolean to check if the parameter is optional
  * @param orgin
  * @returns boolean - true if all parameters are in the body
  *
@@ -113,7 +113,8 @@ function checkParameters(
 	parameters: Array<
 		[
 			string,
-			'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function' | 'ObjectId'
+			'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function' | 'ObjectId',
+			boolean?
 		]
 	>,
 	orgin: string
@@ -126,6 +127,10 @@ function checkParameters(
 		return false;
 	}
 	for (let parameter of parameters) {
+		if (parameter[2] && !body[parameter[0]]) {
+			continue;
+		}
+
 		if (!body[parameter[0]]) {
 			res.status(400).send({ message: `Missing parameters (${parameter.join(':')})`, OK: false });
 			log(`Missing parameters (${parameter.join(':')}) from ` + ip, 'WARNING', orgin);
@@ -164,4 +169,21 @@ function checkParameters(
 	return true;
 }
 
-export { checkParameters, cleanSatisfaction, CleanStatus, clearPhone, getFileName, humainPhone, phoneNumberCheck };
+function checkPinCode(pinCode: string, res: any, orgin: string): boolean {
+	if (pinCode.length != 4 || Number.isNaN(parseInt(pinCode))) {
+		res.status(400).send({ message: 'Invalid pin code', OK: false });
+		log(`Invalid pin code from: ` + res.req.hostname, 'WARNING', orgin);
+		return false;
+	}
+	return true;
+}
+export {
+	checkParameters,
+	cleanSatisfaction,
+	CleanStatus,
+	clearPhone,
+	getFileName,
+	humainPhone,
+	phoneNumberCheck,
+	checkPinCode
+};

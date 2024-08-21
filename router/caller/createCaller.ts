@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * create caller, from caller page
@@ -44,11 +43,7 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	if (req.body.pinCode.length != 4 || Number.isNaN(parseInt(req.body.pinCode))) {
-		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ` + ip, 'WARNING', __filename);
-		return;
-	}
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 
