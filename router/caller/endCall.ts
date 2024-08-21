@@ -27,8 +27,7 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * @throws {400}: satisfaction is not a valid number
  * @throws {403}: Invalid credential
  * @throws {403}: No call in progress
- * @throws {500}: Invalid campaign in call
- * @throws {500}: satisfaction is not in campaign
+ * @throws {400}: Invalid campaign in call
  * @throws {500}: client deleted error
  * @throws {500}: invalid client in call
  * @throws {200}: Call ended
@@ -84,6 +83,12 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		'client'
 	]);
 
+	if (!call) {
+		res.status(403).send({ message: 'No call in progress', OK: false });
+		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
 	const campaign = await Campaign.findById(call?.campaign);
 	if (!campaign) {
 		res.status(500).send({ message: 'Invalid campaign in call', OK: false });
@@ -91,15 +96,9 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (!campaign.status.find(s => s == req.body.satisfaction)) {
-		res.status(500).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
+	if (req.body.satisfaction != 'à suprimer' && !campaign.status.find(s => s == req.body.satisfaction)) {
+		res.status(400).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
 		log(`satisfaction is not in campaign ${call?.id} from: ${ip}`, 'WARNING', __filename);
-		return;
-	}
-
-	if (!call) {
-		res.status(403).send({ message: 'No call in progress', OK: false });
-		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 

@@ -7,7 +7,7 @@
 		"dev": "npx nodemon index.ts",
 		"start": "ts-node .",
 		"deploy": "ssh Eve sh /opt/updatePPB.sh",
-		"test": "jest --testTimeout=5000 -o",
+		"test": "jest --testTimeout=10000 -o",
 		"testGit": "jest --testTimeout=20000"
 	},
 	"jest": {
