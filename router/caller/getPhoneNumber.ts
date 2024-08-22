@@ -7,7 +7,7 @@ import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * Get a phone number to call
@@ -31,17 +31,21 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  */
 export default async function getPhoneNumber(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
-	if (typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string' || !ObjectId.isValid(req.body.area)) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
-		return;
-	}
 
-	if (req.body.pinCode.length != 4) {
-		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ` + ip, 'WARNING', __filename);
+	if (
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
@@ -58,8 +62,8 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		'active',
 		'status'
 	]);
-	if (!campaign) {
-		res.status(404).send({ message: 'Campaign not found', OK: false });
+	if (!campaign || !campaign.active) {
+		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
 		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
@@ -106,7 +110,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		res.status(200).send({
 			message: 'Client to call',
 			OK: true,
-			client: call.client,
+			client: await Client.findOne({ _id: { $eq: call.client } }, ['name', 'firstname', 'institution', 'phone']),
 			callHistory: await Call.find(
 				{
 					client: { $eq: call.client },
@@ -145,13 +149,16 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				$addFields: {
 					nbCalls: { $size: '$calls' },
 					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] },
-					lastStatus: { $ifNull: [{ $arrayElemAt: ['$calls.status', -1] }, null] }
+					lastStatus: { $ifNull: [{ $arrayElemAt: ['$calls.status', -1] }, null] },
+					lastSatisfaction: { $ifNull: [{ $arrayElemAt: ['$calls.satisfaction', -1] }, null] }
 				}
 			},
 			{
 				$match: {
 					$and: [
-						{ $or: [{ 'lastStatus.status': true }, { calls: { $size: 0 } }] }, // keep only client with status true or not called
+						{ delete: { $ne: true } }, // client not deleted
+						{ lastSatisfaction: { $ne: 'In progress' } }, // client not in call
+						{ $or: [{ lastStatus: true }, { nbCalls: 0 }] }, // keep only client with status true or not called
 						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // client not called too much
 						{
 							$or: [
@@ -160,18 +167,6 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 							]
 						}
 					]
-				}
-			},
-			{
-				$limit: 1
-			},
-			{
-				$project: {
-					_id: 1,
-					name: 1,
-					firstname: 1,
-					institution: 1,
-					phone: 1
 				}
 			}
 		]);
