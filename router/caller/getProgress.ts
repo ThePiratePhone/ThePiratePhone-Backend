@@ -6,7 +6,7 @@ import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * Get the progress of a caller
@@ -25,17 +25,23 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  */
 export default async function getProgress(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
+
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		(req.body.campaign && !ObjectId.isValid(req.body.campaign)) ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'getProgress.ts');
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['campaign', 'ObjectId', true],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
+
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
@@ -55,8 +61,8 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		return;
 	}
 	let campaign: InstanceType<typeof Campaign> | null;
-	if (req.body.campaignId) {
-		campaign = await Campaign.findOne({ _id: { $eq: req.body.campaignId } }, ['_id', 'area']);
+	if (req.body.campaign) {
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.campaign } }, ['_id', 'area']);
 	} else {
 		campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id', 'area']);
 	}
@@ -81,7 +87,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	});
 	const totalConvertion = await Call.countDocuments({
 		campaign: campaign._id,
-		$or: [{ status: 'Done' }, { status: 'deleted' }],
+		status: true,
 		satisfaction: 2
 	});
 
