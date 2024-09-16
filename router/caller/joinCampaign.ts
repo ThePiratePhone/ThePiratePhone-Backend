@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  *allow a caller to join a campaign
@@ -28,19 +28,23 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  */
 export default async function joinCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
-
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.campaignId) ||
-		typeof req.body.campaignPassword != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'joinCampaign.ts');
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['area', 'ObjectId'],
+				['campaignId', 'ObjectId'],
+				['campaignPassword', 'string']
+			],
+			__filename
+		)
+	)
 		return;
-	}
+
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {

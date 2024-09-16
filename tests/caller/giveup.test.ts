@@ -88,20 +88,18 @@ describe('post on /api/caller/giveup', () => {
 	});
 
 	it('should return 200 if call ended', async () => {
-		const out = await Call.create({
+		await Call.create({
 			caller: (await Caller.findOne({ phone: '+33334567890' }))?._id,
 			client: (await Client.findOne({ phone: '+33712457837' }))?._id,
 			campaign: campaignId,
 			satisfaction: 'In progress'
 		});
-		console.log(out);
 		const res = await request(app).post('/api/caller/giveup').send({
 			phone: '+33334567890',
 			pinCode: '1234',
 			area: areaId,
 			campaign: campaignId
 		});
-		console.log(res.status, res.body);
 		expect(res.status).toBe(200);
 		expect(res.body).toMatchObject({ message: 'Call ended', OK: true });
 	});

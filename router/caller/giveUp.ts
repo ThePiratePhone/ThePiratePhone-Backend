@@ -32,7 +32,6 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['campaign', 'ObjectId', true],
 				['area', 'ObjectId']
 			],
 			__filename
