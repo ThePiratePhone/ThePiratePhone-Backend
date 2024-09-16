@@ -19,7 +19,7 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /caller/changeName', () => {
+describe('post on /api/caller/changeName', () => {
 	it('Should return 400 if new name is empty', async () => {
 		const res = await request(app).post('/api/caller/changeName').send({
 			phone: '0712345678',

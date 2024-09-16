@@ -15,7 +15,7 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /getArea', () => {
+describe('post on /api/getArea', () => {
 	// return: { message: 'No area fond', OK: false }
 	it('Should return 404 if no area fond', async () => {
 		const res = await request(app).get('/api/getArea');

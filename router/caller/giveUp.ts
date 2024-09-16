@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * allow a caller to give up a call
@@ -19,7 +18,7 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  *
  * @throws {400}: Missing parameters
  * @throws {400}: Invalid phone number
- * @throws {403}: Invalid credential
+ * @throws {403}: Invalid credential or incorrect area
  * @throws {404}: No call in progress
  * @throws {500}: Internal error
  * @throws {200}: Call ended
@@ -27,20 +26,26 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 export default async function giveUp(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from : ${ip}`, 'WARNING', 'giveUp.ts');
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['campaign', 'ObjectId', true],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
+
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from: ${ip}`, 'WARNING', 'giveUp.ts');
+		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -49,12 +54,13 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 		['name', 'phone']
 	);
 	if (!caller) {
-		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', 'giveUp.ts');
+		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
+		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', 'giveUp.ts');
 		return;
 	}
 
-	const currentCall = await Call.findOne({ Caller: caller._id, status: 'In progress' }, ['_id']);
+	const currentCall = await Call.findOne({ caller: caller._id, satisfaction: 'In progress' }, ['_id']);
+
 	if (!currentCall) {
 		res.status(404).send({ message: 'No call in progress', OK: false });
 		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', 'giveUp.ts');

@@ -24,7 +24,7 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /caller/createCaller', () => {
+describe('post on /api/caller/createCaller', () => {
 	it('Should return 400 if pin code is invalid', async () => {
 		const res = await request(app).post('/api/caller/createCaller').send({
 			phone: '0712345678',

@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 import request from 'supertest';
 import app from '../../index';
 import { Area } from '../../Models/Area';
+import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
-import { Call } from '../../Models/Call';
 import { Client } from '../../Models/Client';
 
 dotenv.config({ path: '.env' });
@@ -19,32 +19,32 @@ beforeAll(async () => {
 	await Call.deleteMany({});
 	await Client.deleteMany({});
 	await Area.create({
-		name: 'getProgressTest',
+		name: 'giveupTest',
 		password: 'password',
 		campaignList: [],
 		adminPassword: 'adminPassword'
 	});
-	areaId = (await Area.findOne({ name: 'getProgressTest' }))?._id;
+	areaId = (await Area.findOne({ name: 'giveupTest' }))?._id;
 	await Campaign.create({
-		name: 'getProgressTest',
-		script: 'getProgressTest',
+		name: 'giveupTest',
+		script: 'giveupTest',
 		active: true,
 		area: areaId,
 		status: ['In progress', 'Finished'],
 		password: 'password'
 	});
-	campaignId = (await Campaign.findOne({ name: 'getProgressTest' }))?._id;
+	campaignId = (await Campaign.findOne({ name: 'giveupTest' }))?._id;
 	await Caller.create({
-		name: 'getProgressTest',
+		name: 'giveupTest',
 		phone: '+33334567890',
 		pinCode: '1234',
 		area: areaId,
 		campaigns: campaignId
 	});
 	await Client.create({
-		name: 'getProgress',
+		name: 'giveup',
 		firstname: 'test',
-		phone: '+33712457836',
+		phone: '+33712457837',
 		area: areaId,
 		campaigns: [campaignId]
 	});
@@ -53,10 +53,9 @@ beforeAll(async () => {
 afterAll(async () => {
 	await mongoose.connection.close();
 });
-
-describe('post on /api/caller/getProgress', () => {
+describe('post on /api/caller/giveup', () => {
 	it('should return 400 if phone is invalid', async () => {
-		const res = await request(app).post('/api/caller/getProgress').send({
+		const res = await request(app).post('/api/caller/giveup').send({
 			phone: 'invalid',
 			pinCode: '1234',
 			area: areaId,
@@ -67,7 +66,7 @@ describe('post on /api/caller/getProgress', () => {
 	});
 
 	it('should return 400 if caller dont exist', async () => {
-		const res = await request(app).post('/api/caller/getProgress').send({
+		const res = await request(app).post('/api/caller/giveup').send({
 			phone: '+33334567890',
 			pinCode: '1235',
 			area: areaId,
@@ -77,37 +76,33 @@ describe('post on /api/caller/getProgress', () => {
 		expect(res.body).toMatchObject({ message: 'Invalid credential or incorrect area', OK: false });
 	});
 
-	//desactivate becase if campaign is not in body, it will search for a campaign with active: true from the area
-	// it('should return 400 if Campaign dont exist', async () => {
-	// 	const res = await request(app).post('/api/caller/getProgress').send({
-	// 		phone: '+33334567890',
-	// 		pinCode: '1234',
-	// 		area: areaId,
-	// 		campaign: new mongoose.Types.ObjectId().toString()
-	// 	});
-	// 	expect(res.status).toBe(400);
-	// 	expect(res.body).toMatchObject({ message: 'Missing parameters body is empty', OK: false });
-	// });
-
-	it('should return 200 if all is ok', async () => {
-		const res = await request(app).post('/api/caller/getProgress').send({
+	it('should return 404 if no call in progress', async () => {
+		const res = await request(app).post('/api/caller/giveup').send({
 			phone: '+33334567890',
 			pinCode: '1234',
 			area: areaId,
 			campaign: campaignId
 		});
-		expect(res.status).toBe(200);
-		expect(res.body).toEqual({
-			message: 'OK',
-			OK: true,
-			data: {
-				totalClientCalled: 0,
-				totalDiscution: 0,
-				totalCall: 0,
-				totalUser: 1,
-				totalConvertion: 0,
-				totalCallTime: 0
-			}
+		expect(res.status).toBe(404);
+		expect(res.body).toMatchObject({ message: 'No call in progress', OK: false });
+	});
+
+	it('should return 200 if call ended', async () => {
+		const out = await Call.create({
+			caller: (await Caller.findOne({ phone: '+33334567890' }))?._id,
+			client: (await Client.findOne({ phone: '+33712457837' }))?._id,
+			campaign: campaignId,
+			satisfaction: 'In progress'
 		});
+		console.log(out);
+		const res = await request(app).post('/api/caller/giveup').send({
+			phone: '+33334567890',
+			pinCode: '1234',
+			area: areaId,
+			campaign: campaignId
+		});
+		console.log(res.status, res.body);
+		expect(res.status).toBe(200);
+		expect(res.body).toMatchObject({ message: 'Call ended', OK: true });
 	});
 });

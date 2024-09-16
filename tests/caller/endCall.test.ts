@@ -61,7 +61,7 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /caller/endCall', () => {
+describe('post on /api/caller/endCall', () => {
 	it('sould return 400 if invalid crential', async () => {
 		const res = await request(app).post('/api/caller/endCall').send({
 			phone: '+33234567890',

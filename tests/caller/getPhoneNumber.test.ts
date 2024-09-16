@@ -54,7 +54,7 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /caller/getPhoneNumber', () => {
+describe('post on /api/caller/getPhoneNumber', () => {
 	it('should return 400 if phone number is invalid', async () => {
 		const res = await request(app)
 			.post('/api/caller/getPhoneNumber')
