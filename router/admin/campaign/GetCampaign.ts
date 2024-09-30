@@ -37,7 +37,8 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 		'script',
 		'callPermited',
 		'nbMaxCallCampaign',
-		'satisfactions'
+		'satisfactions',
+		'status'
 	]);
 	if (!campaign) {
 		res.status(404).send({ message: 'no campaign', OK: false });
