@@ -62,7 +62,10 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 	}
 	if (!req.body.active) {
 		log(`Campaign activated from ${area.name} admin (${ip})`, 'INFO', __filename);
+		res.status(200).send({ message: 'Campaign activated', OK: true });
+		return;
 	} else {
-		log(`Campaign deactivated from ${area.name} admin (${ip})`, 'INFO', __filename);
+		log(`Campaign desactivated from ${area.name} admin (${ip})`, 'INFO', __filename);
+		res.status(200).send({ message: 'Campaign desactivated', OK: true });
 	}
 }
