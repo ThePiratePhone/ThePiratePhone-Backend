@@ -3,9 +3,9 @@ import { ObjectId } from 'mongodb';
 
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
-import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
 import { Client } from '../../Models/Client';
+import { log } from '../../tools/log';
+import { clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils';
 
 /**
  * Validate inprogress call
@@ -103,8 +103,8 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 		Client: client._id,
 		Caller: caller._id,
 		campaign: call.campaign,
-		satisfaction: req.body.satisfaction,
-		comment: req.body.comment,
+		satisfaction: sanitizeString(req.body.satisfaction),
+		comment: sanitizeString(req.body.comment),
 		status: req.body.status ? 'to recall' : 'Done',
 		duration: 0
 	});

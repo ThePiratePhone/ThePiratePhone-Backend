@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * create a client
@@ -33,7 +33,6 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		typeof req.body.phone != 'string' ||
 		typeof req.body.name != 'string' ||
 		typeof req.body.adminCode != 'string' ||
-		typeof req.body.pinCode != 'string' ||
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -55,13 +54,6 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const pin = req.body.pinCode;
-	if (pin.length == 4 || isNaN(parseInt(pin))) {
-		res.status(400).send({ message: 'Wrong pin code', OK: false });
-		log(`Wrong pin code from ${area.name} (${ip})`, 'WARNING', __filename);
-		return;
-	}
-
 	if ((await Client.findOne({ phone: phone })) != null) {
 		res.status(401).send({ message: 'User already exist', OK: false });
 		log(`User already exist from ${area.name} (${ip})`, 'WARNING', __filename);
@@ -69,9 +61,8 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	}
 
 	const user = new Client({
-		name: req.body.name,
+		name: sanitizeString(req.body.name),
 		phone: phone,
-		pinCode: req.body.pinCode,
 		area: area._id
 	});
 

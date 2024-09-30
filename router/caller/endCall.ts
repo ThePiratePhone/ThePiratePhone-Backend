@@ -5,7 +5,7 @@ import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
-import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeString } from 'tools/utils';
 
 /**
  * End a call
@@ -103,7 +103,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	}
 
 	call.status = req.body.status;
-	if (req.body.satisfaction == 'à suprimer') {
+	if (req.body.satisfaction == 'À retirer') {
 		const client = await Client.findById(call.client);
 		if (!client) {
 			res.status(500).send({ message: 'Invalid client in call', OK: false });
@@ -120,9 +120,9 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		}
 	}
 
-	call.satisfaction = req.body.satisfaction;
+	call.satisfaction = sanitizeString(req.body.satisfaction);
 	call.duration = req.body.timeInCall ?? 0;
-	if (req.body.comment) call.comment = req.body.comment;
+	if (req.body.comment) call.comment = sanitizeString(req.body.comment);
 	call.lastInteraction = new Date();
 
 	try {

@@ -58,7 +58,7 @@ const CampaignSchema = new mongoose.Schema({
 	status: {
 		type: [String],
 		require: true,
-		default: ['à suprimer', 'à rapeler', 'tout bon']
+		default: ['À retirer', 'À rappeler', 'Tout bon']
 	}
 });
 

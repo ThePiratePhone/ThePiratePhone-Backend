@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * change caller name
@@ -58,6 +58,8 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
+
+	req.body.newName = sanitizeString(req.body.newName);
 
 	const change = await Caller.updateOne({ phone: phone, area: { $eq: req.body.area } }, { name: req.body.newName });
 	if (change.matchedCount != 1) {

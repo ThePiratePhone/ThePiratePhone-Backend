@@ -5,7 +5,7 @@ import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * create clients, max size 500
@@ -68,8 +68,8 @@ export default async function createClients(req: Request<any>, res: Response<any
 				}
 				if ((await Client.countDocuments({ phone: phone })) == 0) {
 					const user = new Client({
-						name: usr[1],
-						firstname: usr[2],
+						name: sanitizeString(usr[1] as string),
+						firstname: sanitizeString(usr[2] as string),
 						phone: phone,
 						campaigns: [campaign._id]
 					});
