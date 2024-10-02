@@ -11,17 +11,18 @@ import { log } from './tools/log';
 
 dotenv.config({ path: '.env' });
 const port = 8443;
-
-// Connect to MongoDB using Mongoose
-mongoose
-	.connect(process.env.URI ?? '')
-	.then(() => {
-		log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
-	})
-	.catch(error => {
-		log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
-	});
-
+// in test, the test script will create the connection to the database
+if (!process?.env?.npm_lifecycle_script?.includes('jest')) {
+	// Connect to MongoDB using Mongoose
+	mongoose
+		.connect(process.env.URI ?? '')
+		.then(() => {
+			log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
+		})
+		.catch(error => {
+			log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
+		});
+}
 // Create an instance of the Express app
 const app = express();
 if (process.env.ISDEV == 'false') {
@@ -46,7 +47,7 @@ if (process.env.ISDEV == 'false') {
 			}
 		})
 	);
-} else {
+} else if (!process?.env?.npm_lifecycle_script?.includes('jest')) {
 	app.listen(port, () => {
 		log(`Listening at http://localhost:${port}`, 'DEBUG', __filename);
 	});
@@ -65,3 +66,5 @@ app.use('/api', router);
 app.get('/', (req, res) => {
 	res.send({ message: 'Hello World!' });
 });
+
+export default app;

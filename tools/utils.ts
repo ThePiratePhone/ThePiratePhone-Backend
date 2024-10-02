@@ -1,3 +1,6 @@
+import mongoose from 'mongoose';
+import { log } from './log';
+
 function getFileName(filename: string) {
 	return filename?.split('\\')?.at(-1)?.split('/')?.at(-1) ?? 'error';
 }
@@ -81,4 +84,95 @@ function sanitizeString(str: string) {
 	return str.trim();
 }
 
-export { cleanStatus, clearPhone, getFileName, humainPhone, phoneNumberCheck, sanitizeString };
+/**
+ * Check if the parameters are in the body
+ * @param body
+ * @param res
+ * @param parameters - Array of [string, any, bolean?] where the first string is the name of the parameter and the second is the type of the parameter, the third is optional and is a boolean to check if the parameter is optional
+ * @param orgin
+ * @returns boolean - true if all parameters are in the body
+ *
+ * @throws 400 - Missing parameters body is empty
+ * @throws 400 - Missing parameters ( first parameter missing)
+ */
+function checkParameters(
+	body: any,
+	res: any,
+	parameters: Array<
+		[
+			string,
+			'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function' | 'ObjectId',
+			boolean?
+		]
+	>,
+	orgin: string
+): boolean {
+	const ip = res.req.hostname;
+	if (parameters.length == 0) return true;
+	if (!body || Object.keys(body).length == 0) {
+		res.status(400).send({ message: 'Missing parameters body is empty', OK: false });
+		log(`Missing parameters body is empty from ` + ip, 'WARNING', orgin);
+		return false;
+	}
+	for (let parameter of parameters) {
+		if (parameter[2] && !body[parameter[0]]) {
+			continue;
+		}
+
+		if (!body[parameter[0]]) {
+			res.status(400).send({ message: `Missing parameters (${parameter.join(':')})`, OK: false });
+			log(`Missing parameters (${parameter.join(':')}) from ` + ip, 'WARNING', orgin);
+			return false;
+		}
+
+		const errorText = `Wrong type for parameter (${parameter[0]} is type: ${typeof body[
+			parameter[0]
+		]} but required type is ${parameter[1]})`;
+		if (parameter[1] == 'ObjectId') {
+			if (body[parameter[0]].length != 24) {
+				res.status(400).send({
+					message: errorText,
+					OK: false
+				});
+				log(errorText + ` from ` + ip, 'WARNING', orgin);
+				return false;
+			}
+			if (!mongoose.isValidObjectId(body[parameter[0]])) {
+				res.status(400).send({
+					message: errorText,
+					OK: false
+				});
+				log(errorText + ` from ` + ip, 'WARNING', orgin);
+				return false;
+			}
+		} else if (typeof body[parameter[0]] != parameter[1]) {
+			res.status(400).send({
+				message: errorText,
+				OK: false
+			});
+			log(errorText + ` from ` + ip, 'WARNING', orgin);
+			return false;
+		}
+	}
+	return true;
+}
+
+function checkPinCode(pinCode: string, res: any, orgin: string): boolean {
+	if (pinCode.length != 4 || Number.isNaN(parseInt(pinCode))) {
+		res.status(400).send({ message: 'Invalid pin code', OK: false });
+		log(`Invalid pin code from: ` + res.req.hostname, 'WARNING', orgin);
+		return false;
+	}
+	return true;
+}
+
+export {
+	checkParameters,
+	cleanStatus,
+	clearPhone,
+	getFileName,
+	humainPhone,
+	phoneNumberCheck,
+	checkPinCode,
+	sanitizeString
+};

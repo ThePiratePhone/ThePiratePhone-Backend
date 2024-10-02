@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { clearPhone } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone } from '../../tools/utils';
 
 /**
  * Change the password of a caller
@@ -23,24 +22,23 @@ import { clearPhone } from '../../tools/utils';
  *
  */
 export default async function changePassword(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.newPin != 'string'
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', 'changePassword.ts');
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['newPin', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	if (req.body.pinCode.length != 4) {
-		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ` + ip, 'WARNING', 'createCaller.ts');
-		return;
-	}
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 
@@ -50,13 +48,13 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: (${phone}) ${ip}`, 'WARNING', 'changePassword.ts');
+		log(`Invalid credential from: (${phone}) ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	if (req.body.newPin.length != 4) {
+	if (req.body.newPin.length != 4 || Number.isNaN(parseInt(req.body.newPin))) {
 		res.status(400).send({ message: 'Invalid new pin code', OK: false });
-		log(`Invalid new pin code from: (${phone}) ${ip}`, 'WARNING', 'createCaller.ts');
+		log(`Invalid new pin code from: (${phone}) ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -68,11 +66,11 @@ export default async function changePassword(req: Request<any>, res: Response<an
 
 		if (result.modifiedCount == 0) {
 			res.status(500).send({ message: 'Invalid database request', OK: false });
-			log(`Invalid database request from: ${caller.name} (${ip})`, 'CRITICAL', 'changePassword.ts');
+			log(`Invalid database request from: ${caller.name} (${ip})`, 'CRITICAL', __filename);
 			return;
 		}
 	}
 
 	res.status(200).send({ message: 'password changed', OK: true });
-	log(`user ${phone} password chnaged from: ${caller.name} (${ip})`, 'INFO', 'changePassword.ts');
+	log(`user ${phone} password chnaged from: ${caller.name} (${ip})`, 'INFO', __filename);
 }

@@ -31,7 +31,7 @@ import { clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils'
  * @throws {200}: Call ended
  */
 export default async function validateCall(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||

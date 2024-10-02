@@ -29,7 +29,7 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
  * @throws {200} if no call found for this client
  */
 export default async function clientInfo(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||

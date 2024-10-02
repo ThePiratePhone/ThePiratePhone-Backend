@@ -27,7 +27,7 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
  * @throws {200} if OK
  */
 export default async function removeClient(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.phone != 'string' ||

@@ -4,7 +4,7 @@ const ClientSchema = new mongoose.Schema({
 	name: {
 		type: String,
 		index: 'text',
-		required: false
+		required: true
 	},
 	firstname: {
 		type: String,

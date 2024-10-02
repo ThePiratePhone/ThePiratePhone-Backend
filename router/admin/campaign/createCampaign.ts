@@ -28,7 +28,7 @@ import { log } from '../../../tools/log';
  * @throws {500}: Internal error
  **/
 export default async function createCampaign(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		typeof req.body.name != 'string' ||

@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb';
 import { Caller } from '../../../Models/Caller';
 
 export default async function numberOfCallers(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		!ObjectId.isValid(req.body.campaign) ||

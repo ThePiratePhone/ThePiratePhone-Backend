@@ -1,18 +1,17 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils';
 
 /**
  * End a call
  * @example
  * body:{
- * 	"phone": string,
+ * 	"phone": string,+
  * 	"pinCode": string  {max 4 number},
  * 	"timeInCall": number,
  * 	"satisfaction": number {-1, 0, 1, 2, 3, 4},
@@ -28,34 +27,32 @@ import { clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils'
  * @throws {400}: satisfaction is not a valid number
  * @throws {403}: Invalid credential
  * @throws {403}: No call in progress
- * @throws {500}: Invalid campaign in call
- * @throws {500}: satisfaction is not in campaign
+ * @throws {400}: Invalid campaign in call
  * @throws {500}: client deleted error
  * @throws {500}: invalid client in call
  * @throws {200}: Call ended
  */
 export default async function endCall(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		typeof req.body.timeInCall != 'number' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.satisfaction != 'string' ||
-		typeof req.body.status != 'boolean' ||
-		(req.body.comment && typeof req.body.comment != 'string')
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ${ip}`, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['timeInCall', 'number'],
+				['satisfaction', 'string'],
+				['status', 'boolean'],
+				['area', 'ObjectId'],
+				['comment', 'string', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	if (req.body.pinCode.length != 4) {
-		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ${ip}`, 'WARNING', __filename);
-		return;
-	}
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
@@ -86,6 +83,12 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		'client'
 	]);
 
+	if (!call) {
+		res.status(403).send({ message: 'No call in progress', OK: false });
+		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
 	const campaign = await Campaign.findById(call?.campaign);
 	if (!campaign) {
 		res.status(500).send({ message: 'Invalid campaign in call', OK: false });
@@ -93,15 +96,9 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (!campaign.status.find(s => s == req.body.satisfaction)) {
-		res.status(500).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
+	if (req.body.satisfaction != 'À retirer' && !campaign.status.find(s => s == req.body.satisfaction)) {
+		res.status(400).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
 		log(`satisfaction is not in campaign ${call?.id} from: ${ip}`, 'WARNING', __filename);
-		return;
-	}
-
-	if (!call) {
-		res.status(403).send({ message: 'No call in progress', OK: false });
-		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 

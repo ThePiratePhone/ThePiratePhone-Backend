@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 import { Types } from 'mongoose';
 
 /**
@@ -24,7 +23,7 @@ import { Types } from 'mongoose';
  * @throws {200}: Logged in
  */
 export default async function login(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (!req.body || typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string') {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
@@ -35,6 +34,22 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		log(`Wrong pin code from: ` + ip, 'WARNING', __filename);
 		return;
 	}
+
+	if (
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string']
+			],
+			__filename
+		)
+	)
+		return;
+
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
+
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });

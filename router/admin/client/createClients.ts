@@ -22,7 +22,7 @@ import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/uti
  * @throws {200}: all fine
  */
 export default async function createClients(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 	if (
 		!req.body ||
 		!(req.body.data instanceof Array) ||

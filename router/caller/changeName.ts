@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils';
 
 /**
  * Change caller name
@@ -21,19 +20,24 @@ import { clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils'
  * @throws {200}: Caller name changed
  */
 export default async function ChangeName(req: Request<any>, res: Response<any>) {
-	const ip = req.socket?.remoteAddress?.split(':').pop();
+	const ip = req.hostname;
 
 	if (
-		!req.body ||
-		typeof req.body.pinCode != 'string' ||
-		typeof req.body.phone != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.newName != 'string'
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['newName', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
+
+	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
 
 	req.body.phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(req.body.phone)) {
@@ -60,6 +64,6 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	res.status(200).send({ message: 'Caller name changed', OK: false });
+	res.status(200).send({ message: 'Caller name changed', OK: true });
 	log('Caller name changed from ' + ip, 'INFO', __filename);
 }
