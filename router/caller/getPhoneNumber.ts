@@ -175,6 +175,15 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 						}
 					]
 				}
+			},
+			{
+				$project: {
+					_id: 1,
+					name: 1,
+					firstname: 1,
+					institution: 1,
+					phone: 1
+				}
 			}
 		]);
 	} catch (e) {
