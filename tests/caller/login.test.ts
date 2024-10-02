@@ -88,7 +88,6 @@ describe('post on /api/caller/login', () => {
 			phone: '+33334567902',
 			pinCode: '1234'
 		});
-		console.log(res.body, res.status);
 		expect(res.status).toBe(500);
 		expect(res.body.OK).toBe(false);
 	});

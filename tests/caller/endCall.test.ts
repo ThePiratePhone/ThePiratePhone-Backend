@@ -199,7 +199,7 @@ describe('post on /api/caller/endCall', () => {
 			phone: '+33234567894',
 			pinCode: '1234',
 			timeInCall: 1000,
-			satisfaction: 'à suprimer',
+			satisfaction: 'À retirer',
 			status: true,
 			area: areaId
 		});
@@ -225,7 +225,7 @@ describe('post on /api/caller/endCall', () => {
 			phone: '+33234567890',
 			pinCode: '1234',
 			timeInCall: 1000,
-			satisfaction: 'à suprimer',
+			satisfaction: 'À retirer',
 			status: true,
 			area: areaId
 		});

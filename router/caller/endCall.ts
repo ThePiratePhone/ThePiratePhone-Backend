@@ -5,13 +5,13 @@ import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
-import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeString } from 'tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeString } from '../../tools/utils';
 
 /**
  * End a call
  * @example
  * body:{
- * 	"phone": string,
+ * 	"phone": string,+
  * 	"pinCode": string  {max 4 number},
  * 	"timeInCall": number,
  * 	"satisfaction": number {-1, 0, 1, 2, 3, 4},
@@ -96,7 +96,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (req.body.satisfaction != 'à suprimer' && !campaign.status.find(s => s == req.body.satisfaction)) {
+	if (req.body.satisfaction != 'À retirer' && !campaign.status.find(s => s == req.body.satisfaction)) {
 		res.status(400).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
 		log(`satisfaction is not in campaign ${call?.id} from: ${ip}`, 'WARNING', __filename);
 		return;
