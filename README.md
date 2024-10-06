@@ -27,3 +27,15 @@ ISDEV=true
 ```bash
 npm start
 ```
+
+## test
+
+```bash
+npm run test
+```
+
+or
+
+```bash
+npm run test file
+```

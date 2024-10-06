@@ -119,7 +119,7 @@ function checkParameters(
 			continue;
 		}
 
-		if (!body[parameter[0]]) {
+		if (body[parameter[0]] == undefined) {
 			res.status(400).send({ message: `Missing parameters (${parameter.join(':')})`, OK: false });
 			log(`Missing parameters (${parameter.join(':')}) from ` + ip, 'WARNING', orgin);
 			return false;
@@ -128,6 +128,7 @@ function checkParameters(
 		const errorText = `Wrong type for parameter (${parameter[0]} is type: ${typeof body[
 			parameter[0]
 		]} but required type is ${parameter[1]})`;
+
 		if (parameter[1] == 'ObjectId') {
 			if (body[parameter[0]].length != 24) {
 				res.status(400).send({
@@ -145,6 +146,13 @@ function checkParameters(
 				log(errorText + ` from ` + ip, 'WARNING', orgin);
 				return false;
 			}
+		} else if (parameter[1] == 'number' && isNaN(body[parameter[0]])) {
+			res.status(400).send({
+				message: errorText,
+				OK: false
+			});
+			log(errorText + ` from ` + ip, 'WARNING', orgin);
+			return false;
 		} else if (typeof body[parameter[0]] != parameter[1]) {
 			res.status(400).send({
 				message: errorText,
