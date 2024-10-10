@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../Models/Area';
 import { log } from '../../tools/log';
 import { Campaign } from '../../Models/Campaign';
+import { checkParameters } from '../../tools/utils';
 
 /**
  * Check if the admin code is correct and return the area name and the actual campaign
@@ -35,11 +36,19 @@ import { Campaign } from '../../Models/Campaign';
  */
 export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
-	if (!req.body || typeof req.body.adminCode != 'string' || !ObjectId.isValid(req.body.area)) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'login.ts');
+
+	if (
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['area', 'ObjectId']
+			],
+			'login.ts'
+		)
+	)
 		return;
-	}
 
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
 	if (!area) {
@@ -61,7 +70,8 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			actualCampaignMaxCall: campaign?.nbMaxCallCampaign ?? undefined,
 			actualCampaignScript: campaign?.script ?? undefined,
 			actualCampaignStatus: campaign?.status ?? undefined,
-			actualCampaignTimeBetweenCall: campaign?.timeBetweenCall ?? undefined
+			actualCampaignTimeBetweenCall: campaign?.timeBetweenCall ?? undefined,
+			actualCampaignCallPermited: campaign?.callPermited ?? undefined
 		},
 		OK: true
 	});
