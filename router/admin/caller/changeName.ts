@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * change caller name
@@ -28,16 +28,19 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	const ip = req.hostname;
 
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.newName != 'string'
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['phone', 'string'],
+				['newName', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
@@ -47,8 +50,8 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	}
 	req.body.newName = req.body.newName.trim();
 	if (req.body.newName == '') {
-		res.status(400).send({ message: 'Wrong newName number', OK: false });
-		log('Wrong newName number from ' + ip, 'WARNING', __filename);
+		res.status(400).send({ message: 'Wrong newName', OK: false });
+		log('Wrong newName from ' + ip, 'WARNING', __filename);
 		return;
 	}
 
@@ -68,6 +71,6 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	res.status(200).send({ message: 'Caller name changed', OK: false });
+	res.status(200).send({ message: 'Caller name changed', OK: true });
 	log('Caller name changed from ' + ip, 'INFO', __filename);
 }
