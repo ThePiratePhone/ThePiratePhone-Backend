@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * change caller password
@@ -32,6 +32,26 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 		return;
 	}
 
+	if (
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['newPassword', 'string'],
+				['Callerphone', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
+		return;
+
+	if (req.body.newPassword.length != 4 || Number.isNaN(parseInt(req.body.newPassword))) {
+		res.status(400).send({ message: 'Invalid new pin code', OK: false });
+		log(`Invalid new pin code from: ` + ip, 'WARNING', __filename);
+		return;
+	}
 	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
