@@ -41,11 +41,11 @@
 		"chalk": "^4.1.2",
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.5",
-		"express": "^4.21.0",
-		"express-rate-limit": "^7.4.0",
+		"express": "^4.21.1",
+		"express-rate-limit": "^7.4.1",
 		"https": "^1.0.0",
 		"mongodb": "^6.9.0",
-		"mongoose": "^8.7.0",
+		"mongoose": "^8.7.1",
 		"supertest": "^7.0.0",
 		"ts-jest": "^29.2.5"
 	}
