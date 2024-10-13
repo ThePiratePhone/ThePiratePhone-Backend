@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import request from 'supertest';
-import app from '../../index';
-import { Area } from '../../Models/Area';
-import { Caller } from '../../Models/Caller';
+import app from '../../../index';
+import { Area } from '../../../Models/Area';
+import { Caller } from '../../../Models/Caller';
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
 let callerId: mongoose.Types.ObjectId | undefined;

@@ -216,14 +216,15 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		message: 'Client to call',
 		OK: true,
 		client: client[0],
-		callHistory: await Call.findOne(
-			{
-				client: { $eq: client[0]?._id },
-				campaign: { $eq: campaign.id },
-				satisfaction: { $ne: 'In progress' }
-			},
-			['status', 'satisfaction', 'duration', 'comment', 'start']
-		),
+		callHistory:
+			(await Call.findOne(
+				{
+					client: { $eq: client[0]?._id },
+					campaign: { $eq: campaign.id },
+					satisfaction: { $ne: 'In progress' }
+				},
+				['status', 'satisfaction', 'duration', 'comment', 'start']
+			)) ?? [],
 		script: campaign.script,
 		status: campaign.status
 	});

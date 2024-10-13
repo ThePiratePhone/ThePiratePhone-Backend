@@ -112,7 +112,8 @@ export default async function login(req: Request<any>, res: Response<any>) {
 						callHoursStart: c.callHoursStart,
 						callHoursEnd: c.callHoursEnd,
 						areaId: cArea?._id,
-						areaName: cArea?.name
+						areaName: cArea?.name,
+						campaignStatus: c.status
 					};
 				})
 			)
