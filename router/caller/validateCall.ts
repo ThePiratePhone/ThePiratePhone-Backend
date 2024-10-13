@@ -41,7 +41,7 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 				['phone', 'string'],
 				['pinCode', 'string'],
 				['area', 'ObjectId'],
-				['satisfaction', 'number'],
+				['satisfaction', 'string'],
 				['status', 'boolean'],
 				['phoneNumber', 'string'],
 				['comment', 'string', true]
