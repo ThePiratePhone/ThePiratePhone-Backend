@@ -10,7 +10,7 @@ export default async function changePasword(req: Request<any>, res: Response<any
 	if (
 		!req.body ||
 		typeof req.body.adminCode != 'string' ||
-		req.body.newAdminCode ||
+		typeof req.body.newAdminCode != 'string' || req.body.newAdminCode.trim() === '' ||
 		!ObjectId.isValid(req.body.area)
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
@@ -25,7 +25,7 @@ export default async function changePasword(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: area._id }, { adminPassword: req.body.newAdminCode });
+	const output = await Campaign.updateOne({ _id: area._id }, { adminPassword: { $eq: req.body.newAdminCode } });
 
 	if (output.modifiedCount == 0) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });

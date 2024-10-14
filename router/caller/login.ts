@@ -82,6 +82,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			_id: Types.ObjectId;
 			areaId: Types.ObjectId;
 			areaName: string;
+			status: Array<string>;
 		}[];
 	};
 	try {
@@ -95,7 +96,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 				],
 				active: true
 			},
-			['_id', 'name', 'callHoursStart', 'callHoursEnd', 'area']
+			['_id', 'name', 'callHoursStart', 'callHoursEnd', 'area', 'status']
 		);
 
 		areaCombo = {
@@ -113,7 +114,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 						callHoursEnd: c.callHoursEnd,
 						areaId: cArea?._id,
 						areaName: cArea?.name,
-						campaignStatus: c.status
+						status: c.status
 					};
 				})
 			)

@@ -52,7 +52,7 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 		log(`Invalid phone number from ` + ip, 'WARNING', __filename);
 		return;
 	}
-	const result = await Caller.updateOne({ phone: phone, area: area._id }, { pinCode: req.body.newPassword });
+	const result = await Caller.updateOne({ phone: phone, area: area._id }, { pinCode: { $eq: req.body.newPassword } });
 	if (result.matchedCount != 1) {
 		res.status(404).send({ message: 'Caller not found or same password', OK: false });
 		log(`Caller not found or same password from ${area.name} admin (${ip})`, 'WARNING', __filename);

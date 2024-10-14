@@ -52,7 +52,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (req.body.newPin.length != 4 || Number.isNaN(parseInt(req.body.newPin))) {
+	if (typeof req.body.newPin !== 'string' || req.body.newPin.length != 4 || Number.isNaN(parseInt(req.body.newPin))) {
 		res.status(400).send({ message: 'Invalid new pin code', OK: false });
 		log(`Invalid new pin code from: (${phone}) ${ip}`, 'WARNING', __filename);
 		return;
@@ -61,7 +61,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	if (req.body.newPin != req.body.pinCode) {
 		const result = await Caller.updateOne(
 			{ phone: { $eq: phone }, pinCode: { $eq: req.body.pinCode } },
-			{ pinCode: req.body.newPin }
+			{ pinCode: { $eq: req.body.newPin } }
 		);
 
 		if (result.modifiedCount == 0) {
