@@ -31,10 +31,6 @@ const ClientSchema = new mongoose.Schema({
 	createdAt: {
 		type: Date,
 		default: Date.now()
-	},
-	delete: {
-		type: Boolean,
-		default: false
 	}
 });
 

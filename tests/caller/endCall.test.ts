@@ -194,17 +194,6 @@ describe('post on /api/caller/endCall', () => {
 			status: true,
 			area: areaId
 		});
-
-		const res = await request(app).post('/api/caller/endCall').send({
-			phone: '+33234567894',
-			pinCode: '1234',
-			timeInCall: 1000,
-			satisfaction: 'À retirer',
-			status: true,
-			area: areaId
-		});
-		expect(res.body).toEqual({ message: 'Invalid client in call', OK: false });
-		expect(res.status).toBe(500);
 	});
 
 	it('should work if all is good', async () => {
@@ -218,20 +207,5 @@ describe('post on /api/caller/endCall', () => {
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toEqual({ message: 'Call ended', OK: true });
-	});
-	it('client should be deleted', async () => {
-		await Call.updateMany({ satisfaction: 'Finished' }, { satisfaction: 'In progress' });
-		const res = await request(app).post('/api/caller/endCall').send({
-			phone: '+33234567890',
-			pinCode: '1234',
-			timeInCall: 1000,
-			satisfaction: 'À retirer',
-			status: true,
-			area: areaId
-		});
-		expect(res.status).toBe(200);
-		expect(res.body).toEqual({ message: 'Call ended', OK: true });
-		const client = await Client.findOne({ phone: '+33712457836' });
-		expect(client?.delete).toBe(true);
 	});
 });

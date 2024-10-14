@@ -75,7 +75,7 @@ describe('post on /api/admin/login', () => {
 				actualCampaignScript: 'script',
 				actualCampaignTimeBetweenCall: 10_800_000,
 				actualCampaignCallPermited: true,
-				actualCampaignStatus: ['À retirer', 'À rappeler', 'Tout bon']
+				actualCampaignStatus: ['À rappeler', 'Tout bon']
 			},
 			OK: true
 		});

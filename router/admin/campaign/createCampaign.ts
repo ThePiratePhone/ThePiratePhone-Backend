@@ -21,7 +21,6 @@ import { log } from '../../../tools/log';
  *
  * @throws {400}: Missing parameters
  * @throws {400}: Invalid satisfaction satisfactions must be a array<string>
- * @throws {400}: Invalid satisfaction satisfactions must contain "À retirer"
  * @throws {401}: Wrong admin code
  * @throws {400}: Campaign already exist
  * @throws {200}: Campaign created
@@ -47,15 +46,6 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 
 	if (req.body.satisfactions && req.body.satisfactions.some((s: any) => typeof s != 'string')) {
 		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
-		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
-		return;
-	}
-
-	if (req.body.satisfactions && !req.body.satisfactions.includes('À retirer')) {
-		res.status(400).send({
-			message: 'Invalid satisfaction, satisfactions must contain "À retirer"',
-			OK: false
-		});
 		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}

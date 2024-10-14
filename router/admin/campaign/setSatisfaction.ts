@@ -19,7 +19,6 @@ import { sanitizeString } from '../../../tools/utils';
  *
  * @throws {400} - Missing parameters
  * @throws {400} - Invalid satisfaction satisfactions must be a array<string>
- * @throws {400} - Invalid satisfaction satisfactions must contain "À retirer"
  * @throws {401} - Wrong admin code
  * @throws {401} - Wrong campaign id
  * @throws {200} - OK
@@ -60,15 +59,6 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 
 	if (req.body.satisfactions && req.body.satisfactions.some((s: any) => typeof s != 'string')) {
 		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
-		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
-		return;
-	}
-
-	if (req.body.satisfactions && !req.body.satisfactions.includes('À retirer')) {
-		res.status(400).send({
-			message: 'Invalid satisfaction, satisfactions must contain "À retirer"',
-			OK: false
-		});
 		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}

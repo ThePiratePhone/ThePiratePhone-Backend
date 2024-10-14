@@ -96,30 +96,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	if (req.body.satisfaction != 'À retirer' && !campaign.status.find(s => s == req.body.satisfaction)) {
-		res.status(400).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
-		log(`satisfaction is not in campaign ${call?.id} from: ${ip}`, 'WARNING', __filename);
-		return;
-	}
-
-	call.status = req.body.status;
-	if (req.body.satisfaction == 'À retirer') {
-		const client = await Client.findById(call.client);
-		if (!client) {
-			res.status(500).send({ message: 'Invalid client in call', OK: false });
-			log(`invalid client in call ${call.id} from: ${phone} (${ip})`, 'ERROR', __filename);
-			return;
-		}
-		client.delete = true;
-		try {
-			client.save();
-		} catch (error) {
-			log(`client deleted error with call ${call.id} from ${phone} (${ip})`, 'ERROR', __filename);
-			res.status(500).send({ message: 'client deleted error', OK: false });
-			return;
-		}
-	}
-
 	call.satisfaction = sanitizeString(req.body.satisfaction);
 	call.duration = req.body.timeInCall ?? 0;
 	if (req.body.comment) call.comment = sanitizeString(req.body.comment);
