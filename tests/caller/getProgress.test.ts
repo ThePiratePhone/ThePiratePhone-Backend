@@ -36,7 +36,7 @@ beforeAll(async () => {
 	campaignId = (await Campaign.findOne({ name: 'getProgressTest' }))?._id;
 	await Caller.create({
 		name: 'getProgressTest',
-		phone: '+33334567890',
+		phone: '+33734567890',
 		pinCode: '1234',
 		area: areaId,
 		campaigns: campaignId
@@ -68,7 +68,7 @@ describe('post on /api/caller/getProgress', () => {
 
 	it('should return 400 if caller dont exist', async () => {
 		const res = await request(app).post('/api/caller/getProgress').send({
-			phone: '+33334567890',
+			phone: '+33734567890',
 			pinCode: '1235',
 			area: areaId,
 			campaign: campaignId
@@ -80,7 +80,7 @@ describe('post on /api/caller/getProgress', () => {
 	//desactivate becase if campaign is not in body, it will search for a campaign with active: true from the area
 	// it('should return 400 if Campaign dont exist', async () => {
 	// 	const res = await request(app).post('/api/caller/getProgress').send({
-	// 		phone: '+33334567890',
+	// 		phone: '+33734567890',
 	// 		pinCode: '1234',
 	// 		area: areaId,
 	// 		campaign: new mongoose.Types.ObjectId().toString()
@@ -91,7 +91,7 @@ describe('post on /api/caller/getProgress', () => {
 
 	it('should return 200 if all is ok', async () => {
 		const res = await request(app).post('/api/caller/getProgress').send({
-			phone: '+33334567890',
+			phone: '+33734567890',
 			pinCode: '1234',
 			area: areaId,
 			campaign: campaignId

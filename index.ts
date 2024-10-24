@@ -15,7 +15,7 @@ const port = 8443;
 if (!process?.env?.npm_lifecycle_script?.includes('jest')) {
 	// Connect to MongoDB using Mongoose
 	mongoose
-		.connect(process.env.URI ?? '')
+		.connect(process.env.URITEST ?? '')
 		.then(() => {
 			log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
 		})

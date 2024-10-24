@@ -36,7 +36,7 @@ beforeAll(async () => {
 	campaignId = (await Campaign.findOne({ name: 'joincampaignTest' }))?._id;
 	await Caller.create({
 		name: 'joincampaignTest',
-		phone: '+33334567900',
+		phone: '+33534567900',
 		pinCode: '1234',
 		area: areaId,
 		campaigns: campaignId
@@ -68,7 +68,7 @@ describe('post on /api/caller/joinCampaign', () => {
 
 	it('should return 403 if caller not found', async () => {
 		const res = await request(app).post('/api/caller/joinCampaign').send({
-			phone: '+33334567901',
+			phone: '+33534567901',
 			pinCode: '1234',
 			area: areaId,
 			campaignId: campaignId,
@@ -80,7 +80,7 @@ describe('post on /api/caller/joinCampaign', () => {
 
 	it('should return 404 if campaign not found', async () => {
 		const res = await request(app).post('/api/caller/joinCampaign').send({
-			phone: '+33334567900',
+			phone: '+33534567900',
 			pinCode: '1234',
 			area: areaId,
 			campaignId: campaignId,
@@ -92,7 +92,7 @@ describe('post on /api/caller/joinCampaign', () => {
 
 	it('should return 403 if already joined campaign', async () => {
 		const res = await request(app).post('/api/caller/joinCampaign').send({
-			phone: '+33334567900',
+			phone: '+33534567900',
 			pinCode: '1234',
 			area: areaId,
 			campaignId: campaignId,
@@ -112,7 +112,7 @@ describe('post on /api/caller/joinCampaign', () => {
 			password: 'password2'
 		});
 		const res = await request(app).post('/api/caller/joinCampaign').send({
-			phone: '+33334567900',
+			phone: '+33534567900',
 			pinCode: '1234',
 			area: areaId,
 			campaignId: out._id,

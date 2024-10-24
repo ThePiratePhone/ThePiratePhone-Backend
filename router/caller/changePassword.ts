@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import { Caller } from '../../Models/Caller';
 import { log } from '../../tools/log';
-import { checkParameters, checkPinCode, clearPhone } from '../../tools/utils';
+import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * Change the password of a caller
@@ -39,11 +39,14 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		return;
 
 	if (!checkPinCode(req.body.pinCode, res, __filename)) return;
-
 	const phone = clearPhone(req.body.phone);
-
+	if (!phoneNumberCheck(phone)) {
+		res.status(400).send({ message: 'Wrong phone number', OK: false });
+		log('Wrong phone number from ' + ip, 'WARNING', __filename);
+		return;
+	}
 	const caller = await Caller.findOne(
-		{ phone: { $eq: phone }, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		{ phone: phone, pinCode: { $eq: String(req.body.pinCode) }, area: { $eq: req.body.area } },
 		['name']
 	);
 	if (!caller) {
@@ -60,8 +63,8 @@ export default async function changePassword(req: Request<any>, res: Response<an
 
 	if (req.body.newPin != req.body.pinCode) {
 		const result = await Caller.updateOne(
-			{ phone: { $eq: phone }, pinCode: { $eq: req.body.pinCode } },
-			{ pinCode: { $eq: req.body.newPin } }
+			{ phone: phone, pinCode: { $eq: String(req.body.pinCode) }, area: { $eq: req.body.area } },
+			{ pinCode: req.body.newPin }
 		);
 
 		if (result.modifiedCount == 0) {

@@ -36,7 +36,7 @@ beforeAll(async () => {
 	campaignId = (await Campaign.findOne({ name: 'loginTest' }))?._id;
 	await Caller.create({
 		name: 'loginTest',
-		phone: '+33334567901',
+		phone: '+33434567901',
 		pinCode: '1234',
 		area: areaId,
 		campaigns: campaignId
@@ -57,7 +57,7 @@ describe('post on /api/caller/login', () => {
 	});
 	it('should return 403 if credential is invalid', async () => {
 		const res = await request(app).post('/api/caller/login').send({
-			phone: '+33334567901',
+			phone: '+33434567901',
 			pinCode: '1235'
 		});
 		expect(res.status).toBe(403);
@@ -78,14 +78,14 @@ describe('post on /api/caller/login', () => {
 		const Ncaller = (
 			await Caller.create({
 				name: 'loginTest2',
-				phone: '+33334567902',
+				phone: '+33434567902',
 				pinCode: '1234',
 				area: fakeAreaID,
 				campaigns: campaignID2
 			})
 		)?._id;
 		const res = await request(app).post('/api/caller/login').send({
-			phone: '+33334567902',
+			phone: '+33434567902',
 			pinCode: '1234'
 		});
 		expect(res.status).toBe(500);
@@ -93,7 +93,7 @@ describe('post on /api/caller/login', () => {
 	});
 	it('should return 200 if all is correct', async () => {
 		const res = await request(app).post('/api/caller/login').send({
-			phone: '+33334567901',
+			phone: '+33434567901',
 			pinCode: '1234'
 		});
 		expect(res.status).toBe(200);

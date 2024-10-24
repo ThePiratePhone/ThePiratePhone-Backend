@@ -95,6 +95,11 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 		log(`invalid campaing in call ${call?.id} from: ${ip}`, 'ERROR', __filename);
 		return;
 	}
+	if (!campaign.status.includes(req.body.satisfaction)) {
+		res.status(400).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
+		log(`satisfaction is not in campaign from: ${ip}`, 'WARNING', __filename);
+		return;
+	}
 
 	call.satisfaction = sanitizeString(req.body.satisfaction);
 	call.duration = req.body.timeInCall ?? 0;

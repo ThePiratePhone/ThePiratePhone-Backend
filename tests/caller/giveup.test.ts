@@ -36,7 +36,7 @@ beforeAll(async () => {
 	campaignId = (await Campaign.findOne({ name: 'giveupTest' }))?._id;
 	await Caller.create({
 		name: 'giveupTest',
-		phone: '+33334567890',
+		phone: '+33634567890',
 		pinCode: '1234',
 		area: areaId,
 		campaigns: campaignId
@@ -67,7 +67,7 @@ describe('post on /api/caller/giveup', () => {
 
 	it('should return 400 if caller dont exist', async () => {
 		const res = await request(app).post('/api/caller/giveup').send({
-			phone: '+33334567890',
+			phone: '+33634567890',
 			pinCode: '1235',
 			area: areaId,
 			campaign: campaignId
@@ -78,7 +78,7 @@ describe('post on /api/caller/giveup', () => {
 
 	it('should return 404 if no call in progress', async () => {
 		const res = await request(app).post('/api/caller/giveup').send({
-			phone: '+33334567890',
+			phone: '+33634567890',
 			pinCode: '1234',
 			area: areaId,
 			campaign: campaignId
@@ -89,13 +89,13 @@ describe('post on /api/caller/giveup', () => {
 
 	it('should return 200 if call ended', async () => {
 		await Call.create({
-			caller: (await Caller.findOne({ phone: '+33334567890' }))?._id,
+			caller: (await Caller.findOne({ phone: '+33634567890' }))?._id,
 			client: (await Client.findOne({ phone: '+33712457837' }))?._id,
 			campaign: campaignId,
 			satisfaction: 'In progress'
 		});
 		const res = await request(app).post('/api/caller/giveup').send({
-			phone: '+33334567890',
+			phone: '+33634567890',
 			pinCode: '1234',
 			area: areaId,
 			campaign: campaignId

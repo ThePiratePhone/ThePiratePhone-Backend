@@ -41,7 +41,7 @@ beforeAll(async () => {
 	callerId = (
 		await Caller.create({
 			name: 'validateCallCaller',
-			phone: '+33434567901',
+			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
 			campaigns: campaignId
@@ -51,7 +51,7 @@ beforeAll(async () => {
 	clientId = (
 		await Client.create({
 			name: 'validateCallClient',
-			phone: '+33434567902',
+			phone: '+33334567902',
 			campaigns: [campaignId]
 		})
 	)._id;
@@ -75,7 +75,7 @@ describe('post on /api/caller/validateCall', () => {
 			phone: 'invalid',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 1,
+			satisfaction: 'Finished',
 			status: false,
 			phoneNumber: '34567902',
 			comment: 'comment'
@@ -87,12 +87,12 @@ describe('post on /api/caller/validateCall', () => {
 
 	it('should return 403 if pin is invalid', async () => {
 		const res = await request(app).post('/api/caller/validateCall').send({
-			phone: '+33434567901',
+			phone: '+33334567901',
 			pinCode: '1235',
 			area: areaId,
-			satisfaction: 1,
+			satisfaction: 'Finished',
 			status: false,
-			phoneNumber: '+33434567902',
+			phoneNumber: '+33334567902',
 			comment: 'comment'
 		});
 		expect(res.status).toBe(403);
@@ -102,12 +102,12 @@ describe('post on /api/caller/validateCall', () => {
 
 	it('should return 403 if phone is invalid', async () => {
 		const res = await request(app).post('/api/caller/validateCall').send({
-			phone: '+33434567903',
+			phone: '+33334567903',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 1,
+			satisfaction: 'Finished',
 			status: false,
-			phoneNumber: '+33434567902',
+			phoneNumber: '+33334567902',
 			comment: 'comment'
 		});
 		expect(res.status).toBe(403);
@@ -117,12 +117,12 @@ describe('post on /api/caller/validateCall', () => {
 
 	it('should return 404 if client is not found', async () => {
 		const res = await request(app).post('/api/caller/validateCall').send({
-			phone: '+33434567901',
+			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 1,
+			satisfaction: 'Finished',
 			status: false,
-			phoneNumber: '+33434567903',
+			phoneNumber: '+33334567903',
 			comment: 'comment'
 		});
 		expect(res.status).toBe(404);
@@ -141,7 +141,7 @@ describe('post on /api/caller/validateCall', () => {
 		)._id;
 		const caller = await Caller.create({
 			name: 'validateCallCaller2',
-			phone: '+33434567904',
+			phone: '+33334567904',
 			pinCode: '1234',
 			area: areaId
 		});
@@ -149,9 +149,9 @@ describe('post on /api/caller/validateCall', () => {
 			phone: caller.phone,
 			pinCode: caller.pinCode,
 			area: areaId,
-			satisfaction: 1,
+			satisfaction: 'Finished',
 			status: false,
-			phoneNumber: '+33434567904',
+			phoneNumber: '+33334567904',
 			comment: 'comment'
 		});
 		expect(res.status).toBe(404);
@@ -161,12 +161,12 @@ describe('post on /api/caller/validateCall', () => {
 
 	it('should return 404 if client is not found', async () => {
 		const res = await request(app).post('/api/caller/validateCall').send({
-			phone: '+33434567901',
+			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 1,
+			satisfaction: 'Finished',
 			status: false,
-			phoneNumber: '+33434567903',
+			phoneNumber: '+33334567903',
 			comment: 'comment'
 		});
 		expect(res.status).toBe(404);
@@ -178,18 +178,18 @@ describe('post on /api/caller/validateCall', () => {
 		const ClientId = (
 			await Client.create({
 				name: 'validateCallClient2',
-				phone: '+33434567905',
+				phone: '+33334567905',
 				campaigns: [campaignId]
 			})
 		)._id;
 
 		const res = await request(app).post('/api/caller/validateCall').send({
-			phone: '+33434567901',
+			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 1,
+			satisfaction: 'Finished',
 			status: false,
-			phoneNumber: '+33434567905',
+			phoneNumber: '+33334567905',
 			comment: 'comment'
 		});
 		expect(res.status).toBe(403);
@@ -199,12 +199,12 @@ describe('post on /api/caller/validateCall', () => {
 
 	it('should return 200 if all is ok', async () => {
 		const res = await request(app).post('/api/caller/validateCall').send({
-			phone: '+33434567901',
+			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 1,
+			satisfaction: 'Finished',
 			status: false,
-			phoneNumber: '+33434567902',
+			phoneNumber: '+33334567902',
 			comment: 'comment'
 		});
 		expect(res.status).toBe(200);

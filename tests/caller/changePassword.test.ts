@@ -11,13 +11,20 @@ beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
 	await Caller.deleteMany({});
 	await Area.deleteMany({});
-	await Area.create({
-		name: 'changepassordtest',
-		password: 'password',
-		campaignList: [],
-		adminPassword: 'adminPassword'
+	areaId = (
+		await Area.create({
+			name: 'changepassordtest',
+			password: 'password',
+			campaignList: [],
+			adminPassword: 'adminPassword'
+		})
+	).id;
+	await Caller.create({
+		phone: '+34112345681',
+		pinCode: '1234',
+		name: 'name',
+		area: areaId
 	});
-	areaId = (await Area.findOne({ name: 'changepassordtest' }))?._id;
 });
 
 afterAll(async () => {
@@ -27,7 +34,7 @@ afterAll(async () => {
 describe('post on /api/caller/chagePassword', () => {
 	it('Should return 400 if pin code is invalid', async () => {
 		const res = await request(app).post('/api/caller/changePassword').send({
-			phone: '0712345678',
+			phone: '+34112345681',
 			pinCode: '123',
 			newPin: '1234',
 			area: areaId
@@ -38,7 +45,7 @@ describe('post on /api/caller/chagePassword', () => {
 
 	it('Should return 400 if pin code is invalid', async () => {
 		const res = await request(app).post('/api/caller/changePassword').send({
-			phone: '0712345678',
+			phone: '+34112345681',
 			pinCode: 'abcd',
 			newPin: '1234',
 			area: areaId
@@ -49,7 +56,7 @@ describe('post on /api/caller/chagePassword', () => {
 
 	it('Should return 403 if caller dont exist', async () => {
 		const res = await request(app).post('/api/caller/changePassword').send({
-			phone: '0712345678',
+			phone: '+34112345682',
 			pinCode: '1234',
 			newPin: '1234',
 			area: areaId
@@ -59,14 +66,8 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('Should return 400 if new pin code is not 4 digit', async () => {
-		await Caller.create({
-			phone: '+33712345678',
-			pinCode: '1234',
-			name: 'name',
-			area: areaId
-		});
 		const res = await request(app).post('/api/caller/changePassword').send({
-			phone: '0712345678',
+			phone: '+34112345681',
 			pinCode: '1234',
 			newPin: '123',
 			area: areaId
@@ -76,14 +77,8 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('Should return 400 if new pin code is not valid', async () => {
-		await Caller.create({
-			phone: '+33712345679',
-			pinCode: '1234',
-			name: 'name',
-			area: areaId
-		});
 		const res = await request(app).post('/api/caller/changePassword').send({
-			phone: '0712345679',
+			phone: '+34112345681',
 			pinCode: '1234',
 			newPin: 'ABCD',
 			area: areaId
@@ -93,14 +88,8 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('Should return 200 if user is found', async () => {
-		await Caller.create({
-			phone: '+33712345681',
-			pinCode: '1234',
-			name: 'name',
-			area: areaId
-		});
 		const res = await request(app).post('/api/caller/changePassword').send({
-			phone: '0712345681',
+			phone: '+34112345681',
 			pinCode: '1234',
 			newPin: '1234',
 			area: areaId
@@ -110,7 +99,13 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('user password should be changed', async () => {
-		const caller = await Caller.findOne({ phone: '+33712345681' });
-		expect(caller?.pinCode).toBe('1234');
+		await request(app).post('/api/caller/changePassword').send({
+			phone: '+34112345681',
+			pinCode: '1234',
+			newPin: '1235',
+			area: areaId
+		});
+		const caller = await Caller.findOne({ phone: '+34112345681' });
+		expect(caller?.pinCode).toBe('1235');
 	});
 });

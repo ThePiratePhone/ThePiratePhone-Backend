@@ -15,7 +15,7 @@ function clearPhone(phoneNumber: string): string {
 	phoneNumber = phoneNumber.replaceAll('o', '0');
 	phoneNumber = phoneNumber.replaceAll('(', '');
 	phoneNumber = phoneNumber.replaceAll(')', '');
-	phoneNumber = phoneNumber.replaceAll('+', '');
+	phoneNumber = phoneNumber.replaceAll('+33', '33');
 
 	if (phoneNumber.startsWith('6') || phoneNumber.startsWith('7')) {
 		phoneNumber = '0' + phoneNumber;
@@ -146,7 +146,7 @@ function checkParameters(
 				log(errorText + ` from ` + ip, 'WARNING', orgin);
 				return false;
 			}
-		} else if (parameter[1] == 'number' && isNaN(body[parameter[0]])) {
+		} else if (parameter[1] == 'number' && isNaN(parseInt(body[parameter[0]]))) {
 			res.status(400).send({
 				message: errorText,
 				OK: false

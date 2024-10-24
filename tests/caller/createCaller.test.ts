@@ -27,7 +27,7 @@ afterAll(async () => {
 describe('post on /api/caller/createCaller', () => {
 	it('Should return 400 if pin code is invalid', async () => {
 		const res = await request(app).post('/api/caller/createCaller').send({
-			phone: '0712345678',
+			phone: '+33912345678',
 			pinCode: '123',
 			newName: 'newName',
 			area: areaId,
@@ -40,7 +40,7 @@ describe('post on /api/caller/createCaller', () => {
 
 	it('Should return 400 if pin code is invalid', async () => {
 		const res = await request(app).post('/api/caller/createCaller').send({
-			phone: '071234567',
+			phone: '+33912345678',
 			pinCode: 'abcd',
 			newName: 'newName',
 			area: areaId,
@@ -53,7 +53,7 @@ describe('post on /api/caller/createCaller', () => {
 
 	it('Should return 400 if phone number is wrong', async () => {
 		const res = await request(app).post('/api/caller/createCaller').send({
-			phone: '071234567',
+			phone: '+3391234567',
 			pinCode: '1234',
 			area: areaId,
 			AreaPassword: 'password',
@@ -65,7 +65,7 @@ describe('post on /api/caller/createCaller', () => {
 
 	it('Should return 404 if area not found', async () => {
 		const res = await request(app).post('/api/caller/createCaller').send({
-			phone: '0712345678',
+			phone: '+33912345678',
 			pinCode: '1234',
 			area: areaId,
 			AreaPassword: 'notpassword',
@@ -77,13 +77,13 @@ describe('post on /api/caller/createCaller', () => {
 
 	it('Should return 409 if caller already exist', async () => {
 		await Caller.create({
-			phone: '+33712345678',
+			phone: '+33912345678',
 			pinCode: '1234',
 			name: 'name',
 			area: areaId
 		});
 		const res = await request(app).post('/api/caller/createCaller').send({
-			phone: '0712345678',
+			phone: '+33912345678',
 			pinCode: '1234',
 			area: areaId,
 			AreaPassword: 'password',
@@ -95,7 +95,7 @@ describe('post on /api/caller/createCaller', () => {
 
 	it('Should return 200 if caller is created', async () => {
 		const res = await request(app).post('/api/caller/createCaller').send({
-			phone: '0712345679',
+			phone: '+33912345679',
 			pinCode: '1234',
 			area: areaId,
 			AreaPassword: 'password',
@@ -106,7 +106,7 @@ describe('post on /api/caller/createCaller', () => {
 	});
 
 	it('the caller should be in the database', async () => {
-		const caller = await Caller.findOne({ phone: '+33712345679' });
+		const caller = await Caller.findOne({ phone: '+33912345679' });
 		expect(caller?.name).toBe('name');
 	});
 });
