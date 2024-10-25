@@ -12,7 +12,7 @@ import { log } from './tools/log';
 dotenv.config({ path: '.env' });
 const port = 8443;
 // in test, the test script will create the connection to the database
-if (!process?.env?.npm_lifecycle_script?.includes('jest')) {
+if (process.env.JEST_WORKER_ID == undefined) {
 	// Connect to MongoDB using Mongoose
 	mongoose
 		.connect(process.env.URITEST ?? '')
@@ -47,7 +47,7 @@ if (process.env.ISDEV == 'false') {
 			}
 		})
 	);
-} else if (!process?.env?.npm_lifecycle_script?.includes('jest')) {
+} else if (process.env.JEST_WORKER_ID == undefined) {
 	app.listen(port, () => {
 		log(`Listening at http://localhost:${port}`, 'DEBUG', __filename);
 	});

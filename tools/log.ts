@@ -20,7 +20,7 @@ type WarningLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
  * @param text The text to log
  */
 export async function log(text: string, impact: WarningLevel = 'DEBUG', location: string | undefined) {
-	if (process?.env?.npm_lifecycle_script?.includes('jest')) return;
+	if (process.env.JEST_WORKER_ID != undefined) return;
 	location = getFileName(location ?? 'no location');
 	const date = new Date().toLocaleDateString('en-GB', {
 		timeZone: 'Europe/Paris',

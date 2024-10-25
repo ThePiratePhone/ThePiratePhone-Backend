@@ -1,11 +1,12 @@
 import * as csv from '@fast-csv/format';
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
+import { checkParameters } from '../../../tools/utils';
 import { Area } from '../../../Models/Area';
+import { Call } from '../../../Models/Call';
 import { Caller } from '../../../Models/Caller';
-import { log } from '../../../tools/log';
 import { Campaign } from '../../../Models/Campaign';
+import { log } from '../../../tools/log';
 
 /**
  * Export all callers in a csv file
@@ -25,15 +26,18 @@ import { Campaign } from '../../../Models/Campaign';
 export default async function exportCallerCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		(req.body.curentCamaign && typeof req.body.curentCamaign != 'boolean') ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['area', 'ObjectId'],
+				['curentCamaign', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
@@ -46,7 +50,7 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 	const campaign = await Campaign.findOne({ area: area._id, active: true });
 	if (req.body.curentCamaign) {
 		if (!campaign) {
-			res.status(200).send({ message: 'No campaign in progress', OK: false });
+			res.status(400).send({ message: 'No campaign in progress', OK: false });
 			log(`No campaign in progress from ${ip}`, 'WARNING', __filename);
 			return;
 		}
@@ -59,18 +63,22 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
 	res.setHeader('Content-Type', 'text/csv');
 
-	const numberOfCaller = await Caller.countDocuments(selector);
-	for (let i = 0; i < numberOfCaller; i += 500) {
-		const callers = await Caller.find(selector).limit(500).skip(i);
-		callers.forEach(caller => {
-			csvStream.write({
-				name: caller.name,
-				phone: caller.phone,
-				area: caller.area
-			});
+	let callerCounter = 0;
+	await Caller.find(selector)
+		.cursor()
+		.eachAsync(async caller => {
+			if (caller) {
+				callerCounter++;
+				const nbCall = await Call.countDocuments({ caller: caller._id });
+				csvStream.write({
+					phone: caller.phone,
+					name: caller.name,
+					createdAt: caller.createdAt,
+					nbCall: nbCall
+				});
+			}
 		});
-	}
 	csvStream.end();
-	res.end();
-	log(`Exported ${numberOfCaller} callers from ${ip} (${area.name})`, 'INFO', __filename);
+
+	log(`Exported ${callerCounter} callers from ${ip} (${area.name})`, 'INFO', __filename);
 }
