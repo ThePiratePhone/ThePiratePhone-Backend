@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * Create a new caller
@@ -30,17 +30,20 @@ import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/uti
 export default async function newCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		typeof req.body.name != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['name', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });

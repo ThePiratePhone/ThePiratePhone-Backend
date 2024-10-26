@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
+import { checkParameters } from '../../../tools/utils';
 
 /**
  * List all callers in an area
@@ -22,17 +22,21 @@ import { log } from '../../../tools/log';
  **/
 export default async function listCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
+
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		(req.body.skip && typeof req.body.skip != 'number') ||
-		(req.body.limit && typeof req.body.limit != 'number') ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['area', 'ObjectId'],
+				['skip', 'number', true],
+				['limit', 'number', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {

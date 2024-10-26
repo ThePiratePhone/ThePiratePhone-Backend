@@ -66,6 +66,5 @@ describe('post on /api/admin/caller/listCaller', () => {
 		expect(res.body.OK).toBe(true);
 		expect(res.body.data.callers).toBeInstanceOf(Array);
 		expect(res.body.data.numberOfCallers).toBe(1);
-		console.log(res.body.data.callers);
 	});
 });
