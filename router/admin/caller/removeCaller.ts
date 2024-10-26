@@ -4,7 +4,7 @@ import { Area } from '../../../Models/Area';
 import { Call } from '../../../Models/Call';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * Remove a caller
@@ -25,16 +25,20 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
  */
 export default async function removeCaller(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
+
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		typeof req.body.phone != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['phone', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	const phone = clearPhone(req.body.phone);
 
@@ -58,9 +62,9 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const curentCall = await Call.findOne({ caller: caller._id, status: 'In progress' }, ['id']);
+	const curentCall = await Call.findOne({ caller: caller._id, satisfaction: 'In progress' }, ['id']);
 	if (curentCall) {
-		await Call.deleteOne({ caller: caller._id, status: 'In progress' });
+		await Call.deleteMany({ caller: caller._id, satisfaction: 'In progress' });
 		log(
 			`Call removed (for remove user ${caller.name} (${caller.phone})): ${curentCall.id} from ${area.name} (${ip})`,
 			'INFO',
