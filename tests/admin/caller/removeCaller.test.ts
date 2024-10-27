@@ -6,7 +6,6 @@ import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
-let callerId: mongoose.Types.ObjectId | undefined;
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');

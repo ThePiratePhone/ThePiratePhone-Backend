@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { sanitizeString } from '../../../tools/utils';
+import { checkParameters, sanitizeString } from '../../../tools/utils';
 
 function escapeRegExp(input: string): string {
 	return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -28,15 +28,18 @@ function escapeRegExp(input: string): string {
 export default async function SearchByName(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.name != 'string' ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['name', 'string'],
+				['area', 'string']
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {
