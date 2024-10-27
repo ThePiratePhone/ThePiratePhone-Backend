@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
 import { Caller } from '../../../Models/Caller';
-import { clearPhone } from '../../../tools/utils';
+import { checkParameters, clearPhone } from '../../../tools/utils';
 
 /**
  * Search caller by phone number
@@ -24,15 +24,18 @@ import { clearPhone } from '../../../tools/utils';
 export default async function SearchByPhone(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['phone', 'string'],
+				['area', 'string']
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
 	if (!area) {

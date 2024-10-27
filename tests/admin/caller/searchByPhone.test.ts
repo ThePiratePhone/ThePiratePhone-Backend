@@ -27,12 +27,12 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/searchByName', () => {
+describe('post on /api/admin/caller/searchByPhone', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/caller/searchByName').send({
+		const res = await request(app).post('/api/admin/caller/searchByPhone').send({
 			adminCode: 'wrongAdminCode',
 			area: areaId,
-			name: 'name'
+			phone: '+33323456780'
 		});
 		expect(res.status).toBe(401);
 		expect(res.body).toHaveProperty('message', 'Wrong admin code');
@@ -53,32 +53,34 @@ describe('post on /api/admin/caller/searchByName', () => {
 		});
 		await Caller.create({
 			name: 'chose',
-			phone: '+33323456782',
+			phone: '+33993456782',
 			area: areaId,
 			pinCode: '1234'
 		});
 
-		const res = await request(app).post('/api/admin/caller/searchByName').send({
+		const res = await request(app).post('/api/admin/caller/searchByPhone').send({
 			adminCode: 'adminPassword',
 			area: areaId,
-			name: 'name'
+			phone: '+333'
 		});
 		expect(res.status).toBe(200);
+		expect(res.body).toHaveProperty('message', 'OK');
 		expect(res.body).toHaveProperty('OK', true);
 		expect(res.body).toHaveProperty('data');
-		expect(res.body.data).toHaveLength(2);
-		expect(res.body.data[0]).toHaveProperty('name', 'name');
-		expect(res.body.data[1]).toHaveProperty('name', 'name1');
+		expect(res.body.data.length).toBe(2);
+		expect(res.body.data[0]).toHaveProperty('phone', '+33323456780');
+		expect(res.body.data[1]).toHaveProperty('phone', '+33323456781');
 
-		const res2 = await request(app).post('/api/admin/caller/searchByName').send({
+		const res1 = await request(app).post('/api/admin/caller/searchByPhone').send({
 			adminCode: 'adminPassword',
 			area: areaId,
-			name: 'chose'
+			phone: '+339'
 		});
-		expect(res2.status).toBe(200);
-		expect(res2.body).toHaveProperty('OK', true);
-		expect(res2.body).toHaveProperty('data');
-		expect(res2.body.data).toHaveLength(1);
-		expect(res2.body.data[0]).toHaveProperty('name', 'chose');
+		expect(res1.status).toBe(200);
+		expect(res1.body).toHaveProperty('message', 'OK');
+		expect(res1.body).toHaveProperty('OK', true);
+		expect(res1.body).toHaveProperty('data');
+		expect(res1.body.data.length).toBe(1);
+		expect(res1.body.data[0]).toHaveProperty('phone', '+33993456782');
 	});
 });
