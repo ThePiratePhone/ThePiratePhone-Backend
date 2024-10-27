@@ -8,7 +8,8 @@ const CampaignSchema = new mongoose.Schema({
 	},
 	script: {
 		type: String,
-		required: true
+		required: true,
+		default: 'No script'
 	},
 	active: {
 		type: Boolean,

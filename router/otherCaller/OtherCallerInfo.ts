@@ -5,7 +5,7 @@ import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * get information of other caller
@@ -30,16 +30,19 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 	const ip = req.hostname;
 
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		typeof req.body.otherPhone != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['otherPhone', 'string'],
+				['area', 'ObjectId']
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
@@ -93,12 +96,7 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		}
 	]);
 	if (!timeCall || timeCall.length === 0) {
-		res.status(500).send({ message: 'Internal server error', OK: false });
-		log(
-			`Internal server error: ${otherCaller.phone} (${otherCaller.name}) from: ${phone} (${ip})`,
-			'ERROR',
-			__filename
-		);
+		timeCall.push({ count: 0, totalDuration: 0 });
 	}
 	res.status(200).send({
 		message: 'OK',
