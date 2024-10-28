@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
-import { sanitizeString } from '../../../tools/utils';
+import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
 
 /**
  * change the name of an area
@@ -17,6 +17,7 @@ import { sanitizeString } from '../../../tools/utils';
  * }
  *
  * @throws {400}: Missing parameters
+ * @throws {400}: adminCode is not a hash
  * @throws {400}: bad new name
  * @throws {404}: no area found
  * @throws {200}: name of area changed
@@ -24,15 +25,19 @@ import { sanitizeString } from '../../../tools/utils';
 export default async function ChangeName(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		typeof req.body.newName != 'string'
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['area', 'string'],
+				['newName', 'string'],
+				['allreadyHased', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 	req.body.newName = req.body.newName.trim();
 	if (req.body.newName == '' || req.body.newName.length > 50) {
 		res.status(400).send({ OK: false, message: 'bad new name' });
@@ -41,8 +46,10 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	}
 
 	req.body.newName = sanitizeString(req.body.newName);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
 	const update = await Area.updateOne(
-		{ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } },
+		{ _id: { $eq: req.body.area }, adminPassword: password },
 		{ name: req.body.newName }
 	);
 	if (update.matchedCount != 1) {
