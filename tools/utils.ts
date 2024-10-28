@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { log } from './log';
+import { Request, Response } from 'express';
 
 function getFileName(filename: string) {
 	return filename?.split('\\')?.at(-1)?.split('/')?.at(-1) ?? 'error';
@@ -79,6 +80,12 @@ function cleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | 
 	}
 }
 
+/**
+ * Sanitizes a given string by removing any characters that are not letters, numbers, spaces, periods, commas, underscores, or hyphens.
+ *
+ * @param str - The string to be sanitized.
+ * @returns The sanitized string with leading and trailing whitespace removed.
+ */
 function sanitizeString(str: string) {
 	str = str.replace(/[^\p{L}\p{N} \.,_-]/gu, '');
 	return str.trim();
@@ -97,7 +104,7 @@ function sanitizeString(str: string) {
  */
 function checkParameters(
 	body: any,
-	res: any,
+	res: Response<any>,
 	parameters: Array<
 		[
 			string,
@@ -120,6 +127,7 @@ function checkParameters(
 		}
 
 		if (body[parameter[0]] == undefined) {
+			console.log(body[parameter[0]]);
 			res.status(400).send({ message: `Missing parameters (${parameter.join(':')})`, OK: false });
 			log(`Missing parameters (${parameter.join(':')}) from ` + ip, 'WARNING', orgin);
 			return false;
@@ -165,13 +173,30 @@ function checkParameters(
 	return true;
 }
 
-function checkPinCode(pinCode: string, res: any, orgin: string): boolean {
+function checkPinCode(pinCode: string, res: Response<any>, orgin: string): boolean {
 	if (pinCode.length != 4 || Number.isNaN(parseInt(pinCode))) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
 		log(`Invalid pin code from: ` + res.req.hostname, 'WARNING', orgin);
 		return false;
 	}
 	return true;
+}
+
+async function hashPasword(password: string, allreadyHased: boolean, res: Response<any>): Promise<string | false> {
+	if (!allreadyHased || password.length != 128) {
+		//create hash
+		const newPassword = await crypto.subtle.digest('SHA-512', new TextEncoder().encode(password));
+		password = Array.from(new Uint8Array(newPassword))
+			.map(byte => byte.toString(16).padStart(2, '0'))
+			.join('');
+	} else {
+		if (password != sanitizeString(password)) {
+			res.status(400).send({ OK: false, message: 'new password is not a hash' });
+			log(`new password is not a hash from ${res.req.hostname}`, 'WARNING', __filename);
+			return false;
+		}
+	}
+	return password;
 }
 
 export {
@@ -182,5 +207,6 @@ export {
 	humainPhone,
 	phoneNumberCheck,
 	checkPinCode,
-	sanitizeString
+	sanitizeString,
+	hashPasword
 };

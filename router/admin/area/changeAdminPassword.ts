@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
-import { checkParameters, sanitizeString } from '../../../tools/utils';
+import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
 
 /**
  * change the users password of an area
@@ -22,7 +22,6 @@ import { checkParameters, sanitizeString } from '../../../tools/utils';
  */
 export default async function ChangeAdminPassword(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
-	console.log(req.body);
 	if (
 		!checkParameters(
 			req.body,
@@ -51,9 +50,9 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 		return;
 	}
 
-	if (!req.body.allreadyHased || req.body.newPassword.length != 64) {
+	if (!req.body.allreadyHased || req.body.newPassword.length != 128) {
 		//create hash
-		const newPassword = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(req.body.newPassword));
+		const newPassword = await crypto.subtle.digest('SHA-512', new TextEncoder().encode(req.body.newPassword));
 		req.body.newPassword = Array.from(new Uint8Array(newPassword))
 			.map(byte => byte.toString(16).padStart(2, '0'))
 			.join('');
@@ -65,9 +64,9 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 		}
 	}
 
-	console.log(req.body.newPassword);
+	const password = await hashPasword(req.body.adminCode, req.body.allreadyHased, res);
 	const update = await Area.updateOne(
-		{ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } },
+		{ _id: { $eq: req.body.area }, adminPassword: { $eq: password } },
 		{ adminPassword: req.body.newPassword }
 	);
 	if (update.matchedCount != 1) {
