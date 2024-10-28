@@ -7,6 +7,8 @@ import { Caller } from '../../../Models/Caller';
 
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
+const adminPassword =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
 	await Caller.deleteMany({});
@@ -17,7 +19,7 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			password: 'password',
 			campaignList: [],
-			adminPassword: 'adminPassword'
+			adminPassword: adminPassword
 		})
 	)._id;
 	await Caller.create({
@@ -36,7 +38,7 @@ afterAll(async () => {
 describe('post on /api/admin/caller/changePassword', () => {
 	it('should return 400 if new pin code is not a number', async () => {
 		const response = await request(app).post('/api/admin/caller/changePassword').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			newPassword: 'a123',
 			Callerphone: '+33234567890',
 			area: areaId
@@ -47,7 +49,7 @@ describe('post on /api/admin/caller/changePassword', () => {
 
 	it('should return 400 if new pin code is not 4 digits', async () => {
 		const response = await request(app).post('/api/admin/caller/changePassword').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			newPassword: '12345',
 			Callerphone: '+33234567890',
 			area: areaId
@@ -69,7 +71,7 @@ describe('post on /api/admin/caller/changePassword', () => {
 
 	it('should return 404 if caller not found', async () => {
 		const response = await request(app).post('/api/admin/caller/changePassword').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			newPassword: '1234',
 			Callerphone: '+33234567891',
 			area: areaId
@@ -80,10 +82,24 @@ describe('post on /api/admin/caller/changePassword', () => {
 
 	it('should return 200 if password changed', async () => {
 		const response = await request(app).post('/api/admin/caller/changePassword').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			newPassword: '1235',
 			Callerphone: '+33234567890',
 			area: areaId
+		});
+		expect(response.status).toBe(200);
+		expect(response.body).toMatchObject({ message: 'Password changed', OK: true });
+		const newPassword = (await Caller.findOne({ phone: '+33234567890' }, ['pinCode']))?.pinCode;
+		expect(newPassword).toBe('1235');
+	});
+
+	it('should return 200 if password changed with hash', async () => {
+		const response = await request(app).post('/api/admin/caller/changePassword').send({
+			adminCode: adminPassword,
+			newPassword: '1235',
+			Callerphone: '+33234567890',
+			area: areaId,
+			allreadyHased: true
 		});
 		expect(response.status).toBe(200);
 		expect(response.body).toMatchObject({ message: 'Password changed', OK: true });

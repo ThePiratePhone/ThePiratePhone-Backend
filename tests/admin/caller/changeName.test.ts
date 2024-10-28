@@ -7,6 +7,8 @@ import { Caller } from '../../../Models/Caller';
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
 let callerId: mongoose.Types.ObjectId | undefined;
+const adminPassword =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
@@ -19,7 +21,7 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			password: 'password',
 			campaignList: [],
-			adminPassword: 'adminPassword'
+			adminPassword: adminPassword
 		})
 	)._id;
 	callerId = (
@@ -40,7 +42,7 @@ afterAll(async () => {
 describe('post on /api/admin/caller/changeName', () => {
 	it('should return 400 if newName is empty', async () => {
 		const response = await request(app).post('/api/admin/caller/changeName').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			newName: '',
 			phone: '+33134567890',
 			area: areaId
@@ -51,7 +53,7 @@ describe('post on /api/admin/caller/changeName', () => {
 
 	it('should return 401 if admin code is wrong', async () => {
 		const response = await request(app).post('/api/admin/caller/changeName').send({
-			adminCode: 'wrongAdminPassword',
+			adminCode: 'wrongpassword',
 			newName: 'newName',
 			phone: '+33134567890',
 			area: areaId
@@ -62,7 +64,7 @@ describe('post on /api/admin/caller/changeName', () => {
 
 	it('should return 400 if caller not found', async () => {
 		const response = await request(app).post('/api/admin/caller/changeName').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			newName: 'newName',
 			phone: '+33134567891',
 			area: areaId
@@ -73,10 +75,21 @@ describe('post on /api/admin/caller/changeName', () => {
 
 	it('should return 200 if all parameters are correct', async () => {
 		const response = await request(app).post('/api/admin/caller/changeName').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			newName: 'newName',
 			phone: '+33134567890',
 			area: areaId
+		});
+		expect(response.status).toBe(200);
+		expect(response.body).toMatchObject({ message: 'Caller name changed', OK: true });
+	});
+	it('should return 200 if all parameters are correct with hash', async () => {
+		const response = await request(app).post('/api/admin/caller/changeName').send({
+			adminCode: adminPassword,
+			newName: 'newName',
+			phone: '+33134567890',
+			area: areaId,
+			allreadyHased: true
 		});
 		expect(response.status).toBe(200);
 		expect(response.body).toMatchObject({ message: 'Caller name changed', OK: true });

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { log } from './log';
 import { Request, Response } from 'express';
+import { sha512 } from 'js-sha512';
 
 function getFileName(filename: string) {
 	return filename?.split('\\')?.at(-1)?.split('/')?.at(-1) ?? 'error';
@@ -127,7 +128,6 @@ function checkParameters(
 		}
 
 		if (body[parameter[0]] == undefined) {
-			console.log(body[parameter[0]]);
 			res.status(400).send({ message: `Missing parameters (${parameter.join(':')})`, OK: false });
 			log(`Missing parameters (${parameter.join(':')}) from ` + ip, 'WARNING', orgin);
 			return false;
@@ -182,13 +182,10 @@ function checkPinCode(pinCode: string, res: Response<any>, orgin: string): boole
 	return true;
 }
 
-async function hashPasword(password: string, allreadyHased: boolean, res: Response<any>): Promise<string | false> {
+function hashPasword(password: string, allreadyHased: boolean, res: Response<any>): string | false {
 	if (!allreadyHased || password.length != 128) {
 		//create hash
-		const newPassword = await crypto.subtle.digest('SHA-512', new TextEncoder().encode(password));
-		password = Array.from(new Uint8Array(newPassword))
-			.map(byte => byte.toString(16).padStart(2, '0'))
-			.join('');
+		password = sha512(password);
 	} else {
 		if (password != sanitizeString(password)) {
 			res.status(400).send({ OK: false, message: 'new password is not a hash' });

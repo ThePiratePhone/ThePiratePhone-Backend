@@ -6,6 +6,8 @@ import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
+const adminPassword =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
@@ -18,7 +20,7 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			password: 'password',
 			campaignList: [],
-			adminPassword: 'adminPassword'
+			adminPassword: adminPassword
 		})
 	)._id;
 });
@@ -59,7 +61,7 @@ describe('post on /api/admin/caller/searchByName', () => {
 		});
 
 		const res = await request(app).post('/api/admin/caller/searchByName').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			name: 'name'
 		});
@@ -71,7 +73,7 @@ describe('post on /api/admin/caller/searchByName', () => {
 		expect(res.body.data[1]).toHaveProperty('name', 'name1');
 
 		const res2 = await request(app).post('/api/admin/caller/searchByName').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			name: 'chose'
 		});
@@ -80,5 +82,51 @@ describe('post on /api/admin/caller/searchByName', () => {
 		expect(res2.body).toHaveProperty('data');
 		expect(res2.body.data).toHaveLength(1);
 		expect(res2.body.data[0]).toHaveProperty('name', 'chose');
+	});
+
+	it('should return 200 if OK with hash', async () => {
+		await Caller.create({
+			name: 'hello',
+			phone: '+33323456783',
+			area: areaId,
+			pinCode: '1234'
+		});
+		await Caller.create({
+			name: 'hello1',
+			phone: '+33323456784',
+			area: areaId,
+			pinCode: '1234'
+		});
+		await Caller.create({
+			name: 'truc1',
+			phone: '+33323456785',
+			area: areaId,
+			pinCode: '1234'
+		});
+
+		const res = await request(app).post('/api/admin/caller/searchByName').send({
+			adminCode: adminPassword,
+			area: areaId,
+			name: 'hello',
+			allreadyHased: true
+		});
+		expect(res.status).toBe(200);
+		expect(res.body).toHaveProperty('OK', true);
+		expect(res.body).toHaveProperty('data');
+		expect(res.body.data).toHaveLength(2);
+		expect(res.body.data[0]).toHaveProperty('name', 'hello');
+		expect(res.body.data[1]).toHaveProperty('name', 'hello1');
+
+		const res2 = await request(app).post('/api/admin/caller/searchByName').send({
+			adminCode: adminPassword,
+			area: areaId,
+			name: 'truc',
+			allreadyHased: true
+		});
+		expect(res2.status).toBe(200);
+		expect(res2.body).toHaveProperty('OK', true);
+		expect(res2.body).toHaveProperty('data');
+		expect(res2.body.data).toHaveLength(1);
+		expect(res2.body.data[0]).toHaveProperty('name', 'truc1');
 	});
 });

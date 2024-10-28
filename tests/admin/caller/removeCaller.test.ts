@@ -6,6 +6,8 @@ import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
+const adminPassword =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
@@ -18,7 +20,7 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			password: 'password',
 			campaignList: [],
-			adminPassword: 'adminPassword'
+			adminPassword: adminPassword
 		})
 	)._id;
 });
@@ -30,7 +32,7 @@ afterAll(async () => {
 describe('post on /api/admin/caller/removeCaller', () => {
 	it('should return 400 if wrong phone number', async () => {
 		const res = await request(app).post('/api/admin/caller/removeCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			phone: '123456789'
 		});
@@ -40,7 +42,7 @@ describe('post on /api/admin/caller/removeCaller', () => {
 
 	it('should return 400 if invalid area', async () => {
 		const res = await request(app).post('/api/admin/caller/removeCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: new mongoose.Types.ObjectId(),
 			phone: '+33223456780'
 		});
@@ -50,7 +52,7 @@ describe('post on /api/admin/caller/removeCaller', () => {
 
 	it('should return 400 if caller not found', async () => {
 		const res = await request(app).post('/api/admin/caller/removeCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456780'
 		});
@@ -66,9 +68,26 @@ describe('post on /api/admin/caller/removeCaller', () => {
 			pinCode: '1234'
 		});
 		const res = await request(app).post('/api/admin/caller/removeCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456780'
+		});
+		expect(res.status).toBe(200);
+		expect(res.body).toHaveProperty('message', 'Caller removed');
+	});
+
+	it('should return 200 if caller removed with hash', async () => {
+		await Caller.create({
+			phone: '+33223456780',
+			area: areaId,
+			name: 'caller',
+			pinCode: '1234'
+		});
+		const res = await request(app).post('/api/admin/caller/removeCaller').send({
+			adminCode: adminPassword,
+			area: areaId,
+			phone: '+33223456780',
+			allreadyHased: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty('message', 'Caller removed');

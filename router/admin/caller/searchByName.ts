@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { checkParameters, sanitizeString } from '../../../tools/utils';
+import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
 
 function escapeRegExp(input: string): string {
 	return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -22,6 +21,7 @@ function escapeRegExp(input: string): string {
  * }
  *
  * @throws {400}: Missing parameters
+ * @throws {400}: adminCode is not a hash
  * @throws {401}: Wrong admin code
  * @throws {200}: OK
  */
@@ -34,14 +34,16 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 			[
 				['adminCode', 'string'],
 				['name', 'string'],
-				['area', 'string']
+				['area', 'string'],
+				['allreadyHased', 'boolean', true]
 			],
 			__filename
 		)
 	)
 		return;
-
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: password, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);

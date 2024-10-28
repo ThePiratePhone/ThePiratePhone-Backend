@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
 import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
+import { sha512 } from 'js-sha512';
 
 /**
  * change the users password of an area
@@ -12,9 +13,11 @@ import { checkParameters, hashPasword, sanitizeString } from '../../../tools/uti
  * {
  * 	"adminCode": string,
  * 	"area": mongoDBID,
- * 	"newPassword": string
+ * 	"newPassword": string,
+ * 	"allreadyHased": boolean
  * }
  *
+ * @throws {400}: new password is not a hash
  * @throws {400}: Missing parameters
  * @throws {400}: bad new admin password
  * @throws {404}: no area found
@@ -52,10 +55,7 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 
 	if (!req.body.allreadyHased || req.body.newPassword.length != 128) {
 		//create hash
-		const newPassword = await crypto.subtle.digest('SHA-512', new TextEncoder().encode(req.body.newPassword));
-		req.body.newPassword = Array.from(new Uint8Array(newPassword))
-			.map(byte => byte.toString(16).padStart(2, '0'))
-			.join('');
+		req.body.newPassword = sha512(req.body.newPassword);
 	} else {
 		if (req.body.newPassword != sanitizeString(req.body.newPassword)) {
 			res.status(400).send({ OK: false, message: 'new password is not a hash' });
@@ -64,7 +64,8 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 		}
 	}
 
-	const password = await hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
 	const update = await Area.updateOne(
 		{ _id: { $eq: req.body.area }, adminPassword: { $eq: password } },
 		{ adminPassword: req.body.newPassword }

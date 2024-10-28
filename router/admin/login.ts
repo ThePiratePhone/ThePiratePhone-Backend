@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../Models/Area';
 import { log } from '../../tools/log';
 import { Campaign } from '../../Models/Campaign';
-import { checkParameters } from '../../tools/utils';
+import { checkParameters, hashPasword } from '../../tools/utils';
 
 /**
  * Check if the admin code is correct and return the area name and the actual campaign
@@ -13,6 +13,7 @@ import { checkParameters } from '../../tools/utils';
  * body: {
  * 	adminCode: 'adminCode',
  * 	area: 'areaId'
+ * 	allreadyHased: boolean
  * }
  *
  * response: {
@@ -30,9 +31,10 @@ import { checkParameters } from '../../tools/utils';
  * 	OK: true
  * }
  *
- * @throws 400 - Missing parameters
- * @throws 401 - Wrong admin code
- * @throws 500 - Internal error
+ * @throws {400} - Missing parameters
+ * @throws {400} - password is not a hash
+ * @throws {401} - Wrong admin code
+ * @throws {500} - Internal error
  */
 export default async function login(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
@@ -43,14 +45,17 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'ObjectId']
+				['area', 'ObjectId'],
+				['allreadyHased', 'boolean', true]
 			],
 			'login.ts'
 		)
 	)
 		return;
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
+	const password = await hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: password });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', 'login.ts');

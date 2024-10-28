@@ -11,6 +11,9 @@ import { Client } from '../../Models/Client';
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
 let campaignID: mongoose.Types.ObjectId | undefined;
+const adminPassword =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
+
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
 	await Caller.deleteMany({});
@@ -23,7 +26,7 @@ beforeAll(async () => {
 			name: 'loginAdminTest',
 			password: 'password',
 			campaignList: [],
-			adminPassword: 'adminPassword'
+			adminPassword: adminPassword
 		})
 	)._id;
 
@@ -63,7 +66,29 @@ describe('post on /api/admin/login', () => {
 	});
 
 	it('should return 200 if correct admin code', async () => {
-		const res = await request(app).post('/api/admin/login').send({ adminCode: 'adminPassword', area: areaId });
+		const res = await request(app).post('/api/admin/login').send({ adminCode: 'password', area: areaId });
+		expect(res.status).toBe(200);
+		expect(res.body).toMatchObject({
+			message: 'OK',
+			data: {
+				areaName: 'loginAdminTest',
+				actualCampaignId: campaignID,
+				actualCampaignName: 'campaignTest',
+				actualCampaignMaxCall: 10,
+				actualCampaignScript: 'script',
+				actualCampaignTimeBetweenCall: 10_800_000,
+				actualCampaignCallPermited: true,
+				actualCampaignStatus: ['À rappeler', 'Tout bon']
+			},
+			OK: true
+		});
+		expect(res.body.data.actualCampaignCallStart).toBeDefined();
+		expect(res.body.data.actualCampaignCallEnd).toBeDefined();
+	});
+	it('should return 200 if correct admin code with hash', async () => {
+		const res = await request(app)
+			.post('/api/admin/login')
+			.send({ adminCode: adminPassword, area: areaId, allreadyHased: true });
 		expect(res.status).toBe(200);
 		expect(res.body).toMatchObject({
 			message: 'OK',

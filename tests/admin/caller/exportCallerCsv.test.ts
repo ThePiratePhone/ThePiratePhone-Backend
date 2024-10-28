@@ -10,7 +10,9 @@ import { Client } from '../../../Models/Client';
 
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
-let date = new Date();
+const adminPassword =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
+let date;
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
 	await Client.deleteMany({});
@@ -24,7 +26,7 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			password: 'password',
 			campaignList: [],
-			adminPassword: 'adminPassword'
+			adminPassword: adminPassword
 		})
 	)._id;
 
@@ -148,7 +150,7 @@ describe('post on /api/admin/caller/exportCallersCsv', () => {
 
 	it('should return 401 if area is not found', async () => {
 		const response = await request(app).post('/api/admin/caller/exportCallersCsv').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: new mongoose.Types.ObjectId()
 		});
 		expect(response.status).toBe(401);
@@ -157,8 +159,24 @@ describe('post on /api/admin/caller/exportCallersCsv', () => {
 
 	it('should return 200 if all parameters are correct', async () => {
 		const response = await request(app).post('/api/admin/caller/exportCallersCsv').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId
+		});
+		expect(response.status).toBe(200);
+		const expectedPattern = new RegExp(
+			'phone;name;createdAt;nbCall\n' +
+				'\\+33034567891;changepassordtest;.*;1\n' +
+				'\\+33034567892;changepassordtest;.*;2\n' +
+				'\\+33034567893;changepassordtest;.*;3'
+		);
+		expect(response.text).toMatch(expectedPattern);
+	});
+
+	it('should return 200 if all parameters are correct with hash', async () => {
+		const response = await request(app).post('/api/admin/caller/exportCallersCsv').send({
+			adminCode: adminPassword,
+			area: areaId,
+			allreadyHased: true
 		});
 		expect(response.status).toBe(200);
 		const expectedPattern = new RegExp(

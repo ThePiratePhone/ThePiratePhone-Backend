@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { checkParameters, clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * Create a new caller
@@ -20,6 +19,7 @@ import { checkParameters, clearPhone, phoneNumberCheck, sanitizeString } from '.
  * }
  *
  * @throws {400}: Missing parameters
+ * @throws {400}: adminCode is not a hash
  * @throws {400}: Invalid pin code
  * @throws {400}: Wrong phone number
  * @throws {400}: Invalid credentials
@@ -38,7 +38,8 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 				['phone', 'string'],
 				['pinCode', 'string'],
 				['name', 'string'],
-				['area', 'ObjectId']
+				['area', 'ObjectId'],
+				['allreadyHased', 'boolean', true]
 			],
 			__filename
 		)
@@ -59,7 +60,9 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: password });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid credentials', OK: false });
 		log(`Invalid area from: ${phone} (${ip})`, 'WARNING', __filename);

@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
 import { Caller } from '../../../Models/Caller';
-import { checkParameters, clearPhone } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword } from '../../../tools/utils';
 
 /**
  * Search caller by phone number
@@ -18,6 +18,7 @@ import { checkParameters, clearPhone } from '../../../tools/utils';
  * }
  *
  * @throws {400}: Missing parameters
+ * @throws {400}: adminCode is not a hash
  * @throws {401}: Wrong admin code
  * @throws {200}: OK
  */
@@ -30,14 +31,16 @@ export default async function SearchByPhone(req: Request<any>, res: Response<any
 			[
 				['adminCode', 'string'],
 				['phone', 'string'],
-				['area', 'string']
+				['area', 'string'],
+				['allreadyHased', 'boolean', true]
 			],
 			__filename
 		)
 	)
 		return;
-
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: password, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);

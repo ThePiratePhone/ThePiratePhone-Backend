@@ -30,7 +30,6 @@
 	"author": "UnelDev",
 	"license": "GNU GPLv3",
 	"devDependencies": {
-		"@types/bcrypt": "^5.0.2",
 		"@types/cors": "^2.8.17",
 		"@types/express": "^5.0.0",
 		"@types/jest": "^29.5.13",
@@ -39,13 +38,13 @@
 	},
 	"dependencies": {
 		"@fast-csv/format": "^5.0.0",
-		"bcrypt": "^5.1.1",
 		"chalk": "^4.1.2",
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.5",
 		"express": "^4.21.1",
 		"express-rate-limit": "^7.4.1",
 		"https": "^1.0.0",
+		"js-sha512": "^0.9.0",
 		"mongodb": "^6.9.0",
 		"mongoose": "^8.7.1",
 		"supertest": "^7.0.0",

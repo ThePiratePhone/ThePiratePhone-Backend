@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Call } from '../../../Models/Call';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { checkParameters, clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * Remove a caller
@@ -17,6 +16,7 @@ import { checkParameters, clearPhone, phoneNumberCheck } from '../../../tools/ut
  * }
  *
  * @throws {400}: Missing parameters
+ * @throws {400}: adminCode is not a hash
  * @throws {400}: Wrong phone number
  * @throws {400}: Invalid area
  * @throws {400}: Caller not found
@@ -33,7 +33,8 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 			[
 				['adminCode', 'string'],
 				['phone', 'string'],
-				['area', 'ObjectId']
+				['area', 'ObjectId'],
+				['allreadyHased', 'boolean', true]
 			],
 			__filename
 		)
@@ -47,8 +48,9 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 		log('Wrong phone number', 'WARNING', __filename);
 		return;
 	}
-
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: password });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid area', OK: false });
 		log(`Invalid area from: ${phone} (${ip})`, 'WARNING', __filename);

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { checkParameters, clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * change caller password
@@ -14,8 +14,16 @@ import { checkParameters, clearPhone, phoneNumberCheck } from '../../../tools/ut
  * 	"adminCode": string,
  * 	"newPassword": string,
  * 	"Callerphone": string,
- * 	"area": string
+ * 	"area": string,
+ * 	allreadyHased: boolean
  * }
+ *
+ * @throws {400}: adminCode is not a hash
+ * @throws {400}: Invalid new pin code
+ * @throws {400}: Invalid phone number
+ * @throws {401}: Wrong admin code
+ * @throws {404}: Caller not found or same password
+ * @throws {200}: Password changed
  */
 export default async function changeCallerPassword(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
@@ -27,7 +35,8 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 				['adminCode', 'string'],
 				['newPassword', 'string'],
 				['Callerphone', 'string'],
-				['area', 'ObjectId']
+				['area', 'ObjectId'],
+				['allreadyHased', 'boolean', true]
 			],
 			__filename
 		)
@@ -39,7 +48,9 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 		log(`Invalid new pin code from: ` + ip, 'WARNING', __filename);
 		return;
 	}
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: password, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', __filename);

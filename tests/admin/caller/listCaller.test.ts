@@ -7,6 +7,8 @@ import { Caller } from '../../../Models/Caller';
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
 let callerId: mongoose.Types.ObjectId | undefined;
+const adminPassword =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
@@ -19,7 +21,7 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			password: 'password',
 			campaignList: [],
-			adminPassword: 'adminPassword'
+			adminPassword: adminPassword
 		})
 	)._id;
 });
@@ -40,7 +42,7 @@ describe('post on /api/admin/caller/listCaller', () => {
 
 	it('should return 404 if no caller found', async () => {
 		const res = await request(app).post('/api/admin/caller/listCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId
 		});
 		expect(res.status).toBe(404);
@@ -58,8 +60,36 @@ describe('post on /api/admin/caller/listCaller', () => {
 			})
 		)._id;
 		const res = await request(app).post('/api/admin/caller/listCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId
+		});
+		expect(res.status).toBe(200);
+		expect(res.body.message).toBe('OK');
+		expect(res.body.OK).toBe(true);
+		expect(res.body.data.callers).toBeInstanceOf(Array);
+		expect(res.body.data.numberOfCallers).toBe(1);
+	});
+
+	it('should return 200 if caller found with hash', async () => {
+		const areaId2 = (
+			await Area.create({
+				name: 'changepassordtest',
+				password: 'password',
+				campaignList: [],
+				adminPassword: adminPassword
+			})
+		)._id;
+		await Caller.create({
+			name: 'caller',
+			password: 'password',
+			area: areaId2,
+			phone: '+33123456790',
+			pinCode: '1234'
+		});
+		const res = await request(app).post('/api/admin/caller/listCaller').send({
+			adminCode: adminPassword,
+			area: areaId2,
+			allreadyHased: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body.message).toBe('OK');

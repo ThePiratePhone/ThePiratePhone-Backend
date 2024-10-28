@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
-import { checkParameters, clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * change caller name
@@ -18,6 +18,7 @@ import { checkParameters, clearPhone, phoneNumberCheck, sanitizeString } from '.
  * }
  *
  * @throws {400}: Missing parameters
+ * @throws {400}: adminCode is not a hash
  * @throws {400}: Wrong phone number
  * @throws {401}: Wrong admin code
  * @throws {400}: Caller not found
@@ -34,7 +35,8 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 				['adminCode', 'string'],
 				['phone', 'string'],
 				['newName', 'string'],
-				['area', 'ObjectId']
+				['area', 'ObjectId'],
+				['allreadyHased', 'boolean', true]
 			],
 			__filename
 		)
@@ -54,7 +56,9 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: password, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);

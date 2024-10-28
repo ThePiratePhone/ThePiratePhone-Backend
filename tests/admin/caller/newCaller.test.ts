@@ -7,6 +7,8 @@ import { Caller } from '../../../Models/Caller';
 dotenv.config({ path: '.env' });
 let areaId: mongoose.Types.ObjectId | undefined;
 let callerId: mongoose.Types.ObjectId | undefined;
+const adminPassword =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
 
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
@@ -19,7 +21,7 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			password: 'password',
 			campaignList: [],
-			adminPassword: 'adminPassword'
+			adminPassword: adminPassword
 		})
 	)._id;
 });
@@ -31,7 +33,7 @@ afterAll(async () => {
 describe('post on /api/admin/caller/createCaller', () => {
 	it('should return 400 if invalid pin code', async () => {
 		const res = await request(app).post('/api/admin/caller/createCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456780',
 			pinCode: '123',
@@ -43,7 +45,7 @@ describe('post on /api/admin/caller/createCaller', () => {
 
 	it('should return 400 if wrong phone number', async () => {
 		const res = await request(app).post('/api/admin/caller/createCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			phone: '123456789',
 			pinCode: '1234',
@@ -76,7 +78,7 @@ describe('post on /api/admin/caller/createCaller', () => {
 			})
 		)._id;
 		const res = await request(app).post('/api/admin/caller/createCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456780',
 			pinCode: '1234',
@@ -88,7 +90,7 @@ describe('post on /api/admin/caller/createCaller', () => {
 
 	it('should return 200 if all parameters are correct', async () => {
 		const res = await request(app).post('/api/admin/caller/createCaller').send({
-			adminCode: 'adminPassword',
+			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456781',
 			pinCode: '1234',
@@ -96,5 +98,17 @@ describe('post on /api/admin/caller/createCaller', () => {
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty('message', 'Caller caller (+33223456781) created');
+	});
+	it('should return 200 if all parameters are correct with hash', async () => {
+		const res = await request(app).post('/api/admin/caller/createCaller').send({
+			adminCode: adminPassword,
+			area: areaId,
+			phone: '+33223456782',
+			pinCode: '1234',
+			name: 'caller',
+			allreadyHased: true
+		});
+		expect(res.status).toBe(200);
+		expect(res.body).toHaveProperty('message', 'Caller caller (+33223456782) created');
 	});
 });
