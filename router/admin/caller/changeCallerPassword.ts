@@ -50,7 +50,7 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 	}
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
 	if (!password) return;
-	const area = await Area.findOne({ adminPassword: password, _id: { $eq: req.body.area } });
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', __filename);

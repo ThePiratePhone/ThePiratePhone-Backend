@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * Add a client to a campaign
@@ -15,10 +14,13 @@ import { clearPhone } from '../../../tools/utils';
  *	"adminCode": string,
  *	"area": mongoDBID,
  *	"phone": string,
- *	"campaign": mongoDBID
+ *	"campaign": mongoDBID,
+ *	"allreadyhas
  * }
  *
  * @throws {400} - Missing parameters
+ * @throws {400} - Wrong phone number
+ * @throws {400} - bad hash for admin code
  * @throws {401} - Wrong admin code
  * @throws {404} - User not found
  * @throws {404} - Campaign not found
@@ -29,27 +31,38 @@ import { clearPhone } from '../../../tools/utils';
 export default async function addClientCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		(req.body.campaign && !ObjectId.isValid(req.body.campaign)) ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['campaign', 'string', true],
+				['phone', 'string'],
+				['adminCode', 'string'],
+				['area', 'string'],
+				['allreadyHased', 'boolean', true]
+			],
+			__filename
+		)
+	)
+		return;
+
+	const phone = clearPhone(req.body.phone);
+	if (!phoneNumberCheck(phone)) {
+		res.status(400).send({ message: 'Wrong phone number', OK: false });
+		log(`Wrong phone number from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	req.body.phone = clearPhone(req.body.phone);
-
-	const client = await Client.findOne({ phone: { $eq: req.body.phone } });
+	const client = await Client.findOne({ phone: { $eq: phone } });
 	if (!client) {
 		res.status(404).send({ message: 'User not found', OK: false });
 		log(`User not found from ${area.name} (${ip})`, 'WARNING', __filename);

@@ -42,14 +42,14 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
 	if (!password) return;
-	const area = await Area.findOne({ adminPassword: password, _id: { $eq: req.body.area } });
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
-	const numberOfCallers = await Caller.countDocuments({ area: area._id });
+	const numberOfCallers = await Caller.countDocuments({ area: area.id });
 
 	if (numberOfCallers === 0) {
 		res.status(404).send({ message: 'No caller found', OK: false });

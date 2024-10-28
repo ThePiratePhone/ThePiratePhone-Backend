@@ -1,12 +1,11 @@
 import dotenv from 'dotenv';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import request from 'supertest';
 import app from '../../../index';
 import { Area } from '../../../Models/Area';
+import { Call } from '../../../Models/Call';
 import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
-import { Call } from '../../../Models/Call';
-import { clearPhone } from '../../../tools/utils';
 
 dotenv.config({ path: '.env' });
 
