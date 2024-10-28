@@ -6,7 +6,7 @@ import { Call } from '../../../Models/Call';
 import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * get information of caller
@@ -31,16 +31,20 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
 export default async function callerInfo(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		typeof req.body.phone != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['phone', 'string'],
+				['area', 'string'],
+				['CampaignId', 'ObjectId', true],
+				['allreadyHased', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
