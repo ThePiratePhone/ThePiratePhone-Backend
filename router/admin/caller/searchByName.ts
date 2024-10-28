@@ -17,7 +17,8 @@ function escapeRegExp(input: string): string {
  * {
  * 	"adminCode": string,
  * 	"name": string,
- * 	"area": string
+ * 	"area": string,
+ * 	"allreadyHased": boolean
  * }
  *
  * @throws {400}: Missing parameters

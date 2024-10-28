@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import ChangeAdminPassword from './router/admin/area/changeAdminPassword';
 import ChangeAreaName from './router/admin/area/changeName';
+import changeAreaPassword from './router/admin/area/changePassword';
 import callerInfo from './router/admin/caller/callerInfo';
 import changeCallerPassword from './router/admin/caller/changeCallerPassword';
 import ChangeName from './router/admin/caller/changeName';
@@ -86,7 +87,7 @@ router.post('/admin/client/exportClientsCsv', exportClientCsv);
 //admin/area
 router.post('/admin/area/changeName', ChangeAreaName);
 router.post('/admin/area/changeAdminPassword', ChangeAdminPassword);
-router.post('/admin/area/changePassword', changePassword);
+router.post('/admin/area/changePassword', changeAreaPassword);
 
 //admin/caller
 router.post('/admin/caller/callerInfo', callerInfo);
