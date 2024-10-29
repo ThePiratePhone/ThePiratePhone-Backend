@@ -63,7 +63,7 @@ describe('post on /api/admin/area/changeAdminPassword', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			newPassword:
-				'6f63f637f1346149532158022899bdf424a19c3dc472e21c2068cd324d7263ed521fb1c1335afaad6bf3fd94a24c0371217086295255e7773eb8deb2c7a54e1/',
+				'6f63f637f1346149532158022899bdf424a19c3dc472e21c2068cd324d7263ed521fb1c1335afaad6bf3fd94a24c0371217086295255e7773eb8deb2c7a54e1{',
 			allreadyHased: true
 		});
 		expect(res.status).toBe(400);
