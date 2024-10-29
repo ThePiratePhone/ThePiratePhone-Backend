@@ -88,7 +88,8 @@ function cleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | 
  * @returns The sanitized string with leading and trailing whitespace removed.
  */
 function sanitizeString(str: string) {
-	str = str.replace(/[^\p{L}\p{N} \.,_-]/gu, '');
+	str.trim();
+	str = str.replace(/[{,},$]/gm, '');
 	return str.trim();
 }
 
