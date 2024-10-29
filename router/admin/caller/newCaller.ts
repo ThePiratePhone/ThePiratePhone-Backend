@@ -62,7 +62,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
 	if (!password) return;
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: password });
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid credentials', OK: false });
 		log(`Invalid area from: ${phone} (${ip})`, 'WARNING', __filename);

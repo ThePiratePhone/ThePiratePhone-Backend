@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
+import { checkParameters, hashPasword } from '../../../tools/utils';
 
 /**
  * Change the call hours of a campaign
@@ -14,10 +14,12 @@ import { log } from '../../../tools/log';
  * 	"newEndHours": string,
  * 	"newStartHours": string,
  * 	"area": mongoDBID,
- * 	"CampaignId": mongoDBID
+ * 	"CampaignId": mongoDBID,
+ *	"allreadyhas": boolean
  * }
  *
  * @throws {400} - Missing parameters
+ * @throws {400} - bad hash for admin code
  * @throws {400} - Campaign not found
  * @throws {400} - Invalid end date
  * @throws {400} - Invalid start date
@@ -28,19 +30,25 @@ import { log } from '../../../tools/log';
 export default async function changeCallHours(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		typeof req.body.newEndHours != 'string' ||
-		typeof req.body.newStartHours != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['newEndHours', 'string'],
+				['newStartHours', 'string'],
+				['area', 'string'],
+				['CampaignId', 'string', true],
+				['allreadyHased', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);

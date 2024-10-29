@@ -15,7 +15,7 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../.
  *	"area": mongoDBID,
  *	"phone": string,
  *	"campaign": mongoDBID,
- *	"allreadyhas
+ *	"allreadyhas": boolean
  * }
  *
  * @throws {400} - Missing parameters
