@@ -5,7 +5,7 @@ import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * create clients, max size 500
@@ -40,9 +40,16 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } }, [
-		'name'
-	]);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+
+	const area = await Area.findOne(
+		{
+			_id: { $eq: req.body.area },
+			adminPassword: { $eq: password }
+		},
+		['name']
+	);
 	if (!area) {
 		res.status(403).send({ message: 'area not found or bad admin password', OK: false });
 		log(`area not found or bad admin password from ${ip}`, 'WARNING', __filename);
