@@ -5,7 +5,7 @@ import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * create clients, max size 500
@@ -13,9 +13,11 @@ import { clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../..
  * body:{
  * 	"adminCode": string,
  * 	"area": string,
- * 	"data": [phone, name, firstname, institution]
+ * 	"data": [phone, name, firstname, institution],
+ * 	"allreadyHased": boolean
  * }
  * @throws {400}: missing parameters,
+ * @throws {400}: new password is not a hash
  * @throws {400}: to manu users (more of 500)
  * @throws {403}: bad area or adminCode
  * @throws {404}: no campaing in progress
@@ -24,13 +26,21 @@ import { clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../..
 export default async function createClients(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		!(req.body.data instanceof Array) ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['area', 'ObjectId'],
+				['allreadyHased', 'boolean', true]
+			],
+			ip
+		)
+	)
+		return;
+	if (!Array.isArray(req.body['data'])) {
+		res.status(400).send({ message: 'data must be an array', OK: false });
+		log(`data must be an array from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
@@ -75,8 +85,8 @@ export default async function createClients(req: Request<any>, res: Response<any
 				}
 				if ((await Client.countDocuments({ phone: phone })) == 0) {
 					const user = new Client({
-						name: sanitizeString(usr[1] as string),
-						firstname: sanitizeString(usr[2] as string),
+						name: sanitizeString(usr[1] ?? ''),
+						firstname: sanitizeString(usr[2] ?? ''),
 						phone: phone,
 						campaigns: [campaign._id]
 					});

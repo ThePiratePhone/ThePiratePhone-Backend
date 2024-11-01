@@ -111,6 +111,7 @@ function checkParameters(
 		[
 			string,
 			'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function' | 'ObjectId',
+			// | 'array' dont work with array
 			boolean?
 		]
 	>,
@@ -162,6 +163,13 @@ function checkParameters(
 			});
 			log(errorText + ` from ` + ip, 'WARNING', orgin);
 			return false;
+			// } else if (parameter[1] == 'array' && !Array.isArray(body[parameter[0]])) {
+			// 	res.status(400).send({
+			// 		message: errorText,
+			// 		OK: false
+			// 	});
+			// 	log(errorText + ` from ` + ip, 'WARNING', orgin);
+			// 	return false;
 		} else if (typeof body[parameter[0]] != parameter[1]) {
 			res.status(400).send({
 				message: errorText,
