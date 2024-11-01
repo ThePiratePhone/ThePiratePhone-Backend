@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
+import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
@@ -13,10 +13,12 @@ import { log } from '../../../tools/log';
  * 	"adminCode": string,
  * 	"newName": string,
  * 	"area": mongoDBID,
- * 	"CampaignId": mongoDBID
+ * 	"CampaignId": mongoDBID,
+ *	"allreadyhas": boolean
  * }
  *
  * @throws {400} - Missing parameters
+ * @throws {400} - bad hash for admin code
  * @throws {400} - Campaign not found
  * @throws {400} - Name invalid
  * @throws {401} - Wrong admin code
@@ -27,18 +29,24 @@ import { log } from '../../../tools/log';
 export default async function changeName(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		typeof req.body.newName != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', 'changeName.ts');
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['newName', 'string'],
+				['area', 'string'],
+				['CampaignId', 'string', true],
+				['allreadyHased', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -58,7 +66,11 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	if (req.body.newName.length < 4 || req.body.newName.length > 20) {
+	if (
+		req.body.newName.length < 4 ||
+		req.body.newName.length > 20 ||
+		req.body.newName != sanitizeString(req.body.newName)
+	) {
 		res.status(400).send({ message: 'Name invalid', OK: false });
 		log(`Name invalid from ${ip} (${area.name})`, 'WARNING', __filename);
 		return;
