@@ -44,11 +44,11 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/changeScript', () => {
+describe('post on /api/admin/campaign/changeTimeBetwenCall', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
 			adminCode: 'wrong',
-			newScript: 'newScript',
+			newTimeBetweenCall: 5,
 			area: areaId
 		});
 		expect(res.status).toBe(401);
@@ -56,50 +56,46 @@ describe('post on /api/admin/campaign/changeScript', () => {
 	});
 
 	it('should return 401 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
 			adminCode,
-			newScript: 'newScript',
+			newTimeBetweenCall: 5,
 			area: areaId,
-			allreadyHaseded: true,
-			CampaignId: new Types.ObjectId()
+			CampaignId: new Types.ObjectId(),
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(401);
 		expect(res.body.message).toBe('Wrong campaign id');
 	});
 
-	it('should return 401 if the script is empty', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+	it('should return 400 if the time between call is invalid', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
 			adminCode,
-			newScript: ' ',
+			newTimeBetweenCall: 40,
 			area: areaId,
 			allreadyHaseded: true
 		});
-		expect(res.status).toBe(401);
-		expect(res.body.message).toBe('Wrong script id');
+		expect(res.status).toBe(400);
+		expect(res.body.message).toBe('Invalid time between call');
 	});
-
-	it('should return 200 if the script is changed', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+	it('should return 200 if the time between call is changed', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
 			adminCode: 'password',
-			newScript: 'newScript1',
-			area: areaId,
-			allreadyHaseded: true
+			newTimeBetweenCall: 60_000,
+			area: areaId
 		});
 		expect(res.status).toBe(200);
-		expect(res.body.message).toBe('OK');
-		const newScript = (await Campaign.findOne({ _id: campaignId }))?.script;
-		expect(newScript).toBe('newScript1');
+		const newTimeBetweenCall = (await Campaign.findOne({ _id: campaignId }))?.timeBetweenCall;
+		expect(newTimeBetweenCall).toBe(60_000);
 	});
-	it('should return 200 if the script is changed with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+	it('should return 200 if the time between call is changed wirh hash', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
 			adminCode,
-			newScript: 'newScript',
+			newTimeBetweenCall: 60_000,
 			area: areaId,
 			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
-		expect(res.body.message).toBe('OK');
-		const newScript = (await Campaign.findOne({ _id: campaignId }))?.script;
-		expect(newScript).toBe('newScript');
+		const newTimeBetweenCall = (await Campaign.findOne({ _id: campaignId }))?.timeBetweenCall;
+		expect(newTimeBetweenCall).toBe(60_000);
 	});
 });

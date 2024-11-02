@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
+import { checkParameters, hashPasword } from '../../../tools/utils';
 
 /**
  * Change the time between call for a campaign
@@ -13,10 +14,12 @@ import { log } from '../../../tools/log';
  *	"adminCode": string,
  *	"area": mongoDBID,
  *	"newTimeBetweenCall": number,
- *	"CampaignId": mongoDBID
+ *	"CampaignId": mongoDBID,
+ *	"allreadyHaseded": boolean
  * }
  *
  * @throws {400} - Missing parameters
+ * @throws {400} - bad hash for admin code
  * @throws {401} - Wrong admin code
  * @throws {401} - Wrong campaign id
  * @throws {404} - Campaign not found
@@ -26,18 +29,23 @@ import { log } from '../../../tools/log';
 export default async function changeTimeBetwenCall(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.newTimeBetweenCall != 'number' ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['newTimeBetweenCall', 'number'],
+				['area', 'string'],
+				['CampaignId', 'string', true],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
-
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);

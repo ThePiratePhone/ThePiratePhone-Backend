@@ -100,7 +100,7 @@ describe('post on /api/admin/campaign/changeNumberMaxCall', () => {
 		const max = (await Campaign.findOne({ _id: campaignId }))?.nbMaxCallCampaign;
 		expect(max).toBe(2);
 	});
-	it('should return 200 if the campaign is found', async () => {
+	it('should return 200 if the campaign is found with hash', async () => {
 		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
 			adminCode,
 			newNumberMaxCall: 1,
