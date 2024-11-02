@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
+import { checkParameters, hashPasword } from '../../../tools/utils';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
@@ -16,10 +16,12 @@ import { log } from '../../../tools/log';
  * 	"callHoursStart": number,
  * 	"callHoursEnd": number,
  * 	"satisfactions": string[],
- * 	"area": mongoDBID
+ * 	"area": mongoDBID,
+ *	"allreadyHaseded": boolean
  * }
  *
  * @throws {400}: Missing parameters
+ * @throws {400} - bad hash for admin code
  * @throws {400}: Invalid satisfaction satisfactions must be a array<string>
  * @throws {401}: Wrong admin code
  * @throws {400}: Campaign already exist
@@ -29,18 +31,27 @@ import { log } from '../../../tools/log';
 export default async function createCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.name != 'string' ||
-		typeof req.body.script != 'string' ||
-		typeof req.body.adminCode != 'string' ||
-		typeof req.body.password != 'string' ||
-		(typeof req.body.callHoursStart != 'undefined' && typeof req.body.callHoursStart != 'number') ||
-		(typeof req.body.callHoursEnd != 'undefined' && typeof req.body.callHoursEnd != 'number') ||
-		(typeof req.body.satisfactions != 'undefined' && !Array.isArray(req.body.satisfactions)) ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['name', 'string'],
+				['script', 'string'],
+				['adminCode', 'string'],
+				['password', 'string'],
+				['callHoursStart', 'number', true],
+				['callHoursEnd', 'number', true],
+				['area', 'string'],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
+		return;
+
+	if (req.body.satisfactions && !Array.isArray(req.body.satisfactions)) {
+		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
+		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -49,15 +60,16 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}
-
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	if ((await Campaign.findOne({ name: { $eq: req.body.name }, area: area._id })) != null) {
+	if ((await Campaign.findOne({ name: { $eq: req.body.name.trim() }, area: area._id })) != null) {
 		res.status(400).send({ message: 'Campaign already exist', OK: false });
 		log(`Campaign already exist from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
