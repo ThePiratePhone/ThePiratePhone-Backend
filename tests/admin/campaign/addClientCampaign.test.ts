@@ -19,6 +19,7 @@ beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
 	await Area.deleteMany({});
 	await Client.deleteMany({});
+	await Campaign.deleteMany({});
 
 	areaId = (
 		await Area.create({

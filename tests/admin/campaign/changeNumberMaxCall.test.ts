@@ -4,7 +4,6 @@ import request from 'supertest';
 import app from '../../../index';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
-import { Client } from '../../../Models/Client';
 
 dotenv.config({ path: '.env' });
 
@@ -17,7 +16,6 @@ const adminCode =
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
 	await Area.deleteMany({});
-	await Client.deleteMany({});
 	await Campaign.deleteMany({});
 
 	areaId = (
@@ -46,65 +44,72 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/changePassword', () => {
-	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
-			adminCode: 'wrong code',
-			newCampaignCode: 'new password',
+describe('post on /api/admin/campaign/changeNumberMaxCall', () => {
+	it('should return 401 if the admin code is wrong', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
+			adminCode: 'wrong',
+			newNumberMaxCall: 1,
 			area: areaId
 		});
 		expect(res.status).toBe(401);
-		expect(res.body.OK).toBe(false);
 		expect(res.body.message).toBe('Wrong admin code');
 	});
 
-	it('should return 401 if wrong campaign id', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+	it('should return 401 if the campaign id is wrong', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
 			adminCode,
-			newCampaignCode: 'new password',
+			newNumberMaxCall: 1,
 			area: areaId,
-			CampaignId: new Types.ObjectId().toHexString(),
+			CampaignId: new Types.ObjectId(),
 			allreadyHased: true
 		});
 		expect(res.status).toBe(401);
-		expect(res.body.OK).toBe(false);
 		expect(res.body.message).toBe('Wrong campaign id');
 	});
 
-	it('should return 400 if new password invalid', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+	it('should return 400 if the newNumberMaxCall is not a number', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
 			adminCode,
-			newCampaignCode: '{$ne: null}',
+			newNumberMaxCall: NaN,
 			area: areaId,
 			allreadyHased: true
 		});
 		expect(res.status).toBe(400);
-		expect(res.body.OK).toBe(false);
-		expect(res.body.message).toBe('New password invalid');
+		expect(res.body.message).toBe('Missing parameters (newNumberMaxCall:number)');
 	});
 
-	it('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+	it('should return 400 if the newNumberMaxCall is less than 1', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
+			adminCode,
+			newNumberMaxCall: 0,
+			area: areaId,
+			allreadyHased: true
+		});
+		expect(res.status).toBe(400);
+		expect(res.body.message).toBe('invalid number max call');
+	});
+
+	it('should return 200 if the campaign is found', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
 			adminCode: 'password',
-			newCampaignCode: 'new password',
+			newNumberMaxCall: 2,
 			area: areaId
 		});
 		expect(res.status).toBe(200);
-		expect(res.body.OK).toBe(true);
-		const campaignPassword = await Campaign.findOne({ _id: campaignId });
-		expect(campaignPassword?.password).toBe('new password');
+		expect(res.body.message).toBe('OK');
+		const max = (await Campaign.findOne({ _id: campaignId }))?.nbMaxCallCampaign;
+		expect(max).toBe(2);
 	});
-
-	it('should return 200 if OK with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+	it('should return 200 if the campaign is found', async () => {
+		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
 			adminCode,
-			newCampaignCode: 'new password2',
+			newNumberMaxCall: 1,
 			area: areaId,
 			allreadyHased: true
 		});
 		expect(res.status).toBe(200);
-		expect(res.body.OK).toBe(true);
-		const campaignPassword = await Campaign.findOne({ _id: campaignId });
-		expect(campaignPassword?.password).toBe('new password2');
+		expect(res.body.message).toBe('OK');
+		const max = (await Campaign.findOne({ _id: campaignId }))?.nbMaxCallCampaign;
+		expect(max).toBe(1);
 	});
 });

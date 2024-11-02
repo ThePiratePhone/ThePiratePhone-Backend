@@ -157,6 +157,7 @@ function checkParameters(
 				return false;
 			}
 		} else if (parameter[1] == 'number' && isNaN(parseInt(body[parameter[0]]))) {
+			// if is nan return Missing parameters because NaN == undefined
 			res.status(400).send({
 				message: errorText,
 				OK: false
