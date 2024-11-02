@@ -110,7 +110,7 @@ describe('post on /api/admin/caller/searchByPhone', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			phone: '+334',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty('message', 'OK');
@@ -124,7 +124,7 @@ describe('post on /api/admin/caller/searchByPhone', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			phone: '+335',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res1.status).toBe(200);
 		expect(res1.body).toHaveProperty('message', 'OK');

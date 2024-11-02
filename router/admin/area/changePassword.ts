@@ -11,7 +11,7 @@ import { log } from '../../../tools/log';
  * 	"adminCode": string,
  * 	"area": string,
  * 	"newPassword": string,
- * 	"allreadyHased": boolean
+ * 	"allreadyHaseded": boolean
  * }
  *
  * @throws {400}: Missing parameters
@@ -55,7 +55,7 @@ export default async function ChangePasword(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 	const update = await Area.updateOne(
 		{ _id: { $eq: req.body.area }, adminPassword: password },

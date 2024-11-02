@@ -64,7 +64,7 @@ describe('post on /api/admin/campaign/changePassword', () => {
 			newCampaignCode: 'new password',
 			area: areaId,
 			CampaignId: new Types.ObjectId().toHexString(),
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(401);
 		expect(res.body.OK).toBe(false);
@@ -76,7 +76,7 @@ describe('post on /api/admin/campaign/changePassword', () => {
 			adminCode,
 			newCampaignCode: '{$ne: null}',
 			area: areaId,
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(400);
 		expect(res.body.OK).toBe(false);
@@ -100,7 +100,7 @@ describe('post on /api/admin/campaign/changePassword', () => {
 			adminCode,
 			newCampaignCode: 'new password2',
 			area: areaId,
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body.OK).toBe(true);

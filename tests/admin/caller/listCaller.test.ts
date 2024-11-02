@@ -89,7 +89,7 @@ describe('post on /api/admin/caller/listCaller', () => {
 		const res = await request(app).post('/api/admin/caller/listCaller').send({
 			adminCode: adminPassword,
 			area: areaId2,
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body.message).toBe('OK');

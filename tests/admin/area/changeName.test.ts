@@ -31,7 +31,7 @@ describe('post on /api/admin/area/changeName', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			newName: ' ',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toHaveProperty('message', 'bad new name');
@@ -44,7 +44,7 @@ describe('post on /api/admin/area/changeName', () => {
 				adminCode: adminPassword,
 				area: areaId,
 				newName: 'a'.repeat(51),
-				allreadyHased: true
+				allreadyHaseded: true
 			});
 		expect(res.status).toBe(400);
 		expect(res.body).toHaveProperty('message', 'bad new name');
@@ -55,7 +55,7 @@ describe('post on /api/admin/area/changeName', () => {
 			adminCode: adminPassword,
 			area: new mongoose.Types.ObjectId(),
 			newName: 'newName',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(404);
 		expect(res.body).toHaveProperty('message', 'no area found');
@@ -88,7 +88,7 @@ describe('post on /api/admin/area/changeName', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			newName: 'newName2',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty('message', 'name of area changed');

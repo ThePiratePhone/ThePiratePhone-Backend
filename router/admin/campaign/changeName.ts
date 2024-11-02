@@ -14,7 +14,7 @@ import { log } from '../../../tools/log';
  * 	"newName": string,
  * 	"area": mongoDBID,
  * 	"CampaignId": mongoDBID,
- *	"allreadyhas": boolean
+ *	"allreadyHased": boolean
  * }
  *
  * @throws {400} - Missing parameters
@@ -37,14 +37,14 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 				['newName', 'string'],
 				['area', 'string'],
 				['CampaignId', 'string', true],
-				['allreadyHased', 'boolean', true]
+				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
 		)
 	)
 		return;
 
-	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {

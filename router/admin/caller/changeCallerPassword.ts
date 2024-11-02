@@ -15,7 +15,7 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../.
  * 	"newPassword": string,
  * 	"Callerphone": string,
  * 	"area": string,
- * 	allreadyHased: boolean
+ * 	allreadyHaseded: boolean
  * }
  *
  * @throws {400}: adminCode is not a hash
@@ -36,7 +36,7 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 				['newPassword', 'string'],
 				['Callerphone', 'string'],
 				['area', 'ObjectId'],
-				['allreadyHased', 'boolean', true]
+				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
 		)
@@ -48,7 +48,7 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 		log(`Invalid new pin code from: ` + ip, 'WARNING', __filename);
 		return;
 	}
-	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {

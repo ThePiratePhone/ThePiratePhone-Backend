@@ -192,8 +192,8 @@ function checkPinCode(pinCode: string, res: Response<any>, orgin: string): boole
 	return true;
 }
 
-function hashPasword(password: string, allreadyHased: boolean, res: Response<any>): string | false {
-	if (!allreadyHased || password.length != 128) {
+function hashPasword(password: string, allreadyHaseded: boolean, res: Response<any>): string | false {
+	if (!allreadyHaseded || password.length != 128) {
 		//create hash
 		password = sha512(password);
 	} else {

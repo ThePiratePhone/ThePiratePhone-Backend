@@ -14,7 +14,7 @@ import { checkParameters, hashPasword, sanitizeString } from '../../../tools/uti
  *	"newCampaignCode": string,
  *	"area": mongoDBID,
  *	"CampaignId": mongoDBID,
- *	"allreadyHased": boolean
+ *	"allreadyHaseded": boolean
  * }
  *
  * @throws {400} - Missing parameters
@@ -36,13 +36,13 @@ export default async function changeCampaingPassword(req: Request<any>, res: Res
 				['newCampaignCode', 'string'],
 				['area', 'string'],
 				['CampaignId', 'string', true],
-				['allreadyHased', 'boolean', true]
+				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
 		)
 	)
 		return;
-	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {

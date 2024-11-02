@@ -39,7 +39,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 				['pinCode', 'string'],
 				['name', 'string'],
 				['area', 'ObjectId'],
-				['allreadyHased', 'boolean', true]
+				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
 		)
@@ -60,7 +60,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {

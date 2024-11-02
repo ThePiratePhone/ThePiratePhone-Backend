@@ -31,7 +31,7 @@ describe('post on /api/admin/area/changePassword', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			newPassword: ' ',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toHaveProperty('message', 'bad new password');
@@ -42,7 +42,7 @@ describe('post on /api/admin/area/changePassword', () => {
 			adminCode: adminPassword,
 			area: new mongoose.Types.ObjectId(),
 			newPassword: 'newPassword',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(404);
 		expect(res.body).toHaveProperty('message', 'no area found');
@@ -55,7 +55,7 @@ describe('post on /api/admin/area/changePassword', () => {
 				adminCode: adminPassword,
 				area: areaId,
 				newPassword: 'a'.repeat(33),
-				allreadyHased: true
+				allreadyHaseded: true
 			});
 		expect(res.status).toBe(400);
 		expect(res.body).toHaveProperty('message', 'new password is too long (max 32)');
@@ -76,7 +76,7 @@ describe('post on /api/admin/area/changePassword', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			newPassword: 'newPassword',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty('message', 'password of area changed');

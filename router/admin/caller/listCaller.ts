@@ -33,14 +33,14 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 				['area', 'ObjectId'],
 				['skip', 'number', true],
 				['limit', 'number', true],
-				['allreadyHased', 'boolean', true]
+				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
 		)
 	)
 		return;
 
-	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {

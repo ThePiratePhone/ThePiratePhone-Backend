@@ -176,7 +176,7 @@ describe('post on /api/admin/caller/exportCallersCsv', () => {
 		const response = await request(app).post('/api/admin/caller/exportCallersCsv').send({
 			adminCode: adminPassword,
 			area: areaId,
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(response.status).toBe(200);
 		const expectedPattern = new RegExp(

@@ -87,7 +87,7 @@ describe('post on /api/admin/caller/removeCaller', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			phone: '+33223456780',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty('message', 'Caller removed');

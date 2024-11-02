@@ -13,7 +13,7 @@ import { checkParameters, hashPasword } from '../../tools/utils';
  * body: {
  * 	adminCode: 'adminCode',
  * 	area: 'areaId'
- * 	allreadyHased: boolean
+ * 	allreadyHaseded: boolean
  * }
  *
  * response: {
@@ -46,14 +46,14 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			[
 				['adminCode', 'string'],
 				['area', 'ObjectId'],
-				['allreadyHased', 'boolean', true]
+				['allreadyHaseded', 'boolean', true]
 			],
 			'login.ts'
 		)
 	)
 		return;
 
-	const password = await hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = await hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: password });
 	if (!area) {

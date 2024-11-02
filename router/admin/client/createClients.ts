@@ -14,7 +14,7 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeStr
  * 	"adminCode": string,
  * 	"area": string,
  * 	"data": [phone, name, firstname, institution],
- * 	"allreadyHased": boolean
+ * 	"allreadyHaseded": boolean
  * }
  * @throws {400}: missing parameters,
  * @throws {400}: new password is not a hash
@@ -32,7 +32,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 			[
 				['adminCode', 'string'],
 				['area', 'ObjectId'],
-				['allreadyHased', 'boolean', true]
+				['allreadyHaseded', 'boolean', true]
 			],
 			ip
 		)
@@ -50,7 +50,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 
 	const area = await Area.findOne(

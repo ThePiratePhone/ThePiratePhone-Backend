@@ -15,7 +15,7 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../.
  *	"area": mongoDBID,
  *	"phone": string,
  *	"campaign": mongoDBID,
- *	"allreadyhas": boolean
+ *	"allreadyHased": boolean
  * }
  *
  * @throws {400} - Missing parameters
@@ -39,7 +39,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 				['phone', 'string'],
 				['adminCode', 'string'],
 				['area', 'string'],
-				['allreadyHased', 'boolean', true]
+				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
 		)
@@ -53,7 +53,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	const password = hashPasword(req.body.adminCode, req.body.allreadyHased, res);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {

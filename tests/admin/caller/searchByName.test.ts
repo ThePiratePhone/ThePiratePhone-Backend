@@ -108,7 +108,7 @@ describe('post on /api/admin/caller/searchByName', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			name: 'hello',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty('OK', true);
@@ -121,7 +121,7 @@ describe('post on /api/admin/caller/searchByName', () => {
 			adminCode: adminPassword,
 			area: areaId,
 			name: 'truc',
-			allreadyHased: true
+			allreadyHaseded: true
 		});
 		expect(res2.status).toBe(200);
 		expect(res2.body).toHaveProperty('OK', true);
