@@ -4,6 +4,7 @@ import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
+import { checkParameters, hashPasword } from '../../../tools/utils';
 
 /**
  * List all callers from a campaign
@@ -26,19 +27,24 @@ import { log } from '../../../tools/log';
 export default async function listCallerCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.CampaignId) ||
-		(req.body.skip && typeof req.body.skip != 'number') ||
-		(req.body.limit && typeof req.body.limit != 'number') ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['CampaignId', 'string'],
+				['area', 'string'],
+				['skip', 'number', true],
+				['limit', 'number', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
@@ -57,8 +63,8 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 	const callers = await Caller.find({ campaigns: campaign._id })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
-	if (!callers) {
-		res.status(401).send({ message: 'No callers found', OK: false });
+	if (!callers || callers.length === 0) {
+		res.status(404).send({ message: 'No callers found', OK: false });
 		log(`No callers found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
