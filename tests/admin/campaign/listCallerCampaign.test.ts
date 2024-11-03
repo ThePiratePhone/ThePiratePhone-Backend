@@ -22,7 +22,7 @@ beforeAll(async () => {
 
 	areaId = (
 		await Area.create({
-			name: 'changeCampaignPasswordTest',
+			name: 'listCallerCampaignTest',
 			password: 'password',
 			campaignList: [],
 			adminPassword: adminCode
@@ -31,8 +31,8 @@ beforeAll(async () => {
 
 	CampaignId = (
 		await Campaign.create({
-			name: 'changeCampaignPasswordTest',
-			script: 'changeCampaignPasswordTest',
+			name: 'listCallerCampaignTest',
+			script: 'listCallerCampaignTest',
 			active: true,
 			area: areaId,
 			status: ['In progress', 'Finished'],

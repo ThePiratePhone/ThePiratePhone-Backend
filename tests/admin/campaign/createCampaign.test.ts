@@ -19,7 +19,7 @@ beforeAll(async () => {
 
 	areaId = (
 		await Area.create({
-			name: 'changeCampaignPasswordTest',
+			name: 'createCampaignTest',
 			password: 'password',
 			campaignList: [],
 			adminPassword: adminCode
@@ -35,8 +35,8 @@ describe(' post on /api/admin/createCampaign', () => {
 	it('should return 400 if the satisfaction is not an array', async () => {
 		const res = await request(app).post('/api/admin/createCampaign').send({
 			adminCode,
-			name: 'changeCampaignPasswordTest',
-			script: 'changeCampaignPasswordTest',
+			name: 'createCampaignTest',
+			script: 'createCampaignTest',
 			password: 'password',
 			area: areaId,
 			satisfactions: 'satisfaction',
@@ -51,8 +51,8 @@ describe(' post on /api/admin/createCampaign', () => {
 			.post('/api/admin/createCampaign')
 			.send({
 				adminCode,
-				name: 'changeCampaignPasswordTest',
-				script: 'changeCampaignPasswordTest',
+				name: 'createCampaignTest',
+				script: 'createCampaignTest',
 				password: 'password',
 				area: areaId,
 				satisfactions: [1],
@@ -64,8 +64,8 @@ describe(' post on /api/admin/createCampaign', () => {
 	it('should return 401 if the admin code is wrong', async () => {
 		const res = await request(app).post('/api/admin/createCampaign').send({
 			adminCode: 'wrong',
-			name: 'changeCampaignPasswordTest',
-			script: 'changeCampaignPasswordTest',
+			name: 'createCampaignTest',
+			script: 'createCampaignTest',
 			password: 'password',
 			area: areaId,
 			allreadyHaseded: true
@@ -76,8 +76,8 @@ describe(' post on /api/admin/createCampaign', () => {
 
 	it('should return 400 if the campaign already exist', async () => {
 		await Campaign.create({
-			name: 'changeCampaignPasswordTest4',
-			script: 'changeCampaignPasswordTest4',
+			name: 'createCampaignTest4',
+			script: 'createCampaignTest4',
 			active: true,
 			area: areaId,
 			status: ['In progress', 'Finished'],
@@ -85,8 +85,8 @@ describe(' post on /api/admin/createCampaign', () => {
 		});
 		const res = await request(app).post('/api/admin/createCampaign').send({
 			adminCode,
-			name: 'changeCampaignPasswordTest4',
-			script: 'changeCampaignPasswordTest4',
+			name: 'createCampaignTest4',
+			script: 'createCampaignTest4',
 			password: 'password',
 			area: areaId,
 			allreadyHaseded: true
@@ -98,29 +98,29 @@ describe(' post on /api/admin/createCampaign', () => {
 	it('should return 200 if the campaign is created with hash', async () => {
 		const res = await request(app).post('/api/admin/createCampaign').send({
 			adminCode,
-			name: 'changeCampaignPasswordTest2',
-			script: 'changeCampaignPasswordTest2',
+			name: 'createCampaignTest2',
+			script: 'createCampaignTest2',
 			password: 'password',
 			area: areaId,
 			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body.message).toBe('Campaign created');
-		const campaign = await Campaign.findOne({ name: 'changeCampaignPasswordTest2' });
+		const campaign = await Campaign.findOne({ name: 'createCampaignTest2' });
 		expect(campaign).not.toBeNull();
 	});
 
 	it('should return 200 if the campaign is created', async () => {
 		const res = await request(app).post('/api/admin/createCampaign').send({
 			adminCode: 'password',
-			name: 'changeCampaignPasswordTest3',
-			script: 'changeCampaignPasswordTest3',
+			name: 'createCampaignTest3',
+			script: 'createCampaignTest3',
 			password: 'password',
 			area: areaId
 		});
 		expect(res.status).toBe(200);
 		expect(res.body.message).toBe('Campaign created');
-		const campaign = await Campaign.findOne({ name: 'changeCampaignPasswordTest3' });
+		const campaign = await Campaign.findOne({ name: 'createCampaignTest3' });
 		expect(campaign).not.toBeNull();
 	});
 });

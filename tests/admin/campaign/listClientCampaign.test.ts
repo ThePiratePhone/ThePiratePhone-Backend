@@ -4,6 +4,7 @@ import request from 'supertest';
 import app from '../../../index';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
+import { Client } from '../../../Models/Client';
 
 dotenv.config({ path: '.env' });
 
@@ -17,10 +18,11 @@ beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
 	await Area.deleteMany({});
 	await Campaign.deleteMany({});
+	await Client.deleteMany({});
 
 	areaId = (
 		await Area.create({
-			name: 'getCampaignTest',
+			name: 'listClientCampaignTest',
 			password: 'password',
 			campaignList: [],
 			adminPassword: adminCode
@@ -29,8 +31,8 @@ beforeAll(async () => {
 
 	CampaignId = (
 		await Campaign.create({
-			name: 'getCampaignTest',
-			script: 'getCampaignTest',
+			name: 'listClientCampaignTest',
+			script: 'listClientCampaignTest',
 			active: true,
 			area: areaId,
 			status: ['In progress', 'Finished'],
@@ -44,9 +46,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe(' post on /api/admin/campaign/getCampaign', () => {
+describe(' post on /api/admin/campaign/listClientCampaign', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/getCampaign').send({
+		const res = await request(app).post('/api/admin/campaign/listClientCampaign').send({
 			adminCode: 'wrong',
 			area: areaId,
 			CampaignId: areaId
@@ -56,36 +58,57 @@ describe(' post on /api/admin/campaign/getCampaign', () => {
 	});
 
 	it('should return 404 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/getCampaign').send({
+		const res = await request(app).post('/api/admin/campaign/listClientCampaign').send({
 			adminCode,
 			area: areaId,
 			CampaignId: new Types.ObjectId(),
 			allreadyHaseded: true
 		});
 		expect(res.status).toBe(404);
-		expect(res.body.message).toBe('no campaign');
+		expect(res.body.message).toBe('Wrong campaign id');
 	});
 
-	it('should return 401 if the area id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/getCampaign').send({
+	it('should return 401 if no clients are found', async () => {
+		const res = await request(app).post('/api/admin/campaign/listClientCampaign').send({
 			adminCode,
-			area: new Types.ObjectId(),
-			CampaignId: areaId,
+			area: areaId,
+			CampaignId: CampaignId,
 			allreadyHaseded: true
 		});
 		expect(res.status).toBe(401);
-		expect(res.body.message).toBe('Wrong admin code');
+		expect(res.body.message).toBe('No clients found');
 	});
 
-	it('should return 200 if is correct', async () => {
-		const res = await request(app).post('/api/admin/campaign/getCampaign').send({
+	it('should return 200 if the campaign id is right', async () => {
+		await Client.create({
+			name: 'listClientCampaignTest1',
+			phone: '+33693456780',
+			area: areaId,
+			campaigns: CampaignId
+		});
+
+		await Client.create({
+			name: 'listClientCampaignTest2',
+			phone: '+33693456781',
+			area: areaId,
+			campaigns: CampaignId
+		});
+
+		await Client.create({
+			name: 'listClientCampaignTest3',
+			phone: '+33693456782',
+			area: areaId,
+			campaigns: CampaignId
+		});
+
+		const res = await request(app).post('/api/admin/campaign/listClientCampaign').send({
 			adminCode,
 			area: areaId,
-			CampaignId,
+			CampaignId: CampaignId,
 			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
-		expect(res.body.message).toBe('OK');
-		expect(res.body.data.active).toBe(true);
+		expect(res.body.data.clients).toBeInstanceOf(Array);
+		expect(res.body.data.clients.length).toBe(3);
 	});
 });

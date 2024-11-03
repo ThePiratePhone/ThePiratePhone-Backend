@@ -20,7 +20,7 @@ beforeAll(async () => {
 
 	areaId = (
 		await Area.create({
-			name: 'changeCampaignPasswordTest',
+			name: 'listCampaignTest',
 			password: 'password',
 			campaignList: [],
 			adminPassword: adminCode
@@ -56,8 +56,8 @@ describe(' post on /api/admin/campaign/listCampaign', () => {
 	it('should return 200 if the campaign list is not empty', async () => {
 		const campaignId = (
 			await Campaign.create({
-				name: 'changeCampaignPasswordTest',
-				script: 'changeCampaignPasswordTest',
+				name: 'listCampaignTest',
+				script: 'listCampaignTest',
 				active: true,
 				area: areaId,
 				status: ['In progress', 'Finished'],
