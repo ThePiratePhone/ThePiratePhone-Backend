@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
-import { log } from '../../../tools/log';
 import { Area } from '../../../Models/Area';
-import { Client } from '../../../Models/Client';
-import { Campaign } from '../../../Models/Campaign';
 import { Call } from '../../../Models/Call';
+import { Campaign } from '../../../Models/Campaign';
+import { Client } from '../../../Models/Client';
+import { log } from '../../../tools/log';
+import { checkParameters, hashPasword } from '../../../tools/utils';
 
 /**
  * remove all clients from a campaign
@@ -14,10 +14,12 @@ import { Call } from '../../../Models/Call';
  * body: {
  * 	adminCode: string,
  * 	area: string,
- * 	CampaignId?: string
+ * 	CampaignId?: string,
+ *	"allreadyHased": boolean
  * }
  *
  * @throws {400} if missing parameters
+ * @throws {400} bad hash for admin code
  * @throws {401} if wrong admin code
  * @throws {401} if wrong campaign id
  * @throws {500} if error removing clients
@@ -26,17 +28,22 @@ import { Call } from '../../../Models/Call';
 export default async function removeAllClients(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['area', 'string'],
+				['CampaignId', 'string', true],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
-
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -58,8 +65,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 
 	// find all call in progress (with client) in the campaign
 	const calls = await Call.deleteMany({
-		campaign: campaign._id,
-		$and: [{ Status: 'IN_PROGRESS' }]
+		campaigns: campaign._id
 	});
 	if (!calls) {
 		res.status(500).send({ message: 'Error removing clients', OK: false });
@@ -69,7 +75,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 
 	// remove all clients in the campaign
 	const clients = await Client.deleteMany({
-		campaign: campaign._id
+		campaigns: campaign._id
 	});
 
 	if (!clients) {

@@ -17,7 +17,7 @@ import { checkParameters, hashPasword, humainPhone } from '../../../tools/utils'
  * body:{
  * 	adminCode: string,
  * 	area: string,
- * 	CampaignId?: string
+ * 	CampaignId?: string,
  *	"allreadyHased": boolean
  * }
  *
