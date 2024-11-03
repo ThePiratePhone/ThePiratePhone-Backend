@@ -2,6 +2,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import fs from 'fs';
+import https from 'https';
 import mongoose from 'mongoose';
 
 import router from './routes';
@@ -26,11 +28,11 @@ const app = express();
 if (process.env.ISDEV == 'false') {
 	// add https support
 	const options = {
-		// key: fs.readFileSync('./certs/privkey.pem'),
-		// cert: fs.readFileSync('./certs/fullchain.pem')
+		key: fs.readFileSync('./certs/privkey.pem'),
+		cert: fs.readFileSync('./certs/fullchain.pem')
 	};
-	// const server = https.createServer(options, app);
-	app.listen(port, () => {
+	const server = https.createServer(options, app);
+	server.listen(port, () => {
 		log(`Listening at https://localhost:${port}`, 'DEBUG', __filename);
 	});
 
