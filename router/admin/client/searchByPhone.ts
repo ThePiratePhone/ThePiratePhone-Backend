@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword } from '../../../tools/utils';
 
 /**
  * Search for clients by phone
@@ -13,27 +13,34 @@ import { clearPhone } from '../../../tools/utils';
  * body: {
  * 	phone: String,
  * 	adminCode: String,
- * 	area: ObjectId
+ * 	area: ObjectId,
+ *	"allreadyHased": boolean
  * }
  *
  * @throws {400} Missing parameters
+ * @throws {400} bad hash for admin code
  * @throws {401} Wrong admin code
  * @throws {200} OK
  */
 export default async function SearchByPhone(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['adminCode', 'string'],
+				['area', 'string'],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
-
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
