@@ -1,0 +1,156 @@
+import dotenv from 'dotenv';
+import mongoose, { Types } from 'mongoose';
+import request from 'supertest';
+import app from '../../../index';
+import { Area } from '../../../Models/Area';
+import { Campaign } from '../../../Models/Campaign';
+import { Client } from '../../../Models/Client';
+
+dotenv.config({ path: '.env' });
+
+let areaId: mongoose.Types.ObjectId | undefined;
+let campaignId: mongoose.Types.ObjectId | undefined;
+let clientId: mongoose.Types.ObjectId | undefined;
+const adminCode =
+	'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86'; //password
+
+beforeAll(async () => {
+	await mongoose.connect(process.env.URITEST ?? '');
+	await Area.deleteMany({});
+	await Client.deleteMany({});
+
+	areaId = (
+		await Area.create({
+			name: 'removeClientTest',
+			password: 'password',
+			campaignList: [],
+			adminPassword: adminCode
+		})
+	).id;
+
+	campaignId = (
+		await Campaign.create({
+			name: 'removeClientTest',
+			script: 'removeClientTest',
+			active: true,
+			area: areaId,
+			status: ['In progress', 'Finished'],
+			password: 'password'
+		})
+	).id;
+
+	clientId = (
+		await Client.create({
+			name: 'removeClientTest',
+			phone: '+33134567890',
+			area: areaId,
+			campaigns: [campaignId]
+		})
+	).id;
+	Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId } });
+});
+
+afterAll(async () => {
+	await mongoose.connection.close();
+});
+
+describe('post on /api/admin/client/removeClient', () => {
+	it('should return 401 if wrong admin code', async () => {
+		const res = await request(app).post('/api/admin/client/removeClient').send({
+			adminCode: 'wrongPassword',
+			area: areaId,
+			phone: '+33134567890'
+		});
+		expect(res.status).toBe(401);
+		expect(res.body.OK).toBe(false);
+	});
+
+	it('should return 400 if wrong phone number', async () => {
+		const res = await request(app).post('/api/admin/client/removeClient').send({
+			adminCode,
+			area: areaId,
+			phone: 'wrongPhone',
+			allreadyHaseded: true
+		});
+		expect(res.status).toBe(400);
+		expect(res.body.OK).toBe(false);
+	});
+
+	it('should return 401 if wrong area', async () => {
+		const res = await request(app).post('/api/admin/client/removeClient').send({
+			adminCode,
+			area: new Types.ObjectId(),
+			phone: '+33134567890',
+			allreadyHaseded: true
+		});
+		expect(res.status).toBe(401);
+		expect(res.body.OK).toBe(false);
+	});
+
+	it('should return 401 if wrong campaign id', async () => {
+		const res = await request(app).post('/api/admin/client/removeClient').send({
+			adminCode,
+			area: areaId,
+			phone: '+33134567890',
+			CampaignId: new Types.ObjectId(),
+			allreadyHaseded: true
+		});
+		expect(res.status).toBe(401);
+		expect(res.body.OK).toBe(false);
+	});
+
+	it('should return 404 if client not found', async () => {
+		const res = await request(app).post('/api/admin/client/removeClient').send({
+			adminCode,
+			area: areaId,
+			phone: '+33134567891',
+			allreadyHaseded: true
+		});
+		expect(res.status).toBe(404);
+		expect(res.body.OK).toBe(false);
+	});
+
+	it('should return 200 if OK', async () => {
+		const res = await request(app).post('/api/admin/client/removeClient').send({
+			adminCode,
+			area: areaId,
+			phone: '+33134567890',
+			allreadyHaseded: true
+		});
+		console.log(res.body);
+		expect(res.status).toBe(200);
+		expect(res.body.OK).toBe(true);
+		expect(res.body.message).toBe('OK');
+		const client = await Client.findById(clientId);
+		expect(client).toBeNull();
+	});
+
+	it('should return 200 if OK with multiple client', async () => {
+		const client2 = (
+			await Client.create({
+				name: 'removeClientTest',
+				phone: '+33134567891',
+				area: areaId,
+				campaigns: campaignId
+			})
+		).id;
+		const client3 = (
+			await Client.create({
+				name: 'removeClientTest',
+				phone: '+33134567892',
+				area: areaId,
+				campaigns: campaignId
+			})
+		).id;
+		const res = await request(app).post('/api/admin/client/removeClient').send({
+			adminCode,
+			area: areaId,
+			phone: '+33134567892',
+			allreadyHaseded: true
+		});
+		expect(res.status).toBe(200);
+		expect(res.body.OK).toBe(true);
+		const client = await Client.find({});
+		expect(client.length).toBe(1);
+	});
+});
