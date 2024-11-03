@@ -7,7 +7,7 @@ import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * get client info
@@ -17,10 +17,12 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
  * 	phone: string,
  * 	adminCode: string,
  * 	area: string,
- * 	campaign: string
+ * 	campaign: string,
+ *	"allreadyHased": boolean
  * }
  *
  * @throws {400} if missing parameters
+ * @throws {400} - bad hash for admin code
  * @throws {400} if wrong phone number
  * @throws {401} if wrong admin code
  * @throws {404} if user not found
@@ -31,16 +33,20 @@ import { clearPhone, phoneNumberCheck } from '../../../tools/utils';
 export default async function clientInfo(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		typeof req.body.phone != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.campaign && !ObjectId.isValid(req.body.campaign))
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['phone', 'string'],
+				['area', 'string'],
+				['campaign', 'string', false]
+			],
+			__filename
+		)
+	)
 		return;
-	}
+
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
@@ -48,7 +54,9 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -68,25 +76,15 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const client = await Client.findOne({ phone: phone, area: area.id });
+	const client = await Client.findOne({ phone: phone, campaigns: campaign._id });
 	if (!client) {
-		res.status(404).send({ message: 'User not found', OK: false });
-		log(`User not found from ${area.name} (${ip})`, 'WARNING', __filename);
-		return;
-	}
-
-	const clients = Caller.find({ client: client._id, area: area._id });
-	if (!clients) {
-		res.status(404).send({
-			OK: true,
-			data: { client: null, call: null },
-			message: 'Client not found'
-		});
+		res.status(404).send({ message: 'Client not found', OK: false });
 		log(`Client not found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
-	const call = await Call.find({ client: client._id, area: area._id, campaign: campaign._id });
-	if (!call) {
+
+	const call = await Call.find({ client: client._id, campaign: campaign._id, duration: { $ne: null } });
+	if (!call || call.length === 0) {
 		res.status(200).send({
 			OK: true,
 			data: { client: client, call: null },
