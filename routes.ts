@@ -30,7 +30,7 @@ import addCallerCampaign from './router/admin/caller/addCallerCampaign';
 import clientInfo from './router/admin/client/clientInfo';
 import createClient from './router/admin/client/createClient';
 import createClients from './router/admin/client/createClients';
-import exportClientCsv from './router/admin/client/exportClientCsv';
+import exportClientCsv from './router/admin/client/exportClientsCsv';
 import removeAllClients from './router/admin/client/removeAllClients';
 import removeClient from './router/admin/client/removeClient';
 import SearchClientByName from './router/admin/client/searchByName';

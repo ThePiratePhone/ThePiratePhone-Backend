@@ -8,21 +8,44 @@ import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { humainPhone } from '../../../tools/utils';
+import { checkParameters, hashPasword, humainPhone } from '../../../tools/utils';
 
+/**
+ * export clients in csv
+ *
+ * @example
+ * body:{
+ * 	adminCode: string,
+ * 	area: string,
+ * 	CampaignId?: string
+ *	"allreadyHased": boolean
+ * }
+ *
+ * @throws {400} bad hash for admin code
+ * @throws {400} if missing parameters
+ * @throws {401} if wrong admin code
+ * @throws {401} if wrong campaign id
+ * @throws {500} if internal server error
+ * @throws {200} if OK
+ */
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId))
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['adminCode', 'string'],
+				['area', 'string'],
+				['CampaignId', 'string', true],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
-
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
 	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
 		'name'
 	]);
@@ -31,7 +54,6 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
-	let selector = { area: area._id };
 
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
@@ -46,7 +68,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		return;
 	}
 
-	selector = { area: area._id, [`data.${campaign._id}`]: { $exists: true, $not: { $size: 0 } } };
+	let selector = { campaigns: campaign._id };
 
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
 	res.setHeader('Content-Type', 'text/csv');
