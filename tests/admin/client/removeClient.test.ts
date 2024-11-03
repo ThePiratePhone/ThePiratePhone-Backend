@@ -117,7 +117,6 @@ describe('post on /api/admin/client/removeClient', () => {
 			phone: '+33134567890',
 			allreadyHaseded: true
 		});
-		console.log(res.body);
 		expect(res.status).toBe(200);
 		expect(res.body.OK).toBe(true);
 		expect(res.body.message).toBe('OK');
@@ -126,22 +125,19 @@ describe('post on /api/admin/client/removeClient', () => {
 	});
 
 	it('should return 200 if OK with multiple client', async () => {
-		const client2 = (
-			await Client.create({
-				name: 'removeClientTest',
-				phone: '+33134567891',
-				area: areaId,
-				campaigns: campaignId
-			})
-		).id;
-		const client3 = (
-			await Client.create({
-				name: 'removeClientTest',
-				phone: '+33134567892',
-				area: areaId,
-				campaigns: campaignId
-			})
-		).id;
+		await Client.create({
+			name: 'removeClientTest',
+			phone: '+33134567891',
+			area: areaId,
+			campaigns: campaignId
+		});
+
+		await Client.create({
+			name: 'removeClientTest',
+			phone: '+33134567892',
+			area: areaId,
+			campaigns: campaignId
+		});
 		const res = await request(app).post('/api/admin/client/removeClient').send({
 			adminCode,
 			area: areaId,
