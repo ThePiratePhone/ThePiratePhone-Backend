@@ -68,6 +68,7 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
+	const numberOfClients = await Client.countDocuments({ campaigns: campaign._id });
 	const clients = await Client.find({ campaigns: campaign._id })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
@@ -77,6 +78,6 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		return;
 	}
 
-	res.status(200).send({ message: 'OK', OK: true, data: { clients: clients, numberOfClients: clients.length } });
+	res.status(200).send({ message: 'OK', OK: true, data: { clients: clients, numberOfClients: numberOfClients } });
 	log(`client list campaign send to ${area.name} (${ip})`, 'INFO', __filename);
 }

@@ -36,7 +36,7 @@ if (process.env.ISDEV == 'false') {
 		log(`Listening at https://localhost:${port}`, 'DEBUG', __filename);
 	});
 
-	// set up rate limiter: maximum of 30 requests per minute
+	// set up rate limiter: maximum of 300 requests per minute
 	app.use(
 		rateLimit({
 			windowMs: 60_000,
