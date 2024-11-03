@@ -40,10 +40,10 @@ if (process.env.ISDEV == 'false') {
 	app.use(
 		rateLimit({
 			windowMs: 60_000,
-			max: 30,
+			max: 300,
 			handler: (req, res, next, options) => {
 				res.status(options.statusCode).send(options.message);
-				log(`Too many requests from: ${req.ip}`, 'WARNING', __filename);
+				log(`Too many requests (300/min) from: ${req.ip}`, 'CRITICAL', __filename);
 			}
 		})
 	);

@@ -19,6 +19,7 @@ import { checkParameters, hashPasword } from '../../../tools/utils';
  * }
  *
  *	@throws {400} - Missing parameters
+ * @throws {400} - bad hash for admin code
  *	@throws {401} - Wrong admin code
  *	@throws {401} - Wrong campaign id
  *	@throws {401} - No callers found
@@ -35,7 +36,8 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 				['CampaignId', 'string'],
 				['area', 'string'],
 				['skip', 'number', true],
-				['limit', 'number', true]
+				['limit', 'number', true],
+				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
 		)

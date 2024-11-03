@@ -108,7 +108,6 @@ describe(' post on /api/admin/campaign/listCallerCampaign', () => {
 			CampaignId: CampaignId,
 			allreadyHaseded: true
 		});
-		console.log(res.body);
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty('message', 'OK');
 		expect(res.body).toHaveProperty('OK', true);
