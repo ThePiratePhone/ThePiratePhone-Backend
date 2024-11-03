@@ -26,7 +26,7 @@ import listCampaign from './router/admin/campaign/listCampaign';
 import listClientCampaign from './router/admin/campaign/listClientCampaign';
 import setActive from './router/admin/campaign/setActive';
 import setSatisfaction from './router/admin/campaign/setSatisfaction';
-import addCallerCampaign from './router/admin/client/addCallerCampaign';
+import addCallerCampaign from './router/admin/caller/addCallerCampaign';
 import clientInfo from './router/admin/client/clientInfo';
 import createClient from './router/admin/client/createClient';
 import createClients from './router/admin/client/createClients';
@@ -77,7 +77,6 @@ router.post('/admin/client/createClients', createClients);
 router.post('/admin/client/searchByName', SearchClientByName);
 router.post('/admin/client/removeClient', removeClient);
 router.post('/admin/client/searchByPhone', SearchClientByPhone);
-router.post('/admin/client/addCallerCampaign', addCallerCampaign);
 router.post('/admin/client/removeClients', removeAllClients);
 router.post('/admin/client/createClient', createClient);
 router.post('/admin/client/clientInfo', clientInfo);
@@ -89,6 +88,7 @@ router.post('/admin/area/changeAdminPassword', ChangeAdminPassword);
 router.post('/admin/area/changePassword', changeAreaPassword);
 
 //admin/caller
+router.post('/admin/caller/addCallerCampaign', addCallerCampaign);
 router.post('/admin/caller/callerInfo', callerInfo);
 router.post('/admin/caller/changePassword', changeCallerPassword);
 router.post('/admin/caller/changeName', ChangeName);

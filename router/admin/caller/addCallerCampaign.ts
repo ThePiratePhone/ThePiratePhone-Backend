@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
-import { clearPhone } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword } from '../../../tools/utils';
 
 /**
  * add one caller to a campaign
@@ -15,10 +14,12 @@ import { clearPhone } from '../../../tools/utils';
  * 	phone: string,
  * 	adminCode: string,
  * 	area: string,
- * 	campaign: string
+ * 	campaign: string,
+ * 	"allreadyHaseded": boolean
  * }
  *
  * @throws {400} if missing parameters
+ * @throws {400} - bad hash for admin code
  * @throws {401} if wrong admin code
  * @throws {404} if caller not found
  * @throws {404} if campaign not found
@@ -29,20 +30,24 @@ import { clearPhone } from '../../../tools/utils';
 export default async function addCallerCampaign(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		!ObjectId.isValid(req.body.campaign) ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters`, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['adminCode', 'string'],
+				['area', 'string'],
+				['campaign', 'string'],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } }, [
-		'name'
-	]);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
@@ -51,7 +56,7 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 
 	req.body.phone = clearPhone(req.body.phone);
 
-	const caller = await Caller.findOne({ phone: { $eq: req.body.Phone }, area: area._id }, ['campaigns']);
+	const caller = await Caller.findOne({ phone: { $eq: req.body.phone }, area: area._id }, ['campaigns']);
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
 		log(`Caller not found from ${area.name} (${ip})`, 'WARNING', __filename);
