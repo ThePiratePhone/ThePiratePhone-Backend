@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
+import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
 import { checkParameters, clearPhone, hashPasword } from '../../../tools/utils';
@@ -47,10 +47,20 @@ export default async function SearchByPhone(req: Request<any>, res: Response<any
 		return;
 	}
 
+	let campaign: InstanceType<typeof Campaign> | null;
+	if (req.body.CampaignId) {
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
+	} else {
+		campaign = await Campaign.findOne({ area: area._id, active: true });
+	}
+
 	req.body.phone = clearPhone(req.body.phone);
 	req.body.phone = req.body.phone.match(/\d+/g)?.join('') || '';
 
-	const output = await Client.find({ phone: { $regex: req.body.phone, $options: 'i' } }, ['name', 'phone']).limit(10);
+	const output = await Client.find({ phone: { $regex: req.body.phone, $options: 'i' }, campaigns: campaign }, [
+		'name',
+		'phone'
+	]).limit(10);
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`Clients searched from ${ip} (${area.name})`, 'INFO', __filename);
 }

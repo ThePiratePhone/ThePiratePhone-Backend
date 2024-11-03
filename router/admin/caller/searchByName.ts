@@ -4,6 +4,7 @@ import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
 import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
+import { Campaign } from '../../../Models/Campaign';
 
 function escapeRegExp(input: string): string {
 	return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -35,7 +36,8 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 			[
 				['adminCode', 'string'],
 				['name', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
+				['campaign', 'ObjectId', true],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -54,7 +56,7 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 	const escapedNameParts = sanitizeString(req.body.name).split(' ').map(escapeRegExp);
 	const regexParts = escapedNameParts.map(part => `(?=.*${part})`).join('');
 	const regex = new RegExp(`^${regexParts}`, 'i');
-	const output = await Caller.find({ name: regex }).limit(10);
+	const output = await Caller.find({ name: regex, area: area }).limit(10);
 
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`Caller searched from ${ip} (${area.name})`, 'INFO', __filename);

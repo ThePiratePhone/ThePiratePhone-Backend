@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { Area } from '../../../Models/Area';
+import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
 import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
@@ -35,6 +36,7 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 				['name', 'string'],
 				['adminCode', 'string'],
 				['area', 'string'],
+				['CampaignId', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -51,10 +53,17 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 		return;
 	}
 
+	let campaign: InstanceType<typeof Campaign> | null;
+	if (req.body.CampaignId) {
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
+	} else {
+		campaign = await Campaign.findOne({ area: area._id, active: true });
+	}
+
 	const escapedNameParts = sanitizeString(req.body.name).split(' ').map(escapeRegExp);
 	const regexParts = escapedNameParts.map(part => `(?=.*${part})`).join('');
 	const regex = new RegExp(`^${regexParts}`, 'i');
-	const output = await Client.find({ name: regex }, ['name', 'phone']).limit(10);
+	const output = await Client.find({ name: regex, campaigns: campaign }, ['name', 'phone']).limit(10);
 
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`Clients searched from ${ip} (${area.name})`, 'INFO', __filename);
