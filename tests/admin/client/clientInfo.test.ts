@@ -133,7 +133,7 @@ describe('post on /api/admin/client/clientInfo', () => {
 		});
 	});
 	it('should return 200 if call found for this client', async () => {
-		const call = await Call.create({
+		await Call.create({
 			client: clientId,
 			caller: callerId,
 			campaign: campaignId,
@@ -160,5 +160,6 @@ describe('post on /api/admin/client/clientInfo', () => {
 			},
 			call: expect.any(Array)
 		});
+		expect(res.body.message).toBe('Client info got');
 	});
 });

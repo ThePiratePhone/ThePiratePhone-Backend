@@ -20,7 +20,8 @@ const ClientSchema = new mongoose.Schema({
 		required: true,
 		unique: true,
 		minlength: 12,
-		maxlength: 13
+		maxlength: 13,
+		index: true
 	},
 	campaigns: {
 		type: [mongoose.Schema.ObjectId],

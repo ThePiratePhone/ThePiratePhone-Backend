@@ -84,7 +84,14 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const call = await Call.find({ client: client._id, campaign: campaign._id, duration: { $ne: null } });
+	const call = await Call.find({ client: client._id, campaign: campaign._id, duration: { $ne: null } }, [
+		'duration',
+		'caller',
+		'satisfaction',
+		'status',
+		'start',
+		'comment'
+	]);
 	if (!call || call.length === 0) {
 		res.status(200).send({
 			OK: true,
@@ -95,14 +102,13 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const calls = await Promise.all(
-		call.map(async c => {
-			const caller = await Caller.findOne({ _id: c.caller, area: area._id });
-			return { call: c, caller: caller };
-		})
-	);
+	const calls: Array<any> = [];
+	for (const c of call) {
+		const caller = await Caller.findOne({ _id: c.caller, area: area._id });
+		calls.push({ call: c, caller: caller });
+	}
 
-	res.status(200).send({
+	res.status(200).json({
 		OK: true,
 		data: { client: client, call: calls },
 		message: 'Client info got'

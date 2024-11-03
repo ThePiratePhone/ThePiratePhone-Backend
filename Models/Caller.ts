@@ -12,12 +12,15 @@ const CallerSchema = new mongoose.Schema({
 		required: true,
 		unique: true,
 		minlength: 12,
-		maxlength: 13
+		maxlength: 13,
+		index: true
 	},
 	pinCode: {
 		type: String,
 		required: true,
-		length: 4
+		length: 4,
+		unique: false,
+		index: true
 	},
 	campaigns: {
 		type: [mongoose.Schema.ObjectId],

@@ -4,17 +4,23 @@ const CallModel = new mongoose.Schema({
 	client: {
 		type: mongoose.Schema.ObjectId,
 		ref: 'client',
-		required: true
+		required: true,
+		unique: false,
+		index: true
 	},
 	caller: {
 		type: mongoose.Schema.ObjectId,
 		ref: 'caller',
-		required: true
+		required: true,
+		unique: false,
+		index: true
 	},
 	campaign: {
 		type: mongoose.Schema.ObjectId,
 		ref: 'campaign',
-		required: true
+		required: true,
+		unique: false,
+		index: true
 	},
 	satisfaction: {
 		type: String,

@@ -14,7 +14,9 @@ const CampaignSchema = new mongoose.Schema({
 	active: {
 		type: Boolean,
 		required: true,
-		default: false
+		default: false,
+		unique: false,
+		index: true
 	},
 	area: {
 		type: mongoose.Schema.ObjectId,
@@ -28,7 +30,9 @@ const CampaignSchema = new mongoose.Schema({
 	},
 	password: {
 		type: String,
-		required: true
+		required: true,
+		unique: false,
+		index: true
 	},
 	//personalisation
 	nbMaxCallCampaign: {
