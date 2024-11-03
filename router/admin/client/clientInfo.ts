@@ -40,7 +40,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 				['adminCode', 'string'],
 				['phone', 'string'],
 				['area', 'string'],
-				['campaign', 'string', false],
+				['campaign', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename

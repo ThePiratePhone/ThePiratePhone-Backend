@@ -6,7 +6,7 @@ import { Call } from '../../../Models/Call';
 import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
-import { checkParameters, clearPhone, phoneNumberCheck } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../../../tools/utils';
 
 /**
  * get information of caller
@@ -53,10 +53,9 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } }, [
-		'_id',
-		'name'
-	]);
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['_id', 'name']);
 	if (!area) {
 		res.status(404).send({ message: 'no area found', OK: false });
 		log(`no area found from ${ip}`, 'WARNING', __filename);
