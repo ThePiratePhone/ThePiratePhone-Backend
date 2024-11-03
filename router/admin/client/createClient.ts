@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
-import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
 
 /**
  * create a client
@@ -15,10 +15,12 @@ import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/uti
  * 	name: string,
  * 	adminCode: string,
  * 	pinCode: string,
- * 	area: string
+ * 	area: string,
+ *	"allreadyHased": boolean
  * }
  *
  * @throws {400} if missing parameters
+ * @throws {400} bad hash for admin code
  * @throws {400} if wrong phone number
  * @throws {400} if wrong pin code
  * @throws {401} if wrong admin code
@@ -29,18 +31,25 @@ import { clearPhone, phoneNumberCheck, sanitizeString } from '../../../tools/uti
 export default async function createClient(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.name != 'string' ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from ` + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['name', 'string'],
+				['firstName', 'string', true],
+				['institution', 'string', true],
+				['adminCode', 'string'],
+				['area', 'string'],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
-
-	const area = await Area.findOne({ adminPassword: { $eq: req.body.adminCode }, _id: { $eq: req.body.area } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
@@ -63,6 +72,8 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	const user = new Client({
 		name: sanitizeString(req.body.name),
 		phone: phone,
+		firstName: sanitizeString(req.body.firstName ?? ''),
+		institution: sanitizeString(req.body.institution ?? ''),
 		area: area._id
 	});
 

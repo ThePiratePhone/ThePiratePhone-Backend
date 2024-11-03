@@ -121,7 +121,6 @@ describe('post on /api/admin/client/clientInfo', () => {
 			campaign: campaignId,
 			allreadyHaseded: true
 		});
-		console.log(res.body);
 		expect(res.status).toBe(200);
 		expect(res.body.message).toBe('no call found for this client');
 		expect(res.body.OK).toBe(true);
