@@ -86,7 +86,6 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 			password: { $eq: req.body.campaignPassword }
 		});
 	}
-
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${caller.name} (${ip})`, 'WARNING', __filename);

@@ -14,14 +14,25 @@ const port = 8443;
 // in test, the test script will create the connection to the database
 if (process.env.JEST_WORKER_ID == undefined) {
 	// Connect to MongoDB using Mongoose
-	mongoose
-		.connect(process.env.URI ?? '')
-		.then(() => {
-			log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
-		})
-		.catch(error => {
-			log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
-		});
+	if (process.env.ISDEV == 'false') {
+		mongoose
+			.connect(process.env.URI ?? '')
+			.then(() => {
+				log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
+			})
+			.catch(error => {
+				log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
+			});
+	} else {
+		mongoose
+			.connect(process.env.URIDEV ?? '')
+			.then(() => {
+				log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
+			})
+			.catch(error => {
+				log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
+			});
+	}
 }
 // Create an instance of the Express app
 const app = express();
