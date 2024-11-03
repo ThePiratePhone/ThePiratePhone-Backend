@@ -25,6 +25,9 @@ function clearPhone(phoneNumber: string): string {
 	if (phoneNumber.startsWith('33') && phoneNumber.length == 11) {
 		phoneNumber = '0' + phoneNumber.slice(2);
 	}
+	if (phoneNumber.length == 12 && phoneNumber.startsWith('06')) {
+		phoneNumber = '+336' + phoneNumber.slice(2);
+	}
 	if (phoneNumber.startsWith('0')) {
 		phoneNumber = phoneNumber.replace('0', '+33');
 	}
@@ -32,15 +35,18 @@ function clearPhone(phoneNumber: string): string {
 }
 
 function phoneNumberCheck(phone: string): boolean {
+	// console.log(phone);
 	if (typeof phone != 'string') return false;
 	if (!phone.startsWith('+')) return false;
 
 	const phoneArray = phone.split('');
+	// console.log(phone.length);
 	if (phone.length % 2 == 0) {
 		phoneArray.splice(0, 3);
 	} else {
 		phoneArray.splice(0, 4);
 	}
+	// console.log(phone);
 	phone = phoneArray.join('');
 	if (phone.match(/^[0-9]{9}$/)) return true;
 	return false;

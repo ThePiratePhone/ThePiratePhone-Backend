@@ -29,6 +29,7 @@ import { checkParameters, hashPasword, humainPhone } from '../../../tools/utils'
  */
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
+	const timeStart = Date.now();
 	if (
 		!checkParameters(
 			req.body,
@@ -66,7 +67,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	}
 
 	let selector = { campaigns: campaign._id };
-
+	log(`Exporting clients from ${area.name} (${ip})`, 'INFO', __filename);
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
 	res.setHeader('Content-Type', 'text/csv');
 
@@ -77,7 +78,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	const clients = Client.find(selector).cursor();
 	await clients.eachAsync(async client => {
 		const csvData: {
-			statut?: 'Doit etre rappelé·e' | 'Applé·e';
+			statut?: string;
 			resultat?: string;
 			appeleant?: string;
 			commentaire?: string;
@@ -86,17 +87,17 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 		const lastCall = await Call.findOne({ client: client._id, campaign: campaign?._id }).sort({ start: -1 });
 
 		if (lastCall) {
-			csvData.statut = lastCall.status ? 'Applé·e' : 'Doit etre rappelé·e';
+			csvData.statut = lastCall.status ? 'Appelé·e' : 'À rappelé·e';
 			csvData.resultat = lastCall?.satisfaction ?? 'Aucune info';
 			csvData.appeleant =
-				(await Caller.findOne({ client: lastCall.caller, area: area._id }, ['name']))?.name ?? 'Erreur';
+				(await Caller.findOne({ id: lastCall.caller, area: area._id }, ['name']))?.name ?? 'Erreur';
 			csvData.commentaire = lastCall?.comment ?? '';
 			csvData.nombreAppel = (await Call.countDocuments({ client: client._id, campaign: campaign?._id })) ?? -1;
 		}
 		csvStream.write({
 			nom: client.name,
 			telephone: humainPhone(client.phone),
-			statut: csvData.statut ?? '',
+			statut: csvData.statut ?? 'Pas appelé·e',
 			resultat: csvData.resultat ?? '',
 			appeleant: csvData.appeleant ?? '',
 			commentaire: csvData.commentaire ?? '',
@@ -105,5 +106,9 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	});
 	csvStream.end();
 	res.end();
-	log(`Exported ${numberOfClients} clients from ${ip} (${area.name})`, 'INFO', __filename);
+	log(
+		`Exported ${numberOfClients} clients in ${Date.now() - timeStart} from ${ip} (${area.name})`,
+		'INFO',
+		__filename
+	);
 }

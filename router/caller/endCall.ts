@@ -105,6 +105,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	call.duration = req.body.timeInCall ?? 0;
 	if (req.body.comment) call.comment = sanitizeString(req.body.comment);
 	call.lastInteraction = new Date();
+	call.status = req.body.status;
 
 	try {
 		await call.save();

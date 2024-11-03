@@ -5,6 +5,7 @@ import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
 import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { Area } from '../../Models/Area';
 
 /**
  *allow a caller to join a campaign
@@ -35,8 +36,8 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['area', 'ObjectId'],
-				['campaignId', 'ObjectId'],
+				['destinationArea', 'ObjectId'],
+				['campaignId', 'ObjectId', true],
 				['campaignPassword', 'string']
 			],
 			__filename
@@ -53,24 +54,38 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const caller = await Caller.findOne(
-		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
-		['name', 'campaigns', 'phone']
-	);
+	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, [
+		'name',
+		'campaigns',
+		'phone'
+	]);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
 		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
-	const campaign = await Campaign.findOne(
-		{
-			_id: { $eq: req.body.campaignId },
-			password: { $eq: req.body.campaignPassword },
-			area: { $eq: req.body.area }
-		},
-		['id', 'name']
-	);
+	const area = await Area.findOne({ _id: { $eq: req.body.destinationArea } });
+	if (!area) {
+		res.status(404).send({ message: 'Area not found', OK: false });
+		log(`Area not found from ${caller.name} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
+	let campaign: InstanceType<typeof Campaign> | null = null;
+	if (req.body.CampaignId) {
+		campaign = await Campaign.findOne({
+			_id: { $eq: req.body.CampaignId },
+			area: area._id,
+			password: { $eq: req.body.campaignPassword }
+		});
+	} else {
+		campaign = await Campaign.findOne({
+			area: area._id,
+			active: true,
+			password: { $eq: req.body.campaignPassword }
+		});
+	}
 
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });

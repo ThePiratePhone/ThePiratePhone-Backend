@@ -58,8 +58,7 @@ describe('post on /api/caller/joinCampaign', () => {
 		const res = await request(app).post('/api/caller/joinCampaign').send({
 			phone: 'invalid',
 			pinCode: '1234',
-			area: areaId,
-			campaignId: campaignId,
+			destinationArea: areaId,
 			campaignPassword: 'password'
 		});
 		expect(res.status).toBe(400);
@@ -70,8 +69,7 @@ describe('post on /api/caller/joinCampaign', () => {
 		const res = await request(app).post('/api/caller/joinCampaign').send({
 			phone: '+33534567901',
 			pinCode: '1234',
-			area: areaId,
-			campaignId: campaignId,
+			destinationArea: areaId,
 			campaignPassword: 'password'
 		});
 		expect(res.status).toBe(403);
@@ -82,8 +80,7 @@ describe('post on /api/caller/joinCampaign', () => {
 		const res = await request(app).post('/api/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
-			area: areaId,
-			campaignId: campaignId,
+			destinationArea: areaId,
 			campaignPassword: 'password2'
 		});
 		expect(res.status).toBe(404);
@@ -94,8 +91,8 @@ describe('post on /api/caller/joinCampaign', () => {
 		const res = await request(app).post('/api/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
-			area: areaId,
-			campaignId: campaignId,
+			destinationArea: areaId,
+			campaignId: new mongoose.Types.ObjectId(),
 			campaignPassword: 'password'
 		});
 		expect(res.status).toBe(403);
@@ -114,7 +111,7 @@ describe('post on /api/caller/joinCampaign', () => {
 		const res = await request(app).post('/api/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
-			area: areaId,
+			destinationArea: areaId,
 			campaignId: out._id,
 			campaignPassword: 'password2'
 		});
