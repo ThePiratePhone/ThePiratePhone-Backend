@@ -63,7 +63,7 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: { $eq: area._id } });
 	} else {
 		campaign = await Campaign.findOne({ area: area._id, active: true });
 	}
@@ -73,14 +73,14 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const output = await Client.findOne({ phone: req.body.phone, campaigns: campaign._id }, []);
+	const output = await Client.findOne({ phone: { $eq: req.body.phone }, campaigns: { $eq: campaign._id } }, []);
 	if (!output) {
 		res.status(404).send({ message: 'Client not found', OK: false });
 		log(`Client not found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 	try {
-		await Call.deleteOne({ client: output._id, Campaign: campaign._id });
+		await Call.deleteOne({ client: { $eq: output._id }, Campaign: { $eq: campaign._id } });
 		await Client.findByIdAndDelete(output._id);
 	} catch (e) {
 		res.status(500).send({ message: 'Error removing client', OK: false });

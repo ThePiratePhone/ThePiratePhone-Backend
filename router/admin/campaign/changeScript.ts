@@ -70,7 +70,7 @@ export default async function changeScript(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: { $eq: campaign._id } }, { script: req.body.newScript });
+	const output = await Campaign.updateOne({ _id: { $eq: campaign._id } }, { script: { $eq: req.body.newScript } });
 	if (output.matchedCount != 1) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${ip}`, 'WARNING', __filename);
