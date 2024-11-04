@@ -6,22 +6,46 @@ import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
 import { Call } from '../../../Models/Call';
+import { checkParameters, hashPasword } from '../../../tools/utils';
 
+/**
+ * Get stats of call
+ *
+ * @example
+ * body: {
+ * 	CampaignId: ObjectId,
+ * 	adminCode: String,
+ * 	area: ObjectId,
+ *	"allreadyHaseded": boolean
+ * }
+ *
+ * @throws {400} Missing parameters
+ * @throws {400} bad hash for admin code
+ * @throws {401} Wrong Creantial
+ * @throws {404} no campaign in progress or campaign not found
+ * @throws {200} OK
+ */
 export default async function call(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
 
 	if (
-		!req.body ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId)) ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters from ' + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['CampaignId', 'ObjectId', true],
+				['adminCode', 'string'],
+				['area', 'ObjectId'],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong Creantial', OK: false });
 		log('Wrong Creantial from ' + ip, 'WARNING', __filename);
@@ -38,16 +62,16 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	let totalCalled = await Call.countDocuments({ campaign: campaign._id });
-	let totalToRecall = await Call.countDocuments({ campaign: campaign._id, status: true });
-	let totalUser = await Client.countDocuments({ campaign: campaign._id });
+	let totalCalled = Call.countDocuments({ campaign: campaign._id });
+	let totalToRecall = Call.countDocuments({ campaign: campaign._id, status: true });
+	let totalUser = Client.countDocuments({ campaigns: campaign._id });
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
 		data: {
-			totalCalled,
-			totalToRecall,
-			totalUser
+			totalCalled: await totalCalled,
+			totalToRecall: await totalToRecall,
+			totalUser: await totalUser
 		}
 	});
 

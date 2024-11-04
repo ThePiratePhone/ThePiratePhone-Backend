@@ -5,22 +5,28 @@ import { Area } from '../../../Models/Area';
 import { Call } from '../../../Models/Call';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
+import { checkParameters, hashPasword } from '../../../tools/utils';
 
 export default async function response(req: Request<any>, res: Response<any>) {
 	const ip = req.hostname;
-
 	if (
-		!req.body ||
-		(req.body.CampaignId && !ObjectId.isValid(req.body.CampaignId)) ||
-		typeof req.body.adminCode != 'string' ||
-		!ObjectId.isValid(req.body.area)
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log('Missing parameters from ' + ip, 'WARNING', __filename);
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['CampaignId', 'string', true],
+				['adminCode', 'string'],
+				['area', 'string'],
+				['allreadyHaseded', 'boolean', true]
+			],
+			__filename
+		)
+	)
 		return;
-	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: req.body.adminCode } });
+	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
+	if (!password) return;
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong Credentials', OK: false });
 		log('Wrong Creantial from ' + ip, 'WARNING', __filename);
@@ -28,8 +34,8 @@ export default async function response(req: Request<any>, res: Response<any>) {
 	}
 
 	let campaign;
-	if (!req.body.CampaignId) campaign = await Campaign.findOne({ area: area.id, active: true });
-	else campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area.id });
+	if (!req.body.CampaignId) campaign = await Campaign.findOne({ area: area.id, active: true }, ['status']);
+	else campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area.id }, ['status']);
 
 	if (!campaign || campaign == null) {
 		res.status(404).send({ message: 'no campaign in progress or campaign not found', OK: false });
@@ -38,22 +44,19 @@ export default async function response(req: Request<any>, res: Response<any>) {
 	}
 
 	let clientCalled = await Call.countDocuments({ campaign: campaign._id });
-	let converted = await Call.countDocuments({ campaign: campaign._id, status: 'Done', satisfaction: 0 });
-	let notInterested = await Call.countDocuments({ campaign: campaign._id, status: 'Done', satisfaction: 1 });
-	let Interested = await Call.countDocuments({ campaign: campaign._id, status: 'Done', satisfaction: 2 });
-	let notAnswered = await Call.countDocuments({ campaign: campaign._id, status: 'Done', satisfaction: 3 });
-	let removed = await Call.countDocuments({ campaign: campaign._id, status: 'Done', satisfaction: 4 });
 
+	let callStatus = campaign.status.map(async status => {
+		return {
+			status,
+			count: await Call.countDocuments({ campaign: campaign._id, satisfaction: status })
+		};
+	});
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
 		data: {
 			clientCalled,
-			converted,
-			notInterested,
-			Interested,
-			notAnswered,
-			removed
+			callStatus: await Promise.all(callStatus)
 		}
 	});
 
