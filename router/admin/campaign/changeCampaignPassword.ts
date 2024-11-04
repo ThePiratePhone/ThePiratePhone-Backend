@@ -72,7 +72,7 @@ export default async function changeCampaingPassword(req: Request<any>, res: Res
 		log(`New password invalid from ${ip} (${area.name})`, 'WARNING', __filename);
 		return;
 	}
-	const output = await Campaign.updateOne({ _id: campaign._id }, { password: { $eq: req.body.newCampaignCode } });
+	const output = await Campaign.updateOne({ _id: campaign._id }, { password: req.body.newCampaignCode });
 	if (output.matchedCount != 1) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${ip}`, 'WARNING', __filename);

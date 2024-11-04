@@ -73,7 +73,7 @@ export default async function changeTimeBetwenCall(req: Request<any>, res: Respo
 
 	const output = await Campaign.updateOne(
 		{ _id: { $eq: campaign._id } },
-		{ timeBetweenCall: { $eq: req.body.newTimeBetweenCall } }
+		{ timeBetweenCall: req.body.newTimeBetweenCall }
 	);
 	if (output.matchedCount != 1) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });

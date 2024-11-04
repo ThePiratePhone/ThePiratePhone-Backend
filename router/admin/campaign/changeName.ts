@@ -76,7 +76,7 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const output = await Campaign.updateOne({ _id: campaign._id }, { name: { $eq: req.body.newName } });
+	const output = await Campaign.updateOne({ _id: campaign._id }, { name: req.body.newName });
 	if (output.matchedCount != 1) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from ${ip}`, 'WARNING', __filename);

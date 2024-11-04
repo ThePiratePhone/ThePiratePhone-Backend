@@ -74,7 +74,7 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 
 	const output = await Campaign.updateOne(
 		{ _id: { $eq: campaign._id } },
-		{ nbMaxCallCampaign: { $eq: req.body.newNumberMaxCall } }
+		{ nbMaxCallCampaign: req.body.newNumberMaxCall }
 	);
 	if (output.matchedCount != 1) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
