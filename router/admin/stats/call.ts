@@ -62,7 +62,7 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	let totalCalled = Call.countDocuments({ campaign: campaign._id });
+	let totalCalled = Call.countDocuments({ campaign: campaign._id, status: false });
 	let totalToRecall = Call.countDocuments({ campaign: campaign._id, status: true });
 	let totalUser = Client.countDocuments({ campaigns: campaign._id });
 	res.status(200).send({
