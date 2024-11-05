@@ -39,9 +39,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/changeName', () => {
+describe('post on /admin/caller/changeName', () => {
 	it('should return 400 if newName is empty', async () => {
-		const response = await request(app).post('/api/admin/caller/changeName').send({
+		const response = await request(app).post('/admin/caller/changeName').send({
 			adminCode: 'password',
 			newName: '',
 			phone: '+33134567890',
@@ -52,7 +52,7 @@ describe('post on /api/admin/caller/changeName', () => {
 	});
 
 	it('should return 401 if admin code is wrong', async () => {
-		const response = await request(app).post('/api/admin/caller/changeName').send({
+		const response = await request(app).post('/admin/caller/changeName').send({
 			adminCode: 'wrongpassword',
 			newName: 'newName',
 			phone: '+33134567890',
@@ -63,7 +63,7 @@ describe('post on /api/admin/caller/changeName', () => {
 	});
 
 	it('should return 400 if caller not found', async () => {
-		const response = await request(app).post('/api/admin/caller/changeName').send({
+		const response = await request(app).post('/admin/caller/changeName').send({
 			adminCode: 'password',
 			newName: 'newName',
 			phone: '+33134567891',
@@ -74,7 +74,7 @@ describe('post on /api/admin/caller/changeName', () => {
 	});
 
 	it('should return 200 if all parameters are correct', async () => {
-		const response = await request(app).post('/api/admin/caller/changeName').send({
+		const response = await request(app).post('/admin/caller/changeName').send({
 			adminCode: 'password',
 			newName: 'newName',
 			phone: '+33134567890',
@@ -84,7 +84,7 @@ describe('post on /api/admin/caller/changeName', () => {
 		expect(response.body).toMatchObject({ message: 'Caller name changed', OK: true });
 	});
 	it('should return 200 if all parameters are correct with hash', async () => {
-		const response = await request(app).post('/api/admin/caller/changeName').send({
+		const response = await request(app).post('/admin/caller/changeName').send({
 			adminCode: adminPassword,
 			newName: 'newName',
 			phone: '+33134567890',

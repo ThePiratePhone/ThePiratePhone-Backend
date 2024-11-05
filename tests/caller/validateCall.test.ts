@@ -69,9 +69,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/caller/validateCall', () => {
+describe('post on /caller/validateCall', () => {
 	it('should return 400 if phone is invalid', async () => {
-		const res = await request(app).post('/api/caller/validateCall').send({
+		const res = await request(app).post('/caller/validateCall').send({
 			phone: 'invalid',
 			pinCode: '1234',
 			area: areaId,
@@ -86,7 +86,7 @@ describe('post on /api/caller/validateCall', () => {
 	});
 
 	it('should return 403 if pin is invalid', async () => {
-		const res = await request(app).post('/api/caller/validateCall').send({
+		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1235',
 			area: areaId,
@@ -101,7 +101,7 @@ describe('post on /api/caller/validateCall', () => {
 	});
 
 	it('should return 403 if phone is invalid', async () => {
-		const res = await request(app).post('/api/caller/validateCall').send({
+		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567903',
 			pinCode: '1234',
 			area: areaId,
@@ -116,7 +116,7 @@ describe('post on /api/caller/validateCall', () => {
 	});
 
 	it('should return 404 if client is not found', async () => {
-		const res = await request(app).post('/api/caller/validateCall').send({
+		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
@@ -145,7 +145,7 @@ describe('post on /api/caller/validateCall', () => {
 			pinCode: '1234',
 			area: areaId
 		});
-		const res = await request(app).post('/api/caller/validateCall').send({
+		const res = await request(app).post('/caller/validateCall').send({
 			phone: caller.phone,
 			pinCode: caller.pinCode,
 			area: areaId,
@@ -160,7 +160,7 @@ describe('post on /api/caller/validateCall', () => {
 	});
 
 	it('should return 404 if client is not found', async () => {
-		const res = await request(app).post('/api/caller/validateCall').send({
+		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
@@ -183,7 +183,7 @@ describe('post on /api/caller/validateCall', () => {
 			})
 		)._id;
 
-		const res = await request(app).post('/api/caller/validateCall').send({
+		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
@@ -198,7 +198,7 @@ describe('post on /api/caller/validateCall', () => {
 	});
 
 	it('should return 200 if all is ok', async () => {
-		const res = await request(app).post('/api/caller/validateCall').send({
+		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,

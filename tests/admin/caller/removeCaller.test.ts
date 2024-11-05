@@ -29,9 +29,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/removeCaller', () => {
+describe('post on /admin/caller/removeCaller', () => {
 	it('should return 400 if wrong phone number', async () => {
-		const res = await request(app).post('/api/admin/caller/removeCaller').send({
+		const res = await request(app).post('/admin/caller/removeCaller').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '123456789'
@@ -41,7 +41,7 @@ describe('post on /api/admin/caller/removeCaller', () => {
 	});
 
 	it('should return 400 if invalid area', async () => {
-		const res = await request(app).post('/api/admin/caller/removeCaller').send({
+		const res = await request(app).post('/admin/caller/removeCaller').send({
 			adminCode: 'password',
 			area: new mongoose.Types.ObjectId(),
 			phone: '+33223456780'
@@ -51,7 +51,7 @@ describe('post on /api/admin/caller/removeCaller', () => {
 	});
 
 	it('should return 400 if caller not found', async () => {
-		const res = await request(app).post('/api/admin/caller/removeCaller').send({
+		const res = await request(app).post('/admin/caller/removeCaller').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456780'
@@ -67,7 +67,7 @@ describe('post on /api/admin/caller/removeCaller', () => {
 			name: 'caller',
 			pinCode: '1234'
 		});
-		const res = await request(app).post('/api/admin/caller/removeCaller').send({
+		const res = await request(app).post('/admin/caller/removeCaller').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456780'
@@ -83,7 +83,7 @@ describe('post on /api/admin/caller/removeCaller', () => {
 			name: 'caller',
 			pinCode: '1234'
 		});
-		const res = await request(app).post('/api/admin/caller/removeCaller').send({
+		const res = await request(app).post('/admin/caller/removeCaller').send({
 			adminCode: adminPassword,
 			area: areaId,
 			phone: '+33223456780',

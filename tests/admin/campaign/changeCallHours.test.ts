@@ -46,9 +46,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/changeCallHours', () => {
+describe('post on /admin/campaign/changeCallHours', () => {
 	it('should return 400 if bad start date', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeCallHours').send({
+		const res = await request(app).post('/admin/campaign/changeCallHours').send({
 			adminCode: adminCode,
 			newEndHours: '2022-10-10T10:00:00.000Z',
 			newStartHours: 'bad date',
@@ -61,7 +61,7 @@ describe('post on /api/admin/campaign/changeCallHours', () => {
 	});
 
 	it('should return 400 if bad end date', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeCallHours').send({
+		const res = await request(app).post('/admin/campaign/changeCallHours').send({
 			adminCode: adminCode,
 			newEndHours: 'bad date',
 			newStartHours: '2022-10-10T10:00:00.000Z',
@@ -74,7 +74,7 @@ describe('post on /api/admin/campaign/changeCallHours', () => {
 	});
 
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeCallHours').send({
+		const res = await request(app).post('/admin/campaign/changeCallHours').send({
 			adminCode: 'wrong password',
 			newEndHours: '2022-10-10T10:00:00.000Z',
 			newStartHours: '2022-10-10T10:00:00.000Z',
@@ -86,7 +86,7 @@ describe('post on /api/admin/campaign/changeCallHours', () => {
 	});
 
 	it('should return 401 if wrong campaign id', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeCallHours').send({
+		const res = await request(app).post('/admin/campaign/changeCallHours').send({
 			adminCode: adminCode,
 			newEndHours: '2022-10-10T10:00:00.000Z',
 			newStartHours: '2022-10-10T10:00:00.000Z',
@@ -104,7 +104,7 @@ describe('post on /api/admin/campaign/changeCallHours', () => {
 		const end = new Date();
 		start.setHours(13, 18);
 		end.setHours(14, 18);
-		const res = await request(app).post('/api/admin/campaign/changeCallHours').send({
+		const res = await request(app).post('/admin/campaign/changeCallHours').send({
 			adminCode: adminCode,
 			newStartHours: start,
 			newEndHours: end,
@@ -125,7 +125,7 @@ describe('post on /api/admin/campaign/changeCallHours', () => {
 		const end = new Date();
 		start.setHours(14, 18);
 		end.setHours(15, 18);
-		const res = await request(app).post('/api/admin/campaign/changeCallHours').send({
+		const res = await request(app).post('/admin/campaign/changeCallHours').send({
 			adminCode: 'password',
 			newStartHours: start,
 			newEndHours: end,

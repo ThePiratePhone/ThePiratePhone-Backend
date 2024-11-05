@@ -25,9 +25,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/area/changeAdminPassword', () => {
+describe('post on /admin/area/changeAdminPassword', () => {
 	it('should return 400 if bad new admin password', async () => {
-		const res = await request(app).post('/api/admin/area/changeAdminPassword').send({
+		const res = await request(app).post('/admin/area/changeAdminPassword').send({
 			adminCode: adminPassword,
 			area: areaId,
 			newPassword: ' '
@@ -37,7 +37,7 @@ describe('post on /api/admin/area/changeAdminPassword', () => {
 	});
 
 	it('should return 404 if no area found', async () => {
-		const res = await request(app).post('/api/admin/area/changeAdminPassword').send({
+		const res = await request(app).post('/admin/area/changeAdminPassword').send({
 			adminCode: adminPassword,
 			area: new mongoose.Types.ObjectId(),
 			newPassword: 'newPassword'
@@ -48,7 +48,7 @@ describe('post on /api/admin/area/changeAdminPassword', () => {
 
 	it('should return 400 if new password is too long', async () => {
 		const res = await request(app)
-			.post('/api/admin/area/changeAdminPassword')
+			.post('/admin/area/changeAdminPassword')
 			.send({
 				adminCode: adminPassword,
 				area: areaId,
@@ -59,7 +59,7 @@ describe('post on /api/admin/area/changeAdminPassword', () => {
 	});
 
 	it('should return 400 if new password is not a hash', async () => {
-		const res = await request(app).post('/api/admin/area/changeAdminPassword').send({
+		const res = await request(app).post('/admin/area/changeAdminPassword').send({
 			adminCode: adminPassword,
 			area: areaId,
 			newPassword:
@@ -71,7 +71,7 @@ describe('post on /api/admin/area/changeAdminPassword', () => {
 	});
 
 	it('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/area/changeAdminPassword').send({
+		const res = await request(app).post('/admin/area/changeAdminPassword').send({
 			adminCode: 'password',
 			area: areaId,
 			newPassword: 'newPassword'
@@ -98,7 +98,7 @@ describe('post on /api/admin/area/changeAdminPassword', () => {
 				adminPassword: password
 			})
 		).id;
-		const res = await request(app).post('/api/admin/area/changeAdminPassword').send({
+		const res = await request(app).post('/admin/area/changeAdminPassword').send({
 			adminCode: password,
 			area: areaId2,
 			newPassword: newAreaPassword,

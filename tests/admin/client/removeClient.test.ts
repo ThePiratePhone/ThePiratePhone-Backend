@@ -54,9 +54,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/client/removeClient', () => {
+describe('post on /admin/client/removeClient', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/client/removeClient').send({
+		const res = await request(app).post('/admin/client/removeClient').send({
 			adminCode: 'wrongPassword',
 			area: areaId,
 			phone: '+33134567890'
@@ -66,7 +66,7 @@ describe('post on /api/admin/client/removeClient', () => {
 	});
 
 	it('should return 400 if wrong phone number', async () => {
-		const res = await request(app).post('/api/admin/client/removeClient').send({
+		const res = await request(app).post('/admin/client/removeClient').send({
 			adminCode,
 			area: areaId,
 			phone: 'wrongPhone',
@@ -77,7 +77,7 @@ describe('post on /api/admin/client/removeClient', () => {
 	});
 
 	it('should return 401 if wrong area', async () => {
-		const res = await request(app).post('/api/admin/client/removeClient').send({
+		const res = await request(app).post('/admin/client/removeClient').send({
 			adminCode,
 			area: new Types.ObjectId(),
 			phone: '+33134567890',
@@ -88,7 +88,7 @@ describe('post on /api/admin/client/removeClient', () => {
 	});
 
 	it('should return 401 if wrong campaign id', async () => {
-		const res = await request(app).post('/api/admin/client/removeClient').send({
+		const res = await request(app).post('/admin/client/removeClient').send({
 			adminCode,
 			area: areaId,
 			phone: '+33134567890',
@@ -100,7 +100,7 @@ describe('post on /api/admin/client/removeClient', () => {
 	});
 
 	it('should return 404 if client not found', async () => {
-		const res = await request(app).post('/api/admin/client/removeClient').send({
+		const res = await request(app).post('/admin/client/removeClient').send({
 			adminCode,
 			area: areaId,
 			phone: '+33134567891',
@@ -111,7 +111,7 @@ describe('post on /api/admin/client/removeClient', () => {
 	});
 
 	it('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/client/removeClient').send({
+		const res = await request(app).post('/admin/client/removeClient').send({
 			adminCode,
 			area: areaId,
 			phone: '+33134567890',
@@ -138,7 +138,7 @@ describe('post on /api/admin/client/removeClient', () => {
 			area: areaId,
 			campaigns: campaignId
 		});
-		const res = await request(app).post('/api/admin/client/removeClient').send({
+		const res = await request(app).post('/admin/client/removeClient').send({
 			adminCode,
 			area: areaId,
 			phone: '+33134567892',

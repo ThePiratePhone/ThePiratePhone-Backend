@@ -54,9 +54,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/client/removeClients', () => {
+describe('post on /admin/client/removeClients', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/client/removeClients').send({
+		const res = await request(app).post('/admin/client/removeClients').send({
 			adminCode: 'wrongPassword',
 			area: areaId
 		});
@@ -65,7 +65,7 @@ describe('post on /api/admin/client/removeClients', () => {
 	});
 
 	it('should return 401 if wrong campaign id', async () => {
-		const res = await request(app).post('/api/admin/client/removeClients').send({
+		const res = await request(app).post('/admin/client/removeClients').send({
 			adminCode,
 			area: areaId,
 			CampaignId: new Types.ObjectId(),
@@ -76,7 +76,7 @@ describe('post on /api/admin/client/removeClients', () => {
 	});
 
 	it('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/client/removeClients').send({
+		const res = await request(app).post('/admin/client/removeClients').send({
 			adminCode,
 			area: areaId,
 			CampaignId: campaignId,

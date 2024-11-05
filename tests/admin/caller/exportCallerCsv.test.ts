@@ -138,9 +138,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/exportCallersCsv', () => {
+describe('post on /admin/caller/exportCallersCsv', () => {
 	it('should return 401 if admin code is wrong', async () => {
-		const response = await request(app).post('/api/admin/caller/exportCallersCsv').send({
+		const response = await request(app).post('/admin/caller/exportCallersCsv').send({
 			adminCode: 'wrongAdminPassword',
 			area: areaId
 		});
@@ -149,7 +149,7 @@ describe('post on /api/admin/caller/exportCallersCsv', () => {
 	});
 
 	it('should return 401 if area is not found', async () => {
-		const response = await request(app).post('/api/admin/caller/exportCallersCsv').send({
+		const response = await request(app).post('/admin/caller/exportCallersCsv').send({
 			adminCode: 'password',
 			area: new mongoose.Types.ObjectId()
 		});
@@ -158,7 +158,7 @@ describe('post on /api/admin/caller/exportCallersCsv', () => {
 	});
 
 	it('should return 200 if all parameters are correct', async () => {
-		const response = await request(app).post('/api/admin/caller/exportCallersCsv').send({
+		const response = await request(app).post('/admin/caller/exportCallersCsv').send({
 			adminCode: 'password',
 			area: areaId
 		});
@@ -173,7 +173,7 @@ describe('post on /api/admin/caller/exportCallersCsv', () => {
 	});
 
 	it('should return 200 if all parameters are correct with hash', async () => {
-		const response = await request(app).post('/api/admin/caller/exportCallersCsv').send({
+		const response = await request(app).post('/admin/caller/exportCallersCsv').send({
 			adminCode: adminPassword,
 			area: areaId,
 			allreadyHaseded: true

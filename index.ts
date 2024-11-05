@@ -61,10 +61,7 @@ app.use((err: { status: number }, req: any, res: any, next: Function) => {
 	}
 	next();
 });
-app.use('/api', router);
 
-app.get('/', (req, res) => {
-	res.send({ message: 'Hello World!' });
-});
+app.use(router);
 
 export default app;

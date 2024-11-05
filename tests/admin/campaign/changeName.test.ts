@@ -45,9 +45,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/changeName', () => {
+describe('post on /admin/campaign/changeName', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeName').send({
+		const res = await request(app).post('/admin/campaign/changeName').send({
 			adminCode: 'wrong',
 			newName: 'newName',
 			area: areaId
@@ -57,7 +57,7 @@ describe('post on /api/admin/campaign/changeName', () => {
 	});
 
 	it('should return 401 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeName').send({
+		const res = await request(app).post('/admin/campaign/changeName').send({
 			adminCode,
 			newName: 'newName',
 			area: areaId,
@@ -69,7 +69,7 @@ describe('post on /api/admin/campaign/changeName', () => {
 	});
 
 	it('should return 400 if the name is invalid', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeName').send({
+		const res = await request(app).post('/admin/campaign/changeName').send({
 			adminCode,
 			newName: 'new',
 			area: areaId,
@@ -80,7 +80,7 @@ describe('post on /api/admin/campaign/changeName', () => {
 	});
 
 	it('should return 400 if the name is invalid', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeName').send({
+		const res = await request(app).post('/admin/campaign/changeName').send({
 			adminCode,
 			newName: '{new}',
 			area: areaId,
@@ -91,7 +91,7 @@ describe('post on /api/admin/campaign/changeName', () => {
 	});
 
 	it('should return 200 if the name is valid', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeName').send({
+		const res = await request(app).post('/admin/campaign/changeName').send({
 			adminCode:
 				'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86',
 			newName: 'newName',
@@ -105,7 +105,7 @@ describe('post on /api/admin/campaign/changeName', () => {
 	});
 
 	it('should return 200 if the name is valid with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeName').send({
+		const res = await request(app).post('/admin/campaign/changeName').send({
 			adminCode,
 			newName: 'newName',
 			area: areaId,

@@ -44,9 +44,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/setSatisfaction', () => {
+describe('post on /admin/campaign/setSatisfaction', () => {
 	it('should return 400 if satisfactions is not an array', async () => {
-		const res = await request(app).post('/api/admin/campaign/setSatisfaction').send({
+		const res = await request(app).post('/admin/campaign/setSatisfaction').send({
 			adminCode,
 			area: areaId,
 			allreadyHaseded: true,
@@ -56,7 +56,7 @@ describe('post on /api/admin/campaign/setSatisfaction', () => {
 		expect(res.body.message).toBe('Invalid satisfaction, satisfactions must be a array<string>');
 	});
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/setSatisfaction').send({
+		const res = await request(app).post('/admin/campaign/setSatisfaction').send({
 			adminCode: 'wrong',
 			area: areaId,
 			allreadyHaseded: true
@@ -66,7 +66,7 @@ describe('post on /api/admin/campaign/setSatisfaction', () => {
 	});
 
 	it('should return 401 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/setSatisfaction').send({
+		const res = await request(app).post('/admin/campaign/setSatisfaction').send({
 			adminCode,
 			area: areaId,
 			CampaignId: new Types.ObjectId().toHexString(),
@@ -78,7 +78,7 @@ describe('post on /api/admin/campaign/setSatisfaction', () => {
 
 	it('should return 400 if satisfactions is not an array of string', async () => {
 		const res = await request(app)
-			.post('/api/admin/campaign/setSatisfaction')
+			.post('/admin/campaign/setSatisfaction')
 			.send({
 				adminCode,
 				area: areaId,
@@ -91,7 +91,7 @@ describe('post on /api/admin/campaign/setSatisfaction', () => {
 
 	it('should return 200 if satisfactions is an array', async () => {
 		const res = await request(app)
-			.post('/api/admin/campaign/setSatisfaction')
+			.post('/admin/campaign/setSatisfaction')
 			.send({
 				adminCode,
 				area: areaId,

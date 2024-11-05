@@ -70,9 +70,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/client/clientInfo', () => {
+describe('post on /admin/client/clientInfo', () => {
 	it('should return 400 if wrong phone number', async () => {
-		const res = await request(app).post('/api/admin/client/clientInfo').send({
+		const res = await request(app).post('/admin/client/clientInfo').send({
 			phone: 'wrong',
 			adminCode: adminPassword,
 			area: areaId,
@@ -82,7 +82,7 @@ describe('post on /api/admin/client/clientInfo', () => {
 		expect(res.body.message).toBe('Wrong phone number');
 	});
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/client/clientInfo').send({
+		const res = await request(app).post('/admin/client/clientInfo').send({
 			phone: '+33134567890',
 			adminCode: 'wrong',
 			area: areaId,
@@ -92,7 +92,7 @@ describe('post on /api/admin/client/clientInfo', () => {
 		expect(res.body.message).toBe('Wrong admin code');
 	});
 	it('should return 404 if campaign not found', async () => {
-		const res = await request(app).post('/api/admin/client/clientInfo').send({
+		const res = await request(app).post('/admin/client/clientInfo').send({
 			phone: '+33134567890',
 			adminCode: adminPassword,
 			area: areaId,
@@ -103,7 +103,7 @@ describe('post on /api/admin/client/clientInfo', () => {
 		expect(res.body.message).toBe('Campaign not found');
 	});
 	it('should return 404 if client not found', async () => {
-		const res = await request(app).post('/api/admin/client/clientInfo').send({
+		const res = await request(app).post('/admin/client/clientInfo').send({
 			phone: '+33134567891',
 			adminCode: adminPassword,
 			area: areaId,
@@ -114,7 +114,7 @@ describe('post on /api/admin/client/clientInfo', () => {
 		expect(res.body.message).toBe('Client not found');
 	});
 	it('should return 200 if no call found for this client', async () => {
-		const res = await request(app).post('/api/admin/client/clientInfo').send({
+		const res = await request(app).post('/admin/client/clientInfo').send({
 			phone: '+33134567890',
 			adminCode: adminPassword,
 			area: areaId,
@@ -143,7 +143,7 @@ describe('post on /api/admin/client/clientInfo', () => {
 			start: new Date(),
 			duration: 100
 		});
-		const res = await request(app).post('/api/admin/client/clientInfo').send({
+		const res = await request(app).post('/admin/client/clientInfo').send({
 			phone: '+33134567890',
 			adminCode: adminPassword,
 			area: areaId,

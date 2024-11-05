@@ -25,9 +25,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/area/changeName', () => {
+describe('post on /admin/area/changeName', () => {
 	it('should return 400 if bad new name', async () => {
-		const res = await request(app).post('/api/admin/area/changeName').send({
+		const res = await request(app).post('/admin/area/changeName').send({
 			adminCode: adminPassword,
 			area: areaId,
 			newName: ' ',
@@ -39,7 +39,7 @@ describe('post on /api/admin/area/changeName', () => {
 
 	it('should return 400 if new name is too long', async () => {
 		const res = await request(app)
-			.post('/api/admin/area/changeName')
+			.post('/admin/area/changeName')
 			.send({
 				adminCode: adminPassword,
 				area: areaId,
@@ -51,7 +51,7 @@ describe('post on /api/admin/area/changeName', () => {
 	});
 
 	it('should return 404 if no area found', async () => {
-		const res = await request(app).post('/api/admin/area/changeName').send({
+		const res = await request(app).post('/admin/area/changeName').send({
 			adminCode: adminPassword,
 			area: new mongoose.Types.ObjectId(),
 			newName: 'newName',
@@ -62,7 +62,7 @@ describe('post on /api/admin/area/changeName', () => {
 	});
 
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/area/changeName').send({
+		const res = await request(app).post('/admin/area/changeName').send({
 			adminCode: 'wrongpassword',
 			area: areaId,
 			newName: 'newName'
@@ -72,7 +72,7 @@ describe('post on /api/admin/area/changeName', () => {
 	});
 
 	it('should return 200 if name of area changed', async () => {
-		const res = await request(app).post('/api/admin/area/changeName').send({
+		const res = await request(app).post('/admin/area/changeName').send({
 			adminCode: 'password',
 			area: areaId,
 			newName: 'newName'
@@ -84,7 +84,7 @@ describe('post on /api/admin/area/changeName', () => {
 	});
 
 	it('should return 200 if name of area changed with hash', async () => {
-		const res = await request(app).post('/api/admin/area/changeName').send({
+		const res = await request(app).post('/admin/area/changeName').send({
 			adminCode: adminPassword,
 			area: areaId,
 			newName: 'newName2',

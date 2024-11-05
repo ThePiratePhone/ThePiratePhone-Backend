@@ -48,7 +48,7 @@ afterAll(async () => {
 
 describe('post on api/otherCaller/info', () => {
 	it('should return 400 if invalid phone number', async () => {
-		const res = await request(app).post('/api/otherCaller/info').send({
+		const res = await request(app).post('/otherCaller/info').send({
 			phone: 'hello',
 			pinCode: '1234',
 			otherPhone: '+33423456780',
@@ -59,7 +59,7 @@ describe('post on api/otherCaller/info', () => {
 	});
 
 	it('should return 400 if invalid otherPhone number', async () => {
-		const res = await request(app).post('/api/otherCaller/info').send({
+		const res = await request(app).post('/otherCaller/info').send({
 			phone: '+33423456780',
 			pinCode: '1234',
 			otherPhone: 'hello',
@@ -70,7 +70,7 @@ describe('post on api/otherCaller/info', () => {
 	});
 
 	it('should return 403 if invalid credential', async () => {
-		const res = await request(app).post('/api/otherCaller/info').send({
+		const res = await request(app).post('/otherCaller/info').send({
 			phone: '+33423456780',
 			pinCode: '12345',
 			otherPhone: '+33423456781',
@@ -81,7 +81,7 @@ describe('post on api/otherCaller/info', () => {
 	});
 
 	it('should return 404 if no active campaign', async () => {
-		const res = await request(app).post('/api/otherCaller/info').send({
+		const res = await request(app).post('/otherCaller/info').send({
 			phone: '+33423456780',
 			pinCode: '1234',
 			otherPhone: '+33423456781',
@@ -105,7 +105,7 @@ describe('post on api/otherCaller/info', () => {
 			})
 		).id;
 		await Area.findByIdAndUpdate(areaId, { $push: { campaignList: campaignID } });
-		const res = await request(app).post('/api/otherCaller/info').send({
+		const res = await request(app).post('/otherCaller/info').send({
 			phone: '+33423456780',
 			pinCode: '1234',
 			otherPhone: '+33423456782',
@@ -129,7 +129,7 @@ describe('post on api/otherCaller/info', () => {
 			})
 		).id;
 		await Area.findByIdAndUpdate(areaId, { $push: { campaignList: campaignID } });
-		const res = await request(app).post('/api/otherCaller/info').send({
+		const res = await request(app).post('/otherCaller/info').send({
 			phone: '+33423456780',
 			pinCode: '1234',
 			otherPhone: '+33423456781',
@@ -168,7 +168,7 @@ describe('post on api/otherCaller/info', () => {
 			start: Date.now() - 10_000,
 			lastInteraction: new Date()
 		});
-		const res = await request(app).post('/api/otherCaller/info').send({
+		const res = await request(app).post('/otherCaller/info').send({
 			phone: '+33423456780',
 			pinCode: '1234',
 			otherPhone: '+33423456781',

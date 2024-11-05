@@ -25,9 +25,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/area/changePassword', () => {
+describe('post on /admin/area/changePassword', () => {
 	it('should return 400 if bad new password', async () => {
-		const res = await request(app).post('/api/admin/area/changePassword').send({
+		const res = await request(app).post('/admin/area/changePassword').send({
 			adminCode: adminPassword,
 			area: areaId,
 			newPassword: ' ',
@@ -38,7 +38,7 @@ describe('post on /api/admin/area/changePassword', () => {
 	});
 
 	it('should return 404 if no area found', async () => {
-		const res = await request(app).post('/api/admin/area/changePassword').send({
+		const res = await request(app).post('/admin/area/changePassword').send({
 			adminCode: adminPassword,
 			area: new mongoose.Types.ObjectId(),
 			newPassword: 'newPassword',
@@ -50,7 +50,7 @@ describe('post on /api/admin/area/changePassword', () => {
 
 	it('should return 400 if new password is too long', async () => {
 		const res = await request(app)
-			.post('/api/admin/area/changePassword')
+			.post('/admin/area/changePassword')
 			.send({
 				adminCode: adminPassword,
 				area: areaId,
@@ -62,7 +62,7 @@ describe('post on /api/admin/area/changePassword', () => {
 	});
 
 	it('should return 200 if password of area changed', async () => {
-		const res = await request(app).post('/api/admin/area/changePassword').send({
+		const res = await request(app).post('/admin/area/changePassword').send({
 			adminCode: 'password',
 			area: areaId,
 			newPassword: 'newPassword'
@@ -72,7 +72,7 @@ describe('post on /api/admin/area/changePassword', () => {
 	});
 
 	it('should return 200 if password of area changed with hash', async () => {
-		const res = await request(app).post('/api/admin/area/changePassword').send({
+		const res = await request(app).post('/admin/area/changePassword').send({
 			adminCode: adminPassword,
 			area: areaId,
 			newPassword: 'newPassword',

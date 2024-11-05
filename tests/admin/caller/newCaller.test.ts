@@ -30,9 +30,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/createCaller', () => {
+describe('post on /admin/caller/createCaller', () => {
 	it('should return 400 if invalid pin code', async () => {
-		const res = await request(app).post('/api/admin/caller/createCaller').send({
+		const res = await request(app).post('/admin/caller/createCaller').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456780',
@@ -44,7 +44,7 @@ describe('post on /api/admin/caller/createCaller', () => {
 	});
 
 	it('should return 400 if wrong phone number', async () => {
-		const res = await request(app).post('/api/admin/caller/createCaller').send({
+		const res = await request(app).post('/admin/caller/createCaller').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '123456789',
@@ -56,7 +56,7 @@ describe('post on /api/admin/caller/createCaller', () => {
 	});
 
 	it('should return 400 if invalid credentials', async () => {
-		const res = await request(app).post('/api/admin/caller/createCaller').send({
+		const res = await request(app).post('/admin/caller/createCaller').send({
 			adminCode: 'wrongCode',
 			area: areaId,
 			phone: '+33223456780',
@@ -77,7 +77,7 @@ describe('post on /api/admin/caller/createCaller', () => {
 				pinCode: '1234'
 			})
 		)._id;
-		const res = await request(app).post('/api/admin/caller/createCaller').send({
+		const res = await request(app).post('/admin/caller/createCaller').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456780',
@@ -89,7 +89,7 @@ describe('post on /api/admin/caller/createCaller', () => {
 	});
 
 	it('should return 200 if all parameters are correct', async () => {
-		const res = await request(app).post('/api/admin/caller/createCaller').send({
+		const res = await request(app).post('/admin/caller/createCaller').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '+33223456781',
@@ -100,7 +100,7 @@ describe('post on /api/admin/caller/createCaller', () => {
 		expect(res.body).toHaveProperty('message', 'Caller caller (+33223456781) created');
 	});
 	it('should return 200 if all parameters are correct with hash', async () => {
-		const res = await request(app).post('/api/admin/caller/createCaller').send({
+		const res = await request(app).post('/admin/caller/createCaller').send({
 			adminCode: adminPassword,
 			area: areaId,
 			phone: '+33223456782',

@@ -60,9 +60,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/client/searchByPhone', () => {
+describe('post on /admin/client/searchByPhone', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/client/searchByPhone').send({
+		const res = await request(app).post('/admin/client/searchByPhone').send({
 			adminCode: 'wrongPassword',
 			phone: '+33134567890',
 			area: areaId
@@ -71,7 +71,7 @@ describe('post on /api/admin/client/searchByPhone', () => {
 		expect(res.body.OK).toBe(false);
 	});
 	test('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/client/searchByPhone').send({
+		const res = await request(app).post('/admin/client/searchByPhone').send({
 			phone: '+33134567890',
 			adminCode: 'password',
 			area: areaId

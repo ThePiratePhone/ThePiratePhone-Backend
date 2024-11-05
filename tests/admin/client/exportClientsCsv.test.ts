@@ -45,9 +45,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/client/exportClientsCsv', () => {
+describe('post on /admin/client/exportClientsCsv', () => {
 	it('should return 401 if admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/client/exportClientsCsv').send({
+		const res = await request(app).post('/admin/client/exportClientsCsv').send({
 			adminCode: 'wrongPassword',
 			area: areaId
 		});
@@ -56,7 +56,7 @@ describe('post on /api/admin/client/exportClientsCsv', () => {
 	});
 
 	it('should return 401 if wrong campaign id', async () => {
-		const res = await request(app).post('/api/admin/client/exportClientsCsv').send({
+		const res = await request(app).post('/admin/client/exportClientsCsv').send({
 			adminCode,
 			area: areaId,
 			CampaignId: new Types.ObjectId(),
@@ -67,7 +67,7 @@ describe('post on /api/admin/client/exportClientsCsv', () => {
 	});
 
 	it('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/client/exportClientsCsv').send({
+		const res = await request(app).post('/admin/client/exportClientsCsv').send({
 			adminCode,
 			area: areaId,
 			allreadyHaseded: true

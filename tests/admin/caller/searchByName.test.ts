@@ -29,9 +29,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/searchByName', () => {
+describe('post on /admin/caller/searchByName', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/caller/searchByName').send({
+		const res = await request(app).post('/admin/caller/searchByName').send({
 			adminCode: 'wrongAdminCode',
 			area: areaId,
 			name: 'name'
@@ -60,7 +60,7 @@ describe('post on /api/admin/caller/searchByName', () => {
 			pinCode: '1234'
 		});
 
-		const res = await request(app).post('/api/admin/caller/searchByName').send({
+		const res = await request(app).post('/admin/caller/searchByName').send({
 			adminCode: 'password',
 			area: areaId,
 			name: 'name'
@@ -72,7 +72,7 @@ describe('post on /api/admin/caller/searchByName', () => {
 		expect(res.body.data[0]).toHaveProperty('name', 'name');
 		expect(res.body.data[1]).toHaveProperty('name', 'name1');
 
-		const res2 = await request(app).post('/api/admin/caller/searchByName').send({
+		const res2 = await request(app).post('/admin/caller/searchByName').send({
 			adminCode: 'password',
 			area: areaId,
 			name: 'chose'
@@ -104,7 +104,7 @@ describe('post on /api/admin/caller/searchByName', () => {
 			pinCode: '1234'
 		});
 
-		const res = await request(app).post('/api/admin/caller/searchByName').send({
+		const res = await request(app).post('/admin/caller/searchByName').send({
 			adminCode: adminPassword,
 			area: areaId,
 			name: 'hello',
@@ -117,7 +117,7 @@ describe('post on /api/admin/caller/searchByName', () => {
 		expect(res.body.data[0]).toHaveProperty('name', 'hello');
 		expect(res.body.data[1]).toHaveProperty('name', 'hello1');
 
-		const res2 = await request(app).post('/api/admin/caller/searchByName').send({
+		const res2 = await request(app).post('/admin/caller/searchByName').send({
 			adminCode: adminPassword,
 			area: areaId,
 			name: 'truc',

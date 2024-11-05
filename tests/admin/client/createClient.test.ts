@@ -70,9 +70,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/client/createClient', () => {
+describe('post on /admin/client/createClient', () => {
 	it('should return 401 if admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/client/createClient').send({
+		const res = await request(app).post('/admin/client/createClient').send({
 			phone: '+33134567890',
 			name: 'createClienttest',
 			adminCode: 'wrong',
@@ -83,7 +83,7 @@ describe('post on /api/admin/client/createClient', () => {
 	});
 
 	it('should return 400 if phone number is wrong', async () => {
-		const res = await request(app).post('/api/admin/client/createClient').send({
+		const res = await request(app).post('/admin/client/createClient').send({
 			phone: 'wrong',
 			name: 'createClienttest',
 			adminCode: adminPassword,
@@ -95,7 +95,7 @@ describe('post on /api/admin/client/createClient', () => {
 	});
 
 	it('should return 401 if user already exist', async () => {
-		const res = await request(app).post('/api/admin/client/createClient').send({
+		const res = await request(app).post('/admin/client/createClient').send({
 			phone: '+33134567890',
 			name: 'createClienttest',
 			adminCode: adminPassword,
@@ -107,7 +107,7 @@ describe('post on /api/admin/client/createClient', () => {
 	});
 
 	it('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/client/createClient').send({
+		const res = await request(app).post('/admin/client/createClient').send({
 			phone: '+33134567891',
 			name: 'createClienttest',
 			adminCode: adminPassword,

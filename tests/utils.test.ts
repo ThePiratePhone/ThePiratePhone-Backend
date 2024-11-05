@@ -15,20 +15,20 @@ afterAll(async () => {
 });
 describe('checkParameters', () => {
 	it('Should return 400 if no params specify', async () => {
-		const res = await request(app).post('/api/caller/changeName');
+		const res = await request(app).post('/caller/changeName');
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Missing parameters body is empty', OK: false });
 	});
 
 	it('Should return 400 if one params is missing', async () => {
-		const res = await request(app).post('/api/caller/changeName').send({ phone: '1234567890' });
+		const res = await request(app).post('/caller/changeName').send({ phone: '1234567890' });
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Missing parameters (pinCode:string)', OK: false });
 	});
 
 	it('Should return 400 if one params have bad type', async () => {
 		const res = await request(app)
-			.post('/api/caller/changeName')
+			.post('/caller/changeName')
 			.send({
 				phone: 1234567890,
 				pinCode: '1234',
@@ -43,7 +43,7 @@ describe('checkParameters', () => {
 	});
 
 	it('should return 400 if ObjectId params hase not object id', async () => {
-		const res = await request(app).post('/api/caller/changeName').send({
+		const res = await request(app).post('/caller/changeName').send({
 			phone: '1234567890',
 			pinCode: '1234',
 			area: 'cccsddacdaa1ac96c572azer',
@@ -57,7 +57,7 @@ describe('checkParameters', () => {
 	});
 
 	it('should return 400 if ObjectId params have no 24char', async () => {
-		const res = await request(app).post('/api/caller/changeName').send({
+		const res = await request(app).post('/caller/changeName').send({
 			phone: '1234567890',
 			pinCode: '1234',
 			area: 'sdfsdf',
@@ -72,7 +72,7 @@ describe('checkParameters', () => {
 
 	it('sould dont work with bat type for optional parameter', async () => {
 		const res = await request(app)
-			.post('/api/caller/endCall')
+			.post('/caller/endCall')
 			.send({
 				phone: '1234567890',
 				pinCode: '123',
@@ -91,7 +91,7 @@ describe('checkParameters', () => {
 
 	it('sould work with optional parameter', async () => {
 		const res = await request(app)
-			.post('/api/caller/endCall')
+			.post('/caller/endCall')
 			.send({
 				phone: '1234567890',
 				pinCode: '123',
@@ -107,7 +107,7 @@ describe('checkParameters', () => {
 
 	it('should work with no optional parameter', async () => {
 		const res = await request(app)
-			.post('/api/caller/endCall')
+			.post('/caller/endCall')
 			.send({
 				phone: '1234567890',
 				pinCode: '123',
@@ -122,7 +122,7 @@ describe('checkParameters', () => {
 
 	it('should work if all parameters are given', async () => {
 		const res = await request(app)
-			.post('/api/caller/changeName')
+			.post('/caller/changeName')
 			.send({
 				phone: '1234567890',
 				pinCode: '1234',
@@ -137,7 +137,7 @@ describe('checkParameters', () => {
 describe('checkPinCode', () => {
 	it('should return 400 if pin code is to short', async () => {
 		const res = await request(app)
-			.post('/api/caller/changeName')
+			.post('/caller/changeName')
 			.send({
 				phone: '1234567890',
 				pinCode: '123',
@@ -150,7 +150,7 @@ describe('checkPinCode', () => {
 
 	it('should return 400 if pin code is not a number', async () => {
 		const res = await request(app)
-			.post('/api/caller/changeName')
+			.post('/caller/changeName')
 			.send({
 				phone: '1234567890',
 				pinCode: 'abcd',
@@ -163,7 +163,7 @@ describe('checkPinCode', () => {
 
 	it('should work if pincode is ok', async () => {
 		const res = await request(app)
-			.post('/api/caller/changeName')
+			.post('/caller/changeName')
 			.send({
 				phone: '1234567890',
 				pinCode: '1234',

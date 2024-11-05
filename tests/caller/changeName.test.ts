@@ -19,9 +19,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/caller/changeName', () => {
+describe('post on /caller/changeName', () => {
 	it('Should return 400 if new name is empty', async () => {
-		const res = await request(app).post('/api/caller/changeName').send({
+		const res = await request(app).post('/caller/changeName').send({
 			phone: '0712345678',
 			pinCode: '1234',
 			newName: ' ',
@@ -32,7 +32,7 @@ describe('post on /api/caller/changeName', () => {
 	});
 
 	it('Should return 400 if pin code is invalid', async () => {
-		const res = await request(app).post('/api/caller/changeName').send({
+		const res = await request(app).post('/caller/changeName').send({
 			phone: '0712345678',
 			pinCode: '123',
 			newName: 'newName',
@@ -43,7 +43,7 @@ describe('post on /api/caller/changeName', () => {
 	});
 
 	it('Should return 400 if pin code is invalid', async () => {
-		const res = await request(app).post('/api/caller/changeName').send({
+		const res = await request(app).post('/caller/changeName').send({
 			phone: '071234567',
 			pinCode: 'abcd',
 			newName: 'newName',
@@ -54,7 +54,7 @@ describe('post on /api/caller/changeName', () => {
 	});
 
 	it('Should return 400 if caller dont exist', async () => {
-		const res = await request(app).post('/api/caller/changeName').send({
+		const res = await request(app).post('/caller/changeName').send({
 			phone: '0712345678',
 			pinCode: '1234',
 			newName: 'newName',
@@ -71,7 +71,7 @@ describe('post on /api/caller/changeName', () => {
 			name: 'name',
 			area: areaId
 		});
-		const res = await request(app).post('/api/caller/changeName').send({
+		const res = await request(app).post('/caller/changeName').send({
 			phone: '0712345678',
 			pinCode: '1234',
 			newName: 'newName',

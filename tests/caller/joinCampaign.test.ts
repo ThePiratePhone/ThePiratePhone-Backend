@@ -53,9 +53,9 @@ beforeAll(async () => {
 afterAll(async () => {
 	await mongoose.connection.close();
 });
-describe('post on /api/caller/joinCampaign', () => {
+describe('post on /caller/joinCampaign', () => {
 	it('should return 400 if phone is invalid', async () => {
-		const res = await request(app).post('/api/caller/joinCampaign').send({
+		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: 'invalid',
 			pinCode: '1234',
 			destinationArea: areaId,
@@ -66,7 +66,7 @@ describe('post on /api/caller/joinCampaign', () => {
 	});
 
 	it('should return 403 if caller not found', async () => {
-		const res = await request(app).post('/api/caller/joinCampaign').send({
+		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: '+33534567901',
 			pinCode: '1234',
 			destinationArea: areaId,
@@ -77,7 +77,7 @@ describe('post on /api/caller/joinCampaign', () => {
 	});
 
 	it('should return 404 if campaign not found', async () => {
-		const res = await request(app).post('/api/caller/joinCampaign').send({
+		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
 			destinationArea: areaId,
@@ -88,7 +88,7 @@ describe('post on /api/caller/joinCampaign', () => {
 	});
 
 	it('should return 403 if already joined campaign', async () => {
-		const res = await request(app).post('/api/caller/joinCampaign').send({
+		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
 			destinationArea: areaId,
@@ -108,7 +108,7 @@ describe('post on /api/caller/joinCampaign', () => {
 			status: ['In progress', 'Finished'],
 			password: 'password2'
 		});
-		const res = await request(app).post('/api/caller/joinCampaign').send({
+		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
 			destinationArea: areaId,

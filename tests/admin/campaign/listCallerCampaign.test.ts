@@ -46,9 +46,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe(' post on /api/admin/campaign/listCallerCampaign', () => {
+describe(' post on /admin/campaign/listCallerCampaign', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/listCallerCampaign').send({
+		const res = await request(app).post('/admin/campaign/listCallerCampaign').send({
 			adminCode: 'wrong',
 			area: areaId,
 			CampaignId: areaId
@@ -58,7 +58,7 @@ describe(' post on /api/admin/campaign/listCallerCampaign', () => {
 	});
 
 	it('should return 404 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/listCallerCampaign').send({
+		const res = await request(app).post('/admin/campaign/listCallerCampaign').send({
 			adminCode,
 			area: areaId,
 			CampaignId: new Types.ObjectId(),
@@ -69,7 +69,7 @@ describe(' post on /api/admin/campaign/listCallerCampaign', () => {
 	});
 
 	it('should return 404 if no caller in the campaign', async () => {
-		const res = await request(app).post('/api/admin/campaign/listCallerCampaign').send({
+		const res = await request(app).post('/admin/campaign/listCallerCampaign').send({
 			adminCode,
 			area: areaId,
 			CampaignId: CampaignId,
@@ -102,7 +102,7 @@ describe(' post on /api/admin/campaign/listCallerCampaign', () => {
 			campaigns: [CampaignId]
 		});
 
-		const res = await request(app).post('/api/admin/campaign/listCallerCampaign').send({
+		const res = await request(app).post('/admin/campaign/listCallerCampaign').send({
 			adminCode,
 			area: areaId,
 			CampaignId: CampaignId,

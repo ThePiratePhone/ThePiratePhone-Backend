@@ -54,9 +54,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/caller/getProgress', () => {
+describe('post on /caller/getProgress', () => {
 	it('should return 400 if phone is invalid', async () => {
-		const res = await request(app).post('/api/caller/getProgress').send({
+		const res = await request(app).post('/caller/getProgress').send({
 			phone: 'invalid',
 			pinCode: '1234',
 			area: areaId,
@@ -67,7 +67,7 @@ describe('post on /api/caller/getProgress', () => {
 	});
 
 	it('should return 400 if caller dont exist', async () => {
-		const res = await request(app).post('/api/caller/getProgress').send({
+		const res = await request(app).post('/caller/getProgress').send({
 			phone: '+33734567890',
 			pinCode: '1235',
 			area: areaId,
@@ -79,7 +79,7 @@ describe('post on /api/caller/getProgress', () => {
 
 	//desactivate becase if campaign is not in body, it will search for a campaign with active: true from the area
 	// it('should return 400 if Campaign dont exist', async () => {
-	// 	const res = await request(app).post('/api/caller/getProgress').send({
+	// 	const res = await request(app).post('/caller/getProgress').send({
 	// 		phone: '+33734567890',
 	// 		pinCode: '1234',
 	// 		area: areaId,
@@ -90,7 +90,7 @@ describe('post on /api/caller/getProgress', () => {
 	// });
 
 	it('should return 200 if all is ok', async () => {
-		const res = await request(app).post('/api/caller/getProgress').send({
+		const res = await request(app).post('/caller/getProgress').send({
 			phone: '+33734567890',
 			pinCode: '1234',
 			area: areaId,

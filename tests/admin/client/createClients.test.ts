@@ -45,10 +45,10 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/client/createClients', () => {
+describe('post on /admin/client/createClients', () => {
 	it('should return 400 if too many users', async () => {
 		const res = await request(app)
-			.post('/api/admin/client/createClients')
+			.post('/admin/client/createClients')
 			.send({
 				adminCode: 'password',
 				area: areaId,
@@ -60,7 +60,7 @@ describe('post on /api/admin/client/createClients', () => {
 
 	it('should return 400 if data is not an array', async () => {
 		const res = await request(app)
-			.post('/api/admin/client/createClients')
+			.post('/admin/client/createClients')
 			.send({ adminCode: 'password', area: areaId, data: 'not an array' });
 		expect(res.status).toEqual(400);
 		expect(res.body).toEqual({ message: 'data must be an array', OK: false });
@@ -68,7 +68,7 @@ describe('post on /api/admin/client/createClients', () => {
 
 	it('should return 403 if area not found', async () => {
 		const res = await request(app)
-			.post('/api/admin/client/createClients')
+			.post('/admin/client/createClients')
 			.send({ adminCode: 'password', area: new Types.ObjectId().toHexString(), data: [] });
 		expect(res.status).toEqual(403);
 		expect(res.body).toEqual({ message: 'area not found or bad admin password', OK: false });
@@ -84,7 +84,7 @@ describe('post on /api/admin/client/createClients', () => {
 			})
 		).id;
 		const res = await request(app)
-			.post('/api/admin/client/createClients')
+			.post('/admin/client/createClients')
 			.send({ adminCode: 'password', area: newAreaId, data: [] });
 		expect(res.status).toEqual(404);
 		expect(res.body).toEqual({ message: 'no campaign in progress', OK: false });
@@ -92,7 +92,7 @@ describe('post on /api/admin/client/createClients', () => {
 
 	it('should return error if data is not on the right format', async () => {
 		const res = await request(app)
-			.post('/api/admin/client/createClients')
+			.post('/admin/client/createClients')
 			.send({ adminCode: 'password', area: areaId, data: ['not an array'] });
 		expect(res.status).toEqual(200);
 		expect(res.body).toEqual({
@@ -104,7 +104,7 @@ describe('post on /api/admin/client/createClients', () => {
 
 	it('should return 200 if all fine', async () => {
 		const res = await request(app)
-			.post('/api/admin/client/createClients')
+			.post('/admin/client/createClients')
 			.send({
 				adminCode: 'password',
 				area: areaId,

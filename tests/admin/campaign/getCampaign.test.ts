@@ -44,9 +44,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe(' post on /api/admin/campaign/getCampaign', () => {
+describe(' post on /admin/campaign/getCampaign', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/getCampaign').send({
+		const res = await request(app).post('/admin/campaign/getCampaign').send({
 			adminCode: 'wrong',
 			area: areaId,
 			CampaignId: areaId
@@ -56,7 +56,7 @@ describe(' post on /api/admin/campaign/getCampaign', () => {
 	});
 
 	it('should return 404 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/getCampaign').send({
+		const res = await request(app).post('/admin/campaign/getCampaign').send({
 			adminCode,
 			area: areaId,
 			CampaignId: new Types.ObjectId(),
@@ -67,7 +67,7 @@ describe(' post on /api/admin/campaign/getCampaign', () => {
 	});
 
 	it('should return 401 if the area id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/getCampaign').send({
+		const res = await request(app).post('/admin/campaign/getCampaign').send({
 			adminCode,
 			area: new Types.ObjectId(),
 			CampaignId: areaId,
@@ -78,7 +78,7 @@ describe(' post on /api/admin/campaign/getCampaign', () => {
 	});
 
 	it('should return 200 if is correct', async () => {
-		const res = await request(app).post('/api/admin/campaign/getCampaign').send({
+		const res = await request(app).post('/admin/campaign/getCampaign').send({
 			adminCode,
 			area: areaId,
 			CampaignId,

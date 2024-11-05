@@ -44,9 +44,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/setActive', () => {
+describe('post on /admin/campaign/setActive', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/setActive').send({
+		const res = await request(app).post('/admin/campaign/setActive').send({
 			adminCode: 'wrong',
 			area: areaId,
 			active: true,
@@ -57,7 +57,7 @@ describe('post on /api/admin/campaign/setActive', () => {
 	});
 
 	it('should return 404 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/setActive').send({
+		const res = await request(app).post('/admin/campaign/setActive').send({
 			adminCode,
 			area: areaId,
 			active: true,
@@ -69,7 +69,7 @@ describe('post on /api/admin/campaign/setActive', () => {
 	});
 
 	it('should return 200 if the campaign is activated with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/setActive').send({
+		const res = await request(app).post('/admin/campaign/setActive').send({
 			adminCode,
 			area: areaId,
 			active: true,
@@ -83,7 +83,7 @@ describe('post on /api/admin/campaign/setActive', () => {
 	});
 
 	it('should return 200 if the campaign is deactivated with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/setActive').send({
+		const res = await request(app).post('/admin/campaign/setActive').send({
 			adminCode,
 			area: areaId,
 			active: false,
@@ -97,7 +97,7 @@ describe('post on /api/admin/campaign/setActive', () => {
 	});
 
 	it('should return 200 if the campaign is activated', async () => {
-		const res = await request(app).post('/api/admin/campaign/setActive').send({
+		const res = await request(app).post('/admin/campaign/setActive').send({
 			adminCode: 'password',
 			area: areaId,
 			active: true,
@@ -110,7 +110,7 @@ describe('post on /api/admin/campaign/setActive', () => {
 	});
 
 	it('should return 200 if the campaign is deactivated', async () => {
-		const res = await request(app).post('/api/admin/campaign/setActive').send({
+		const res = await request(app).post('/admin/campaign/setActive').send({
 			adminCode: 'password',
 			area: areaId,
 			active: false,

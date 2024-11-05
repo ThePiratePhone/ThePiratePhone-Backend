@@ -44,9 +44,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/changeNumberMaxCall', () => {
+describe('post on /admin/campaign/changeNumberMaxCall', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
+		const res = await request(app).post('/admin/campaign/changeNumberMaxCall').send({
 			adminCode: 'wrong',
 			newNumberMaxCall: 1,
 			area: areaId
@@ -56,7 +56,7 @@ describe('post on /api/admin/campaign/changeNumberMaxCall', () => {
 	});
 
 	it('should return 401 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
+		const res = await request(app).post('/admin/campaign/changeNumberMaxCall').send({
 			adminCode,
 			newNumberMaxCall: 1,
 			area: areaId,
@@ -68,7 +68,7 @@ describe('post on /api/admin/campaign/changeNumberMaxCall', () => {
 	});
 
 	it('should return 400 if the newNumberMaxCall is not a number', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
+		const res = await request(app).post('/admin/campaign/changeNumberMaxCall').send({
 			adminCode,
 			newNumberMaxCall: NaN,
 			area: areaId,
@@ -79,7 +79,7 @@ describe('post on /api/admin/campaign/changeNumberMaxCall', () => {
 	});
 
 	it('should return 400 if the newNumberMaxCall is less than 1', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
+		const res = await request(app).post('/admin/campaign/changeNumberMaxCall').send({
 			adminCode,
 			newNumberMaxCall: 0,
 			area: areaId,
@@ -90,7 +90,7 @@ describe('post on /api/admin/campaign/changeNumberMaxCall', () => {
 	});
 
 	it('should return 200 if the campaign is found', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
+		const res = await request(app).post('/admin/campaign/changeNumberMaxCall').send({
 			adminCode: 'password',
 			newNumberMaxCall: 2,
 			area: areaId
@@ -101,7 +101,7 @@ describe('post on /api/admin/campaign/changeNumberMaxCall', () => {
 		expect(max).toBe(2);
 	});
 	it('should return 200 if the campaign is found with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeNumberMaxCall').send({
+		const res = await request(app).post('/admin/campaign/changeNumberMaxCall').send({
 			adminCode,
 			newNumberMaxCall: 1,
 			area: areaId,

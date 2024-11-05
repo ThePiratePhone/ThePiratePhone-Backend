@@ -24,9 +24,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/caller/createCaller', () => {
+describe('post on /caller/createCaller', () => {
 	it('Should return 400 if pin code is invalid', async () => {
-		const res = await request(app).post('/api/caller/createCaller').send({
+		const res = await request(app).post('/caller/createCaller').send({
 			phone: '+33912345678',
 			pinCode: '123',
 			newName: 'newName',
@@ -39,7 +39,7 @@ describe('post on /api/caller/createCaller', () => {
 	});
 
 	it('Should return 400 if pin code is invalid', async () => {
-		const res = await request(app).post('/api/caller/createCaller').send({
+		const res = await request(app).post('/caller/createCaller').send({
 			phone: '+33912345678',
 			pinCode: 'abcd',
 			newName: 'newName',
@@ -52,7 +52,7 @@ describe('post on /api/caller/createCaller', () => {
 	});
 
 	it('Should return 400 if phone number is wrong', async () => {
-		const res = await request(app).post('/api/caller/createCaller').send({
+		const res = await request(app).post('/caller/createCaller').send({
 			phone: '+3391234567',
 			pinCode: '1234',
 			area: areaId,
@@ -64,7 +64,7 @@ describe('post on /api/caller/createCaller', () => {
 	});
 
 	it('Should return 404 if area not found', async () => {
-		const res = await request(app).post('/api/caller/createCaller').send({
+		const res = await request(app).post('/caller/createCaller').send({
 			phone: '+33912345678',
 			pinCode: '1234',
 			area: areaId,
@@ -82,7 +82,7 @@ describe('post on /api/caller/createCaller', () => {
 			name: 'name',
 			area: areaId
 		});
-		const res = await request(app).post('/api/caller/createCaller').send({
+		const res = await request(app).post('/caller/createCaller').send({
 			phone: '+33912345678',
 			pinCode: '1234',
 			area: areaId,
@@ -94,7 +94,7 @@ describe('post on /api/caller/createCaller', () => {
 	});
 
 	it('Should return 200 if caller is created', async () => {
-		const res = await request(app).post('/api/caller/createCaller').send({
+		const res = await request(app).post('/caller/createCaller').send({
 			phone: '+33912345679',
 			pinCode: '1234',
 			area: areaId,

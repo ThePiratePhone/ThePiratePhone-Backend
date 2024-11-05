@@ -46,9 +46,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/changePassword', () => {
+describe('post on /admin/campaign/changePassword', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+		const res = await request(app).post('/admin/campaign/changePassword').send({
 			adminCode: 'wrong code',
 			newCampaignCode: 'new password',
 			area: areaId
@@ -59,7 +59,7 @@ describe('post on /api/admin/campaign/changePassword', () => {
 	});
 
 	it('should return 401 if wrong campaign id', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+		const res = await request(app).post('/admin/campaign/changePassword').send({
 			adminCode,
 			newCampaignCode: 'new password',
 			area: areaId,
@@ -72,7 +72,7 @@ describe('post on /api/admin/campaign/changePassword', () => {
 	});
 
 	it('should return 400 if new password invalid', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+		const res = await request(app).post('/admin/campaign/changePassword').send({
 			adminCode,
 			newCampaignCode: '{$ne: null}',
 			area: areaId,
@@ -84,7 +84,7 @@ describe('post on /api/admin/campaign/changePassword', () => {
 	});
 
 	it('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+		const res = await request(app).post('/admin/campaign/changePassword').send({
 			adminCode: 'password',
 			newCampaignCode: 'new password',
 			area: areaId
@@ -96,7 +96,7 @@ describe('post on /api/admin/campaign/changePassword', () => {
 	});
 
 	it('should return 200 if OK with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/changePassword').send({
+		const res = await request(app).post('/admin/campaign/changePassword').send({
 			adminCode,
 			newCampaignCode: 'new password2',
 			area: areaId,

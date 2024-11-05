@@ -54,9 +54,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/addCallerCampaign', () => {
+describe('post on /admin/caller/addCallerCampaign', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/caller/addCallerCampaign').send({
+		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
 			phone: '+33134567890',
 			adminCode: 'wrong',
 			area: areaId,
@@ -66,7 +66,7 @@ describe('post on /api/admin/caller/addCallerCampaign', () => {
 		expect(res.body.message).toBe('Wrong admin code');
 	});
 	it('should return 404 if campaign not found', async () => {
-		const res = await request(app).post('/api/admin/caller/addCallerCampaign').send({
+		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
 			phone: '+33134567890',
 			adminCode: adminPassword,
 			area: areaId,
@@ -77,7 +77,7 @@ describe('post on /api/admin/caller/addCallerCampaign', () => {
 		expect(res.body.message).toBe('Campaign not found');
 	});
 	it('should return 404 if caller not found', async () => {
-		const res = await request(app).post('/api/admin/caller/addCallerCampaign').send({
+		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
 			phone: '+33134567891',
 			adminCode: adminPassword,
 			area: areaId,
@@ -96,7 +96,7 @@ describe('post on /api/admin/caller/addCallerCampaign', () => {
 			area: areaId,
 			campaigns: [campaignId]
 		});
-		const res = await request(app).post('/api/admin/caller/addCallerCampaign').send({
+		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
 			phone: '+33134567892',
 			adminCode: adminPassword,
 			area: areaId,
@@ -110,7 +110,7 @@ describe('post on /api/admin/caller/addCallerCampaign', () => {
 	});
 
 	it('should return 200 if OK', async () => {
-		const res = await request(app).post('/api/admin/caller/addCallerCampaign').send({
+		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
 			phone: '+33134567890',
 			adminCode: adminPassword,
 			area: areaId,

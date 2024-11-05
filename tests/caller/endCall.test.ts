@@ -61,9 +61,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/caller/endCall', () => {
+describe('post on /caller/endCall', () => {
 	it('sould return 400 if invalid crential', async () => {
-		const res = await request(app).post('/api/caller/endCall').send({
+		const res = await request(app).post('/caller/endCall').send({
 			phone: '+33834567890',
 			pinCode: '1235',
 			timeInCall: 1000,
@@ -84,7 +84,7 @@ describe('post on /api/caller/endCall', () => {
 			campaigns: '66c5db7a64953f8138610d98'
 		});
 
-		const res = await request(app).post('/api/caller/endCall').send({
+		const res = await request(app).post('/caller/endCall').send({
 			phone: '+33834567893',
 			pinCode: '1234',
 			timeInCall: 1000,
@@ -113,7 +113,7 @@ describe('post on /api/caller/endCall', () => {
 			status: true,
 			area: areaId
 		});
-		const res = await request(app).post('/api/caller/endCall').send({
+		const res = await request(app).post('/caller/endCall').send({
 			phone: '+33834567892',
 			pinCode: '1234',
 			timeInCall: 1000,
@@ -126,7 +126,7 @@ describe('post on /api/caller/endCall', () => {
 	});
 
 	it('sould return 400 if satisfaction is not in campaign', async () => {
-		const res = await request(app).post('/api/caller/endCall').send({
+		const res = await request(app).post('/caller/endCall').send({
 			phone: '+33834567890',
 			pinCode: '1234',
 			timeInCall: 1000,
@@ -166,7 +166,7 @@ describe('post on /api/caller/endCall', () => {
 			area: areaId
 		});
 
-		const res = await request(app).post('/api/caller/endCall').send({
+		const res = await request(app).post('/caller/endCall').send({
 			phone: '+33834567891',
 			pinCode: '1234',
 			timeInCall: 1000,
@@ -197,7 +197,7 @@ describe('post on /api/caller/endCall', () => {
 	});
 
 	it('should work if all is good', async () => {
-		const res = await request(app).post('/api/caller/endCall').send({
+		const res = await request(app).post('/caller/endCall').send({
 			phone: '+33834567890',
 			pinCode: '1234',
 			timeInCall: 1000,

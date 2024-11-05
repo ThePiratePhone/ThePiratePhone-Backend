@@ -31,9 +31,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/caller/chagePassword', () => {
+describe('post on /caller/chagePassword', () => {
 	it('Should return 400 if pin code is invalid', async () => {
-		const res = await request(app).post('/api/caller/changePassword').send({
+		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '123',
 			newPin: '1234',
@@ -44,7 +44,7 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('Should return 400 if pin code is invalid', async () => {
-		const res = await request(app).post('/api/caller/changePassword').send({
+		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: 'abcd',
 			newPin: '1234',
@@ -55,7 +55,7 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('Should return 403 if caller dont exist', async () => {
-		const res = await request(app).post('/api/caller/changePassword').send({
+		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345682',
 			pinCode: '1234',
 			newPin: '1234',
@@ -66,7 +66,7 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('Should return 400 if new pin code is not 4 digit', async () => {
-		const res = await request(app).post('/api/caller/changePassword').send({
+		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '1234',
 			newPin: '123',
@@ -77,7 +77,7 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('Should return 400 if new pin code is not valid', async () => {
-		const res = await request(app).post('/api/caller/changePassword').send({
+		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '1234',
 			newPin: 'ABCD',
@@ -88,7 +88,7 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('Should return 200 if user is found', async () => {
-		const res = await request(app).post('/api/caller/changePassword').send({
+		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '1234',
 			newPin: '1234',
@@ -99,7 +99,7 @@ describe('post on /api/caller/chagePassword', () => {
 	});
 
 	it('user password should be changed', async () => {
-		await request(app).post('/api/caller/changePassword').send({
+		await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '1234',
 			newPin: '1235',

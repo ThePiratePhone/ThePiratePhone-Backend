@@ -58,15 +58,15 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/login', () => {
+describe('post on /admin/login', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/login').send({ adminCode: 'wrongCode', area: areaId });
+		const res = await request(app).post('/admin/login').send({ adminCode: 'wrongCode', area: areaId });
 		expect(res.status).toBe(401);
 		expect(res.body).toEqual({ message: 'Wrong admin code', OK: false });
 	});
 
 	it('should return 200 if correct admin code', async () => {
-		const res = await request(app).post('/api/admin/login').send({ adminCode: 'password', area: areaId });
+		const res = await request(app).post('/admin/login').send({ adminCode: 'password', area: areaId });
 		expect(res.status).toBe(200);
 		expect(res.body).toMatchObject({
 			message: 'OK',
@@ -87,7 +87,7 @@ describe('post on /api/admin/login', () => {
 	});
 	it('should return 200 if correct admin code with hash', async () => {
 		const res = await request(app)
-			.post('/api/admin/login')
+			.post('/admin/login')
 			.send({ adminCode: adminPassword, area: areaId, allreadyHaseded: true });
 		expect(res.status).toBe(200);
 		expect(res.body).toMatchObject({

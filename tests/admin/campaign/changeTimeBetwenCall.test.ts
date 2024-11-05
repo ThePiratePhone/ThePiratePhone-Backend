@@ -44,9 +44,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/changeTimeBetwenCall', () => {
+describe('post on /admin/campaign/changeTimeBetwenCall', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
+		const res = await request(app).post('/admin/campaign/changeTimeBetwenCall').send({
 			adminCode: 'wrong',
 			newTimeBetweenCall: 5,
 			area: areaId
@@ -56,7 +56,7 @@ describe('post on /api/admin/campaign/changeTimeBetwenCall', () => {
 	});
 
 	it('should return 401 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
+		const res = await request(app).post('/admin/campaign/changeTimeBetwenCall').send({
 			adminCode,
 			newTimeBetweenCall: 5,
 			area: areaId,
@@ -68,7 +68,7 @@ describe('post on /api/admin/campaign/changeTimeBetwenCall', () => {
 	});
 
 	it('should return 400 if the time between call is invalid', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
+		const res = await request(app).post('/admin/campaign/changeTimeBetwenCall').send({
 			adminCode,
 			newTimeBetweenCall: 40,
 			area: areaId,
@@ -78,7 +78,7 @@ describe('post on /api/admin/campaign/changeTimeBetwenCall', () => {
 		expect(res.body.message).toBe('Invalid time between call');
 	});
 	it('should return 200 if the time between call is changed', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
+		const res = await request(app).post('/admin/campaign/changeTimeBetwenCall').send({
 			adminCode: 'password',
 			newTimeBetweenCall: 60_000,
 			area: areaId
@@ -88,7 +88,7 @@ describe('post on /api/admin/campaign/changeTimeBetwenCall', () => {
 		expect(newTimeBetweenCall).toBe(60_000);
 	});
 	it('should return 200 if the time between call is changed wirh hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeTimeBetwenCall').send({
+		const res = await request(app).post('/admin/campaign/changeTimeBetwenCall').send({
 			adminCode,
 			newTimeBetweenCall: 60_000,
 			area: areaId,

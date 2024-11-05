@@ -53,9 +53,9 @@ beforeAll(async () => {
 afterAll(async () => {
 	await mongoose.connection.close();
 });
-describe('post on /api/caller/giveup', () => {
+describe('post on /caller/giveup', () => {
 	it('should return 400 if phone is invalid', async () => {
-		const res = await request(app).post('/api/caller/giveup').send({
+		const res = await request(app).post('/caller/giveup').send({
 			phone: 'invalid',
 			pinCode: '1234',
 			area: areaId,
@@ -66,7 +66,7 @@ describe('post on /api/caller/giveup', () => {
 	});
 
 	it('should return 400 if caller dont exist', async () => {
-		const res = await request(app).post('/api/caller/giveup').send({
+		const res = await request(app).post('/caller/giveup').send({
 			phone: '+33634567890',
 			pinCode: '1235',
 			area: areaId,
@@ -77,7 +77,7 @@ describe('post on /api/caller/giveup', () => {
 	});
 
 	it('should return 404 if no call in progress', async () => {
-		const res = await request(app).post('/api/caller/giveup').send({
+		const res = await request(app).post('/caller/giveup').send({
 			phone: '+33634567890',
 			pinCode: '1234',
 			area: areaId,
@@ -94,7 +94,7 @@ describe('post on /api/caller/giveup', () => {
 			campaign: campaignId,
 			satisfaction: 'In progress'
 		});
-		const res = await request(app).post('/api/caller/giveup').send({
+		const res = await request(app).post('/caller/giveup').send({
 			phone: '+33634567890',
 			pinCode: '1234',
 			area: areaId,

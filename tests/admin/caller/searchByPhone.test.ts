@@ -29,9 +29,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/searchByPhone', () => {
+describe('post on /admin/caller/searchByPhone', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/caller/searchByPhone').send({
+		const res = await request(app).post('/admin/caller/searchByPhone').send({
 			adminCode: 'wrongAdminCode',
 			area: areaId,
 			phone: '+33323456780'
@@ -60,7 +60,7 @@ describe('post on /api/admin/caller/searchByPhone', () => {
 			pinCode: '1234'
 		});
 
-		const res = await request(app).post('/api/admin/caller/searchByPhone').send({
+		const res = await request(app).post('/admin/caller/searchByPhone').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '+333'
@@ -73,7 +73,7 @@ describe('post on /api/admin/caller/searchByPhone', () => {
 		expect(res.body.data[0]).toHaveProperty('phone', '+33323456780');
 		expect(res.body.data[1]).toHaveProperty('phone', '+33323456781');
 
-		const res1 = await request(app).post('/api/admin/caller/searchByPhone').send({
+		const res1 = await request(app).post('/admin/caller/searchByPhone').send({
 			adminCode: 'password',
 			area: areaId,
 			phone: '+339'
@@ -106,7 +106,7 @@ describe('post on /api/admin/caller/searchByPhone', () => {
 			pinCode: '1234'
 		});
 
-		const res = await request(app).post('/api/admin/caller/searchByPhone').send({
+		const res = await request(app).post('/admin/caller/searchByPhone').send({
 			adminCode: adminPassword,
 			area: areaId,
 			phone: '+334',
@@ -120,7 +120,7 @@ describe('post on /api/admin/caller/searchByPhone', () => {
 		expect(res.body.data[0]).toHaveProperty('phone', '+33423456783');
 		expect(res.body.data[1]).toHaveProperty('phone', '+33423456784');
 
-		const res1 = await request(app).post('/api/admin/caller/searchByPhone').send({
+		const res1 = await request(app).post('/admin/caller/searchByPhone').send({
 			adminCode: adminPassword,
 			area: areaId,
 			phone: '+335',

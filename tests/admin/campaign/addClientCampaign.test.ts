@@ -56,9 +56,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/addClientCampaign', () => {
+describe('post on /admin/campaign/addClientCampaign', () => {
 	it('should return 400 if bad phone number', async () => {
-		const res = await request(app).post('/api/admin/campaign/addClientCampaign').send({
+		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,
 			phone: 'bad phone number',
 			adminCode,
@@ -69,7 +69,7 @@ describe('post on /api/admin/campaign/addClientCampaign', () => {
 		expect(res.body).toEqual({ message: 'Wrong phone number', OK: false });
 	});
 	it('should return 401 if bad admin code', async () => {
-		const res = await request(app).post('/api/admin/campaign/addClientCampaign').send({
+		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,
 			phone: '+33634567890',
 			adminCode: 'bad admin code',
@@ -79,7 +79,7 @@ describe('post on /api/admin/campaign/addClientCampaign', () => {
 		expect(res.body).toEqual({ message: 'Wrong admin code', OK: false });
 	});
 	it('should return 404 if user not found', async () => {
-		const res = await request(app).post('/api/admin/campaign/addClientCampaign').send({
+		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,
 			phone: '+33634567891',
 			adminCode,
@@ -90,7 +90,7 @@ describe('post on /api/admin/campaign/addClientCampaign', () => {
 		expect(res.body).toEqual({ message: 'User not found', OK: false });
 	});
 	it('should return 404 if campaign not found', async () => {
-		const res = await request(app).post('/api/admin/campaign/addClientCampaign').send({
+		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: new Types.ObjectId(),
 			phone: '+33634567890',
 			adminCode,
@@ -102,7 +102,7 @@ describe('post on /api/admin/campaign/addClientCampaign', () => {
 	});
 
 	it('should return 200 if user is already in campaign', async () => {
-		const res = await request(app).post('/api/admin/campaign/addClientCampaign').send({
+		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,
 			phone: '+33634567890',
 			adminCode: 'password',
@@ -120,7 +120,7 @@ describe('post on /api/admin/campaign/addClientCampaign', () => {
 			phone: '+33634567892',
 			area: areaId
 		});
-		const res = await request(app).post('/api/admin/campaign/addClientCampaign').send({
+		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,
 			phone: '+33634567892',
 			adminCode: 'password',
@@ -133,7 +133,7 @@ describe('post on /api/admin/campaign/addClientCampaign', () => {
 	});
 
 	it('should return 200 if user is already in campaign with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/addClientCampaign').send({
+		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,
 			phone: '+33634567890',
 			adminCode,
@@ -152,7 +152,7 @@ describe('post on /api/admin/campaign/addClientCampaign', () => {
 			phone: '+33634567893',
 			area: areaId
 		});
-		const res = await request(app).post('/api/admin/campaign/addClientCampaign').send({
+		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,
 			phone: '+33634567893',
 			adminCode,

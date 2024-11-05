@@ -33,9 +33,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe(' post on /api/admin/campaign/listCampaign', () => {
+describe(' post on /admin/campaign/listCampaign', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/listCampaign').send({
+		const res = await request(app).post('/admin/campaign/listCampaign').send({
 			adminCode: 'wrong',
 			area: areaId
 		});
@@ -44,7 +44,7 @@ describe(' post on /api/admin/campaign/listCampaign', () => {
 	});
 
 	it('should return 404 if campaign list is empty', async () => {
-		const res = await request(app).post('/api/admin/campaign/listCampaign').send({
+		const res = await request(app).post('/admin/campaign/listCampaign').send({
 			adminCode,
 			area: areaId,
 			allreadyHaseded: true
@@ -66,7 +66,7 @@ describe(' post on /api/admin/campaign/listCampaign', () => {
 		).id;
 		Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId } });
 
-		const res = await request(app).post('/api/admin/campaign/listCampaign').send({
+		const res = await request(app).post('/admin/campaign/listCampaign').send({
 			adminCode: 'password',
 			area: areaId
 		});

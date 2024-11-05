@@ -46,9 +46,9 @@ beforeAll(async () => {
 afterAll(async () => {
 	await mongoose.connection.close();
 });
-describe('post on /api/caller/login', () => {
+describe('post on /caller/login', () => {
 	it('should return 400 if phone is invalid', async () => {
-		const res = await request(app).post('/api/caller/login').send({
+		const res = await request(app).post('/caller/login').send({
 			phone: 'invalid',
 			pinCode: '1234'
 		});
@@ -56,7 +56,7 @@ describe('post on /api/caller/login', () => {
 		expect(res.body.OK).toBe(false);
 	});
 	it('should return 403 if credential is invalid', async () => {
-		const res = await request(app).post('/api/caller/login').send({
+		const res = await request(app).post('/caller/login').send({
 			phone: '+33434567901',
 			pinCode: '1235'
 		});
@@ -84,7 +84,7 @@ describe('post on /api/caller/login', () => {
 				campaigns: campaignID2
 			})
 		)?._id;
-		const res = await request(app).post('/api/caller/login').send({
+		const res = await request(app).post('/caller/login').send({
 			phone: '+33434567902',
 			pinCode: '1234'
 		});
@@ -92,7 +92,7 @@ describe('post on /api/caller/login', () => {
 		expect(res.body.OK).toBe(false);
 	});
 	it('should return 200 if all is correct', async () => {
-		const res = await request(app).post('/api/caller/login').send({
+		const res = await request(app).post('/caller/login').send({
 			phone: '+33434567901',
 			pinCode: '1234'
 		});

@@ -35,9 +35,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/changePassword', () => {
+describe('post on /admin/caller/changePassword', () => {
 	it('should return 400 if new pin code is not a number', async () => {
-		const response = await request(app).post('/api/admin/caller/changePassword').send({
+		const response = await request(app).post('/admin/caller/changePassword').send({
 			adminCode: 'password',
 			newPassword: 'a123',
 			Callerphone: '+33234567890',
@@ -48,7 +48,7 @@ describe('post on /api/admin/caller/changePassword', () => {
 	});
 
 	it('should return 400 if new pin code is not 4 digits', async () => {
-		const response = await request(app).post('/api/admin/caller/changePassword').send({
+		const response = await request(app).post('/admin/caller/changePassword').send({
 			adminCode: 'password',
 			newPassword: '12345',
 			Callerphone: '+33234567890',
@@ -59,7 +59,7 @@ describe('post on /api/admin/caller/changePassword', () => {
 	});
 
 	it('should return 401 if admin code is wrong', async () => {
-		const response = await request(app).post('/api/admin/caller/changePassword').send({
+		const response = await request(app).post('/admin/caller/changePassword').send({
 			adminCode: 'wrongAdminPassword',
 			newPassword: '1234',
 			Callerphone: '+33234567890',
@@ -70,7 +70,7 @@ describe('post on /api/admin/caller/changePassword', () => {
 	});
 
 	it('should return 404 if caller not found', async () => {
-		const response = await request(app).post('/api/admin/caller/changePassword').send({
+		const response = await request(app).post('/admin/caller/changePassword').send({
 			adminCode: 'password',
 			newPassword: '1234',
 			Callerphone: '+33234567891',
@@ -81,7 +81,7 @@ describe('post on /api/admin/caller/changePassword', () => {
 	});
 
 	it('should return 200 if password changed', async () => {
-		const response = await request(app).post('/api/admin/caller/changePassword').send({
+		const response = await request(app).post('/admin/caller/changePassword').send({
 			adminCode: 'password',
 			newPassword: '1235',
 			Callerphone: '+33234567890',
@@ -94,7 +94,7 @@ describe('post on /api/admin/caller/changePassword', () => {
 	});
 
 	it('should return 200 if password changed with hash', async () => {
-		const response = await request(app).post('/api/admin/caller/changePassword').send({
+		const response = await request(app).post('/admin/caller/changePassword').send({
 			adminCode: adminPassword,
 			newPassword: '1235',
 			Callerphone: '+33234567890',

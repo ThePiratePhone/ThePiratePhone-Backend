@@ -56,6 +56,9 @@ import scoreBoard from './router/otherCaller/scoreBoard';
 
 const router = Router();
 
+router.get('/', (req, res) => {
+	res.send({ message: 'Hello World!' });
+});
 //caller
 router.post('/caller/changePassword', changePassword);
 router.post('/caller/createCaller', createCaller);

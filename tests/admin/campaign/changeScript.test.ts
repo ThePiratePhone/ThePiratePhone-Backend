@@ -44,9 +44,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/campaign/changeScript', () => {
+describe('post on /admin/campaign/changeScript', () => {
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+		const res = await request(app).post('/admin/campaign/changeScript').send({
 			adminCode: 'wrong',
 			newScript: 'newScript',
 			area: areaId
@@ -56,7 +56,7 @@ describe('post on /api/admin/campaign/changeScript', () => {
 	});
 
 	it('should return 401 if the campaign id is wrong', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+		const res = await request(app).post('/admin/campaign/changeScript').send({
 			adminCode,
 			newScript: 'newScript',
 			area: areaId,
@@ -68,7 +68,7 @@ describe('post on /api/admin/campaign/changeScript', () => {
 	});
 
 	it('should return 401 if the script is empty', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+		const res = await request(app).post('/admin/campaign/changeScript').send({
 			adminCode,
 			newScript: ' ',
 			area: areaId,
@@ -79,7 +79,7 @@ describe('post on /api/admin/campaign/changeScript', () => {
 	});
 
 	it('should return 200 if the script is changed', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+		const res = await request(app).post('/admin/campaign/changeScript').send({
 			adminCode: 'password',
 			newScript: 'newScript1',
 			area: areaId,
@@ -91,7 +91,7 @@ describe('post on /api/admin/campaign/changeScript', () => {
 		expect(newScript).toBe('newScript1');
 	});
 	it('should return 200 if the script is changed with hash', async () => {
-		const res = await request(app).post('/api/admin/campaign/changeScript').send({
+		const res = await request(app).post('/admin/campaign/changeScript').send({
 			adminCode,
 			newScript: 'newScript',
 			area: areaId,

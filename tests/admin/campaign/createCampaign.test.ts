@@ -31,9 +31,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe(' post on /api/admin/createCampaign', () => {
+describe(' post on /admin/createCampaign', () => {
 	it('should return 400 if the satisfaction is not an array', async () => {
-		const res = await request(app).post('/api/admin/createCampaign').send({
+		const res = await request(app).post('/admin/createCampaign').send({
 			adminCode,
 			name: 'createCampaignTest',
 			script: 'createCampaignTest',
@@ -48,7 +48,7 @@ describe(' post on /api/admin/createCampaign', () => {
 
 	it('should return 400 if the satisfaction is not an array of string', async () => {
 		const res = await request(app)
-			.post('/api/admin/createCampaign')
+			.post('/admin/createCampaign')
 			.send({
 				adminCode,
 				name: 'createCampaignTest',
@@ -62,7 +62,7 @@ describe(' post on /api/admin/createCampaign', () => {
 		expect(res.body.message).toBe('Invalid satisfaction, satisfactions must be a array<string>');
 	});
 	it('should return 401 if the admin code is wrong', async () => {
-		const res = await request(app).post('/api/admin/createCampaign').send({
+		const res = await request(app).post('/admin/createCampaign').send({
 			adminCode: 'wrong',
 			name: 'createCampaignTest',
 			script: 'createCampaignTest',
@@ -83,7 +83,7 @@ describe(' post on /api/admin/createCampaign', () => {
 			status: ['In progress', 'Finished'],
 			password: 'password'
 		});
-		const res = await request(app).post('/api/admin/createCampaign').send({
+		const res = await request(app).post('/admin/createCampaign').send({
 			adminCode,
 			name: 'createCampaignTest4',
 			script: 'createCampaignTest4',
@@ -96,7 +96,7 @@ describe(' post on /api/admin/createCampaign', () => {
 	});
 
 	it('should return 200 if the campaign is created with hash', async () => {
-		const res = await request(app).post('/api/admin/createCampaign').send({
+		const res = await request(app).post('/admin/createCampaign').send({
 			adminCode,
 			name: 'createCampaignTest2',
 			script: 'createCampaignTest2',
@@ -111,7 +111,7 @@ describe(' post on /api/admin/createCampaign', () => {
 	});
 
 	it('should return 200 if the campaign is created', async () => {
-		const res = await request(app).post('/api/admin/createCampaign').send({
+		const res = await request(app).post('/admin/createCampaign').send({
 			adminCode: 'password',
 			name: 'createCampaignTest3',
 			script: 'createCampaignTest3',

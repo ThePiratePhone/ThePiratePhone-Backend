@@ -56,9 +56,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/callerInfo', () => {
+describe('post on /admin/caller/callerInfo', () => {
 	it('should return 400 if bad phone number', async () => {
-		const res = await request(app).post('/api/admin/caller/callerInfo').send({
+		const res = await request(app).post('/admin/caller/callerInfo').send({
 			adminCode: adminCode,
 			phone: 'invalid',
 			area: areaId,
@@ -69,7 +69,7 @@ describe('post on /api/admin/caller/callerInfo', () => {
 	});
 
 	it('should return 404 if area not found', async () => {
-		const res = await request(app).post('/api/admin/caller/callerInfo').send({
+		const res = await request(app).post('/admin/caller/callerInfo').send({
 			adminCode: adminCode,
 			phone: '+33634567890',
 			area: new mongoose.Types.ObjectId(),
@@ -80,7 +80,7 @@ describe('post on /api/admin/caller/callerInfo', () => {
 	});
 
 	it('should return 404 if caller not found', async () => {
-		const res = await request(app).post('/api/admin/caller/callerInfo').send({
+		const res = await request(app).post('/admin/caller/callerInfo').send({
 			adminCode: adminCode,
 			phone: '+33634567891',
 			area: areaId,
@@ -108,7 +108,7 @@ describe('post on /api/admin/caller/callerInfo', () => {
 				campaigns: []
 			})
 		).id;
-		const res = await request(app).post('/api/admin/caller/callerInfo').send({
+		const res = await request(app).post('/admin/caller/callerInfo').send({
 			adminCode: adminCode,
 			phone: '+33634567892',
 			area: Area2Id,
@@ -119,7 +119,7 @@ describe('post on /api/admin/caller/callerInfo', () => {
 	});
 
 	it('should return 200 with caller info', async () => {
-		const res = await request(app).post('/api/admin/caller/callerInfo').send({
+		const res = await request(app).post('/admin/caller/callerInfo').send({
 			adminCode: adminCode,
 			phone: '+33634567890',
 			area: areaId,

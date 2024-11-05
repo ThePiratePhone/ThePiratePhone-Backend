@@ -30,9 +30,9 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('post on /api/admin/caller/listCaller', () => {
+describe('post on /admin/caller/listCaller', () => {
 	it('should return 401 if wrong admin code', async () => {
-		const res = await request(app).post('/api/admin/caller/listCaller').send({
+		const res = await request(app).post('/admin/caller/listCaller').send({
 			adminCode: 'wrongCode',
 			area: areaId
 		});
@@ -41,7 +41,7 @@ describe('post on /api/admin/caller/listCaller', () => {
 	});
 
 	it('should return 404 if no caller found', async () => {
-		const res = await request(app).post('/api/admin/caller/listCaller').send({
+		const res = await request(app).post('/admin/caller/listCaller').send({
 			adminCode: 'password',
 			area: areaId
 		});
@@ -59,7 +59,7 @@ describe('post on /api/admin/caller/listCaller', () => {
 				pinCode: '1234'
 			})
 		)._id;
-		const res = await request(app).post('/api/admin/caller/listCaller').send({
+		const res = await request(app).post('/admin/caller/listCaller').send({
 			adminCode: 'password',
 			area: areaId
 		});
@@ -86,7 +86,7 @@ describe('post on /api/admin/caller/listCaller', () => {
 			phone: '+33123456790',
 			pinCode: '1234'
 		});
-		const res = await request(app).post('/api/admin/caller/listCaller').send({
+		const res = await request(app).post('/admin/caller/listCaller').send({
 			adminCode: adminPassword,
 			area: areaId2,
 			allreadyHaseded: true
