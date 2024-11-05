@@ -2,15 +2,13 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import fs from 'fs';
-import https from 'https';
 import mongoose from 'mongoose';
 
 import router from './routes';
 import { log } from './tools/log';
 
 dotenv.config({ path: '.env' });
-const port = 8443;
+const port = 80;
 // in test, the test script will create the connection to the database
 if (process.env.JEST_WORKER_ID == undefined) {
 	// Connect to MongoDB using Mongoose
@@ -37,16 +35,6 @@ if (process.env.JEST_WORKER_ID == undefined) {
 // Create an instance of the Express app
 const app = express();
 if (process.env.ISDEV == 'false') {
-	// add https support
-	const options = {
-		key: fs.readFileSync('./certs/privkey.pem'),
-		cert: fs.readFileSync('./certs/fullchain.pem')
-	};
-	const server = https.createServer(options, app);
-	server.listen(port, () => {
-		log(`Listening at https://localhost:${port}`, 'DEBUG', __filename);
-	});
-
 	// set up rate limiter: maximum of 300 requests per minute
 	app.use(
 		rateLimit({
@@ -58,7 +46,8 @@ if (process.env.ISDEV == 'false') {
 			}
 		})
 	);
-} else if (process.env.JEST_WORKER_ID == undefined) {
+}
+if (process.env.JEST_WORKER_ID == undefined) {
 	app.listen(port, () => {
 		log(`Listening at http://localhost:${port}`, 'DEBUG', __filename);
 	});
