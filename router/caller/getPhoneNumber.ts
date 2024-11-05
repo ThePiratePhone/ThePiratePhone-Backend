@@ -212,19 +212,19 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
+	const lastsCall = await Call.find(
+		{
+			client: { $eq: client[0]._id },
+			campaign: { $eq: campaign.id },
+			satisfaction: { $ne: 'In progress' }
+		},
+		['status', 'satisfaction', 'duration', 'comment', 'start']
+	);
 	res.status(200).send({
 		message: 'Client to call',
 		OK: true,
 		client: client[0],
-		callHistory:
-			(await Call.findOne(
-				{
-					client: { $eq: client[0]?._id },
-					campaign: { $eq: campaign.id },
-					satisfaction: { $ne: 'In progress' }
-				},
-				['status', 'satisfaction', 'duration', 'comment', 'start']
-			)) ?? [],
+		callHistory: lastsCall ?? [],
 		script: campaign.script,
 		status: campaign.status
 	});
