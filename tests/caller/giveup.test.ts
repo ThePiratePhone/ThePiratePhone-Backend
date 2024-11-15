@@ -30,7 +30,12 @@ beforeAll(async () => {
 		script: 'giveupTest',
 		active: true,
 		area: areaId,
-		status: ['In progress', 'Finished'],
+
+		status: [
+			{ name: 'À rappeler', toRecall: true },
+			{ name: 'À retirer', toRecall: false }
+		],
+
 		password: 'password'
 	});
 	campaignId = (await Campaign.findOne({ name: 'giveupTest' }))?._id;

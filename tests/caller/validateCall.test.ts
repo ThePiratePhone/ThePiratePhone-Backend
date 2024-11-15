@@ -34,7 +34,10 @@ beforeAll(async () => {
 			script: 'validateCall',
 			active: true,
 			area: areaId,
-			status: ['In progress', 'Finished'],
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
 			password: 'password'
 		})
 	)._id;
@@ -75,7 +78,7 @@ describe('post on /caller/validateCall', () => {
 			phone: 'invalid',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '34567902',
 			comment: 'comment'
@@ -85,12 +88,27 @@ describe('post on /caller/validateCall', () => {
 		expect(res.body.message).toBe('Invalid caller phone number');
 	});
 
+	it('should return 400 if satisfaction is not in campaign', async () => {
+		const res = await request(app).post('/caller/validateCall').send({
+			phone: '+33334567901',
+			pinCode: '1234',
+			area: areaId,
+			satisfaction: 'Invalid',
+			status: false,
+			phoneNumber: '+33334567902',
+			comment: 'comment'
+		});
+		expect(res.status).toBe(400);
+		expect(res.body.OK).toBe(false);
+		expect(res.body.message).toBe('satisfaction is not in campaign');
+	});
+
 	it('should return 403 if pin is invalid', async () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1235',
 			area: areaId,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567902',
 			comment: 'comment'
@@ -105,7 +123,7 @@ describe('post on /caller/validateCall', () => {
 			phone: '+33334567903',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567902',
 			comment: 'comment'
@@ -120,7 +138,7 @@ describe('post on /caller/validateCall', () => {
 			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567903',
 			comment: 'comment'
@@ -149,7 +167,7 @@ describe('post on /caller/validateCall', () => {
 			phone: caller.phone,
 			pinCode: caller.pinCode,
 			area: areaId,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567904',
 			comment: 'comment'
@@ -164,7 +182,7 @@ describe('post on /caller/validateCall', () => {
 			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567903',
 			comment: 'comment'
@@ -187,7 +205,7 @@ describe('post on /caller/validateCall', () => {
 			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567905',
 			comment: 'comment'
@@ -202,7 +220,7 @@ describe('post on /caller/validateCall', () => {
 			phone: '+33334567901',
 			pinCode: '1234',
 			area: areaId,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567902',
 			comment: 'comment'

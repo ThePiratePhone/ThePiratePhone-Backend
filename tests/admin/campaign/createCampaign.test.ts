@@ -80,7 +80,10 @@ describe(' post on /admin/createCampaign', () => {
 			script: 'createCampaignTest4',
 			active: true,
 			area: areaId,
-			status: ['In progress', 'Finished'],
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
 			password: 'password'
 		});
 		const res = await request(app).post('/admin/createCampaign').send({

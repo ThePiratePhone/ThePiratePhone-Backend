@@ -69,13 +69,19 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 		return;
 	}
 
-	if (req.body.satisfactions && req.body.satisfactions.some((s: any) => typeof s != 'string')) {
-		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
+	if (!req.body.satisfactions.every((e: any) => typeof e?.name == 'string' && typeof e?.toRecall == 'boolean')) {
+		res.status(400).send({
+			message: 'Invalid satisfaction, satisfactions must be a array<{ name: String, toRecall: Boolean }>',
+			OK: false
+		});
 		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
-	req.body.satisfactions = req.body.satisfactions.map(sanitizeString);
+	req.body.satisfactions = req.body.satisfactions.map((e: any) => ({
+		name: sanitizeString(e.name),
+		toRecall: e.toRecall
+	}));
 
 	await Campaign.updateOne({ _id: campaign._id }, { status: req.body.satisfactions });
 	res.status(200).send({ message: 'Satisfaction updated', OK: true });

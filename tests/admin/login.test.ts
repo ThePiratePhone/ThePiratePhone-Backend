@@ -78,7 +78,10 @@ describe('post on /admin/login', () => {
 				actualCampaignScript: 'script',
 				actualCampaignTimeBetweenCall: 10_800_000,
 				actualCampaignCallPermited: true,
-				actualCampaignStatus: ['À rappeler', 'Tout bon']
+				actualCampaignStatus: [
+					{ name: 'À rappeler', toRecall: true },
+					{ name: 'À retirer', toRecall: false }
+				]
 			},
 			OK: true
 		});
@@ -100,7 +103,10 @@ describe('post on /admin/login', () => {
 				actualCampaignScript: 'script',
 				actualCampaignTimeBetweenCall: 10_800_000,
 				actualCampaignCallPermited: true,
-				actualCampaignStatus: ['À rappeler', 'Tout bon']
+				actualCampaignStatus: [
+					{ name: 'À rappeler', toRecall: true },
+					{ name: 'À retirer', toRecall: false }
+				]
 			},
 			OK: true
 		});

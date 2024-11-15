@@ -61,9 +61,12 @@ const CampaignSchema = new mongoose.Schema({
 		default: true
 	},
 	status: {
-		type: [String],
+		type: [{ name: String, toRecall: Boolean }], // [status, to recall]
 		require: true,
-		default: ['À rappeler', 'Tout bon']
+		default: [
+			{ name: 'À rappeler', toRecall: true },
+			{ name: 'À retirer', toRecall: false }
+		]
 	}
 });
 

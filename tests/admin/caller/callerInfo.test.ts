@@ -36,7 +36,12 @@ beforeAll(async () => {
 		script: 'callerInfoTest',
 		active: true,
 		area: areaId,
-		status: ['In progress', 'Finished'],
+
+		status: [
+			{ name: 'À rappeler', toRecall: true },
+			{ name: 'À retirer', toRecall: false }
+		],
+
 		password: 'password'
 	});
 	campaignId = campaign._id;

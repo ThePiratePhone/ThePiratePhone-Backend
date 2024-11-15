@@ -29,7 +29,12 @@ beforeAll(async () => {
 		script: 'changepassordtest',
 		active: true,
 		area: areaId,
-		status: ['In progress', 'Finished'],
+
+		status: [
+			{ name: 'À rappeler', toRecall: true },
+			{ name: 'À retirer', toRecall: false }
+		],
+
 		password: 'password'
 	});
 	const campaignId = (await Campaign.findOne({ name: 'changepassordtest' }))?._id;
@@ -135,9 +140,12 @@ describe('post on /caller/endCall', () => {
 			area: areaId
 		});
 		expect(res.status).toBe(400);
-		expect(res.body).toEqual({
+		expect(res.body).toMatchObject({
 			message: 'satisfaction is not in campaign',
-			data: ['In progress', 'Finished'],
+			data: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
 			OK: false
 		});
 	});
@@ -201,7 +209,7 @@ describe('post on /caller/endCall', () => {
 			phone: '+33834567890',
 			pinCode: '1234',
 			timeInCall: 1000,
-			satisfaction: 'Finished',
+			satisfaction: 'À retirer',
 			status: true,
 			area: areaId
 		});

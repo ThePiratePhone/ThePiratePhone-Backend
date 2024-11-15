@@ -30,7 +30,12 @@ beforeAll(async () => {
 		script: 'loginTest',
 		active: true,
 		area: areaId,
-		status: ['In progress', 'Finished'],
+
+		status: [
+			{ name: 'À rappeler', toRecall: true },
+			{ name: 'À retirer', toRecall: false }
+		],
+
 		password: 'password'
 	});
 	campaignId = (await Campaign.findOne({ name: 'loginTest' }))?._id;
@@ -71,7 +76,10 @@ describe('post on /caller/login', () => {
 				script: 'loginTest2',
 				active: true,
 				area: fakeAreaID,
-				status: ['In progress', 'Finished'],
+				status: [
+					{ name: 'À rappeler', toRecall: true },
+					{ name: 'À retirer', toRecall: false }
+				],
 				password: 'password'
 			})
 		)?._id;
