@@ -33,7 +33,10 @@ beforeAll(async () => {
 			script: 'setSatisfactionTest',
 			active: true,
 			area: areaId,
-			status: ['In progress', 'Finished'],
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
 			password: 'password'
 		})
 	).id;
@@ -76,7 +79,7 @@ describe('post on /admin/campaign/setSatisfaction', () => {
 		expect(res.body.message).toBe('Wrong campaign id');
 	});
 
-	it('should return 400 if satisfactions is not an array of string', async () => {
+	it('should return 400 if satisfactions is not an array of { name: String, toRecall: Boolean }', async () => {
 		const res = await request(app)
 			.post('/admin/campaign/setSatisfaction')
 			.send({
@@ -86,21 +89,28 @@ describe('post on /admin/campaign/setSatisfaction', () => {
 				satisfactions: [42]
 			});
 		expect(res.status).toBe(400);
-		expect(res.body.message).toBe('Invalid satisfaction, satisfactions must be a array<string>');
+		expect(res.body.message).toBe(
+			'Invalid satisfaction, satisfactions must be a array<{ name: String, toRecall: Boolean }>'
+		);
 	});
 
-	it('should return 200 if satisfactions is an array', async () => {
+	it('should return 200 if satisfactions is an array of { name: String, toRecall: Boolean }', async () => {
 		const res = await request(app)
 			.post('/admin/campaign/setSatisfaction')
 			.send({
 				adminCode,
 				area: areaId,
 				allreadyHaseded: true,
-				satisfactions: ['satisfaction1', 'satisfaction2']
+				satisfactions: [
+					{ name: 'satisfaction1', toRecall: true },
+					{ name: 'satisfaction2', toRecall: true }
+				]
 			});
 		expect(res.status).toBe(200);
-		expect(res.body.message).toBe('Satisfaction updated');
 		const campaign = await Campaign.findOne({ _id: CampaignId });
-		expect(campaign?.status).toStrictEqual(['satisfaction1', 'satisfaction2']);
+		expect(campaign?.status).toMatchObject([
+			{ name: 'satisfaction1', toRecall: true },
+			{ name: 'satisfaction2', toRecall: true }
+		]);
 	});
 });

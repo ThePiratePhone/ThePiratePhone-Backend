@@ -33,7 +33,10 @@ beforeAll(async () => {
 			script: 'changeScriptTest',
 			active: true,
 			area: areaId,
-			status: ['In progress', 'Finished'],
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
 			password: 'password'
 		})
 	).id;

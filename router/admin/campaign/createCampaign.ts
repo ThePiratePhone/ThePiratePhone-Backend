@@ -55,7 +55,12 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		return;
 	}
 
-	if (req.body.satisfactions && req.body.satisfactions.some((s: any) => typeof s != 'string')) {
+	if (
+		req.body.satisfactions &&
+		!req.body.satisfactions.every((e: any) => {
+			typeof e?.name == 'string' && typeof e?.toRecall == 'boolean';
+		})
+	) {
 		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
 		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;

@@ -30,7 +30,12 @@ beforeAll(async () => {
 		script: 'joincampaignTest',
 		active: true,
 		area: areaId,
-		status: ['In progress', 'Finished'],
+
+		status: [
+			{ name: 'À rappeler', toRecall: true },
+			{ name: 'À retirer', toRecall: false }
+		],
+
 		password: 'password'
 	});
 	campaignId = (await Campaign.findOne({ name: 'joincampaignTest' }))?._id;
@@ -105,7 +110,10 @@ describe('post on /caller/joinCampaign', () => {
 			script: 'joincampaignTest2',
 			active: true,
 			area: areaId,
-			status: ['In progress', 'Finished'],
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
 			password: 'password2'
 		});
 		const res = await request(app).post('/caller/joinCampaign').send({

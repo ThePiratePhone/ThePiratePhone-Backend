@@ -163,7 +163,6 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$match: {
 					$and: [
-						{ delete: { $ne: true } }, // client not deleted
 						{ lastSatisfaction: { $ne: 'In progress' } }, // client not in call
 						{ $or: [{ lastStatus: true }, { nbCalls: 0 }] }, // keep only client with status true or not called
 						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // client not called too much
@@ -208,7 +207,6 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		log(`Error while saving call from: ${caller.name} (${ip})`, 'ERROR', __filename);
-		console.error(e);
 		return;
 	}
 

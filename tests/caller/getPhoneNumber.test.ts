@@ -30,7 +30,12 @@ beforeAll(async () => {
 		script: 'getPhoneNumbertest',
 		active: true,
 		area: areaId,
-		status: ['In progress', 'Finished'],
+
+		status: [
+			{ name: 'À rappeler', toRecall: true },
+			{ name: 'À retirer', toRecall: false }
+		],
+
 		password: 'password'
 	});
 	campaignId = (await Campaign.findOne({ name: 'getPhoneNumbertest' }))?._id;
@@ -84,7 +89,10 @@ describe('post on /caller/getPhoneNumber', () => {
 			script: 'getPhoneNumber3',
 			active: true,
 			area: areaId,
-			status: ['In progress', 'Finished'],
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
 			password: 'password',
 			callPermited: false
 		});
@@ -117,7 +125,10 @@ describe('post on /caller/getPhoneNumber', () => {
 			script: 'getPhoneNumber4',
 			active: true,
 			area: areaId,
-			status: ['In progress', 'Finished'],
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
 			password: 'password',
 			callPermited: true
 		});
@@ -169,7 +180,10 @@ describe('post on /caller/getPhoneNumber', () => {
 				}
 			],
 			script: 'getPhoneNumber4',
-			status: ['In progress', 'Finished']
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			]
 		});
 	});
 

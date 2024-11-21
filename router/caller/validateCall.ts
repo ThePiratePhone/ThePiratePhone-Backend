@@ -24,7 +24,7 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeSt
  * @throws {400}: Missing parameters
  * @throws {400}: Invalid pin code
  * @throws {400}: Invalid phone number
- * @throws {400}: satisfaction is not a valid number
+ * @throws {403}: Invalid satisfaction is not in campaign
  * @throws {403}: Invalid credential
  * @throws {404}: Client not found
  * @throws {403}: you dont call this client
@@ -81,6 +81,12 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`Campaign not found from: ${phone} (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
+	if (campaign.status.findIndex(e => e.name == req.body.satisfaction) == -1) {
+		res.status(400).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
+		log(`satisfaction is not in campaign from: ${ip}`, 'WARNING', __filename);
 		return;
 	}
 

@@ -82,7 +82,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			_id: Types.ObjectId;
 			areaId: Types.ObjectId;
 			areaName: string;
-			status: Array<string>;
+			status: Array<{ name?: string | null | undefined; toRecall?: boolean | null | undefined }>;
 		}[];
 	};
 	try {
