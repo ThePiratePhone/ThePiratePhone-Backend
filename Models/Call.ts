@@ -36,7 +36,7 @@ const CallModel = new mongoose.Schema({
 	},
 	start: {
 		type: Date,
-		default: Date.now()
+		default: new Date()
 	},
 	duration: {
 		type: Number,
@@ -44,7 +44,7 @@ const CallModel = new mongoose.Schema({
 	},
 	lastInteraction: {
 		type: Date,
-		default: Date.now()
+		default: new Date()
 	}
 });
 

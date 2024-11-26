@@ -199,7 +199,8 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		client: client[0]._id,
 		caller: caller._id,
 		campaign: campaign._id,
-		satisfaction: 'In progress'
+		satisfaction: 'In progress',
+		start: new Date()
 	});
 
 	try {
