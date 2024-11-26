@@ -37,9 +37,10 @@ import { checkParameters, hashPasword } from '../../tools/utils';
  * @throws {500} - Internal error
  */
 export default async function login(req: Request<any>, res: Response<any>) {
-	const ip = Array.isArray(req.headers['x-forwarded-for'])
-		? req.headers['x-forwarded-for'][0]
-		: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip;
+	const ip =
+		(Array.isArray(req.headers['x-forwarded-for'])
+			? req.headers['x-forwarded-for'][0]
+			: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip) ?? 'no IP';
 
 	if (
 		!checkParameters(

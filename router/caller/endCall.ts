@@ -33,9 +33,10 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeSt
  * @throws {200}: Call ended
  */
 export default async function endCall(req: Request<any>, res: Response<any>) {
-	const ip = Array.isArray(req.headers['x-forwarded-for'])
-		? req.headers['x-forwarded-for'][0]
-		: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip;
+	const ip =
+		(Array.isArray(req.headers['x-forwarded-for'])
+			? req.headers['x-forwarded-for'][0]
+			: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip) ?? 'no IP';
 
 	if (
 		!checkParameters(
