@@ -31,8 +31,8 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeSt
  * @throws {200}: Call ended
  */
 export default async function validateCall(req: Request<any>, res: Response<any>) {
-	const ip =
-		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
+	//@ts-ignore
+	const ip = req.headers['x-forwarded-for']?.split(',')?.at(0) ?? req.ip;
 
 	if (
 		!checkParameters(

@@ -28,8 +28,8 @@ import { checkParameters, hashPasword, humainPhone } from '../../../tools/utils'
  * @throws {200} if OK
  */
 export default async function exportClientCsv(req: Request<any>, res: Response<any>) {
-	const ip =
-		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
+	//@ts-ignore
+	const ip = req.headers['x-forwarded-for']?.split(',')?.at(0) ?? req.ip;
 	const timeStart = Date.now();
 	if (
 		!checkParameters(

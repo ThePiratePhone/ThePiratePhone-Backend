@@ -28,8 +28,8 @@ import { checkParameters, hashPasword } from '../../../tools/utils';
  * @throws {200} - OK
  */
 export default async function changeCallHours(req: Request<any>, res: Response<any>) {
-	const ip =
-		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
+	//@ts-ignore
+	const ip = req.headers['x-forwarded-for']?.split(',')?.at(0) ?? req.ip;
 	if (
 		!checkParameters(
 			req.body,

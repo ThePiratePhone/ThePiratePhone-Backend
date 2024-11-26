@@ -25,8 +25,8 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * @throws {200}: all fine
  */
 export default async function createCaller(req: Request<any>, res: Response<any>) {
-	const ip =
-		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
+	//@ts-ignore
+	const ip = req.headers['x-forwarded-for']?.split(',')?.at(0) ?? req.ip;
 	if (
 		!checkParameters(
 			req.body,

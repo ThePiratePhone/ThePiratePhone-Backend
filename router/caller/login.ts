@@ -23,8 +23,8 @@ import { Types } from 'mongoose';
  * @throws {200}: Logged in
  */
 export default async function login(req: Request<any>, res: Response<any>) {
-	const ip =
-		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
+	//@ts-ignore
+	const ip = req.headers['x-forwarded-for']?.split(',')?.at(0) ?? req.ip;
 	if (!req.body || typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string') {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
