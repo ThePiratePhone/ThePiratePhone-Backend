@@ -26,8 +26,9 @@ import { checkParameters, hashPasword } from '../../../tools/utils';
  * @throws {200} OK
  */
 export default async function call(req: Request<any>, res: Response<any>) {
-	//@ts-ignore
-	const ip = req.headers['x-forwarded-for']?.split(',')?.at(0) ?? req.ip;
+	const ip = Array.isArray(req.headers['x-forwarded-for'])
+		? req.headers['x-forwarded-for'][0]
+		: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip;
 
 	if (
 		!checkParameters(
