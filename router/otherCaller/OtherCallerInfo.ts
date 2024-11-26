@@ -27,7 +27,8 @@ import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils
  * @throws {200}: OK
  */
 export default async function OtherCallerInfo(req: Request<any>, res: Response<any>) {
-	const ip = req.hostname;
+	const ip =
+		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
 
 	if (
 		!checkParameters(

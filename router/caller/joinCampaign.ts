@@ -28,7 +28,8 @@ import { Area } from '../../Models/Area';
  * @throws {200}: Campaign joined
  */
 export default async function joinCampaign(req: Request<any>, res: Response<any>) {
-	const ip = req.hostname;
+	const ip =
+		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
 	if (
 		!checkParameters(
 			req.body,

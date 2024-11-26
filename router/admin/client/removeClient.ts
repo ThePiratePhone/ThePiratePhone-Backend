@@ -28,7 +28,8 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../.
  * @throws {200} if OK
  */
 export default async function removeClient(req: Request<any>, res: Response<any>) {
-	const ip = req.hostname;
+	const ip =
+		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
 	if (
 		!checkParameters(
 			req.body,

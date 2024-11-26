@@ -24,7 +24,8 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeStr
  * @throws {200}: all fine
  */
 export default async function createClients(req: Request<any>, res: Response<any>) {
-	const ip = req.hostname;
+	const ip =
+		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
 	if (
 		!checkParameters(
 			req.body,

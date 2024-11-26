@@ -22,7 +22,8 @@ import { checkParameters, hashPasword, sanitizeString } from '../../../tools/uti
  * @throws {200}: name of area changed
  */
 export default async function ChangeName(req: Request<any>, res: Response<any>) {
-	const ip = req.hostname;
+	const ip =
+		typeof req.headers['x-forwarded-for'] === 'string' ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
 	if (
 		!checkParameters(
 			req.body,
