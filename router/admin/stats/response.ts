@@ -49,7 +49,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 
 	let callStatus = campaign.status.map(async status => {
 		return {
-			status,
+			status.name,
 			count: await Call.countDocuments({ campaign: campaign._id, satisfaction: status.name })
 		};
 	});
