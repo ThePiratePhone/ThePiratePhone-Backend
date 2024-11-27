@@ -71,6 +71,7 @@ export default async function call(req: Request<any>, res: Response<any>) {
 				campaign: campaign._id
 			}
 		},
+		{ $sort: { start: -1 } },
 		{
 			$group: {
 				_id: '$client',
@@ -86,14 +87,19 @@ export default async function call(req: Request<any>, res: Response<any>) {
 	let totalToRecall = Call.aggregate([
 		{
 			$match: {
-				campaign: campaign._id,
-				status: true
+				campaign: campaign._id
 			}
 		},
+		{ $sort: { start: -1 } },
 		{
 			$group: {
 				_id: '$client',
 				status: { $first: '$status' }
+			}
+		},
+		{
+			$match: {
+				status: true
 			}
 		}
 	]);

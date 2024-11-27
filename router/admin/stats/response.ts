@@ -48,50 +48,30 @@ export default async function response(req: Request<any>, res: Response<any>) {
 	let clientCalled = await Call.countDocuments({ campaign: campaign._id });
 
 	let callStatus = campaign.status.map(async status => {
-		if (status.toRecall)
-			return {
-				name: status.name,
-				count: (
-					(await Call.aggregate([
-						{
-							$match: {
-								campaign: campaign._id
-							}
-						},
-						{
-							$group: {
-								_id: '$client',
-								satisfaction: { $first: '$satisfaction' }
-							}
-						},
-						{
-							$match: {
-								satisfaction: status.name
-							}
+		return {
+			name: status.name,
+			count: (
+				(await Call.aggregate([
+					{
+						$match: {
+							campaign: campaign._id
 						}
-					])) as any
-				).length
-			};
-		else
-			return {
-				name: status.name,
-				count: (
-					(await Call.aggregate([
-						{
-							$match: {
-								campaign: campaign._id,
-								satisfaction: status.name
-							}
-						},
-						{
-							$group: {
-								_id: '$client',
-								satisfaction: { $first: '$satisfaction' }
-							}
+					},
+					{ $sort: { start: -1 } },
+					{
+						$group: {
+							_id: '$client',
+							satisfaction: { $first: '$satisfaction' }
 						}
-					])) as any
-				).length
-			};
+					},
+					{
+						$match: {
+							satisfaction: status.name
+						}
+					}
+				])) as any
+			).length
+		};
 	});
 	res.status(200).send({
 		message: 'OK',
