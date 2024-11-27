@@ -65,16 +65,48 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	let totalCalled = Call.countDocuments({ campaign: campaign._id, status: false });
-	let totalToRecall = Call.countDocuments({ campaign: campaign._id, status: true });
+	let totalCalled = Call.aggregate([
+		{
+			$match: {
+				campaign: campaign._id
+			}
+		},
+		{
+			$group: {
+				_id: '$client',
+				status: { $first: '$status' }
+			}
+		},
+		{
+			$match: {
+				status: false
+			}
+		}
+	]);
+	let totalToRecall = Call.aggregate([
+		{
+			$match: {
+				campaign: campaign._id,
+				status: true
+			}
+		},
+		{
+			$group: {
+				_id: '$client',
+				status: { $first: '$status' }
+			}
+		}
+	]);
+	let inProgress = Call.countDocuments({ campaign: campaign._id, satisfaction: { $eq: 'In progress' } });
 	let totalUser = Client.countDocuments({ campaigns: campaign._id });
 	res.status(200).send({
 		message: 'OK',
 		OK: true,
 		data: {
-			totalCalled: await totalCalled,
-			totalToRecall: await totalToRecall,
-			totalUser: await totalUser
+			totalCalled: (await totalCalled).length,
+			totalToRecall: (await totalToRecall).length,
+			totalUser: await totalUser,
+			inProgress: await inProgress
 		}
 	});
 
