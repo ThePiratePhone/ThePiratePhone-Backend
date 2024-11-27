@@ -50,7 +50,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 	let callStatus = campaign.status.map(async status => {
 		return {
 			status,
-			count: await Call.countDocuments({ campaign: campaign._id, satisfaction: status })
+			count: await Call.countDocuments({ campaign: campaign._id, satisfaction: status.name })
 		};
 	});
 	res.status(200).send({
