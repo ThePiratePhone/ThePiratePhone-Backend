@@ -88,12 +88,10 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 			nombreAppel?: number;
 		} = {};
 		const lastCall = await Call.findOne({ client: client._id, campaign: campaign?._id }).sort({ start: -1 });
-
 		if (lastCall) {
 			csvData.statut = lastCall.status ? 'Appelé·e' : 'À rappelé·e';
 			csvData.resultat = lastCall?.satisfaction ?? 'Aucune info';
-			csvData.appeleant =
-				(await Caller.findOne({ id: lastCall.caller, area: area._id }, ['name']))?.name ?? 'Erreur';
+			csvData.appeleant = (await Caller.findById(lastCall?.caller, ['name']))?.name ?? 'Erreur';
 			csvData.commentaire = lastCall?.comment ?? '';
 			csvData.nombreAppel = (await Call.countDocuments({ client: client._id, campaign: campaign?._id })) ?? -1;
 		}
