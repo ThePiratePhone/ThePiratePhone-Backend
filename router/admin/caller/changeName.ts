@@ -26,20 +26,20 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeStr
  */
 export default async function ChangeName(req: Request<any>, res: Response<any>) {
 	const ip =
-		(Array.isArray(req.headers['x-forwarded-for'])
-			? req.headers['x-forwarded-for'][0]
-			: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip) ?? 'no IP';
+		(Array.isArray(req.headers[`x-forwarded-for`])
+			? req.headers[`x-forwarded-for`][0]
+			: req.headers[`x-forwarded-for`]?.split(`,`)?.[0] ?? req.ip) ?? `no IP`;
 
 	if (
 		!checkParameters(
 			req.body,
 			res,
 			[
-				['adminCode', 'string'],
-				['phone', 'string'],
-				['newName', 'string'],
-				['area', 'ObjectId'],
-				['allreadyHaseded', 'boolean', true]
+				[`adminCode`, `string`],
+				[`phone`, `string`],
+				[`newName`, `string`],
+				[`area`, `ObjectId`],
+				[`allreadyHaseded`, `boolean`, true]
 			],
 			__filename
 		)
@@ -48,14 +48,14 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
-		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log('Wrong phone number from ' + ip, 'WARNING', __filename);
+		res.status(400).send({ message: `Wrong phone number`, OK: false });
+		log(`[${ip}, !${req.body.area}] Wrong phone number`, `WARNING`, __filename);
 		return;
 	}
 	req.body.newName = req.body.newName.trim();
-	if (req.body.newName == '') {
-		res.status(400).send({ message: 'Wrong newName', OK: false });
-		log('Wrong newName from ' + ip, 'WARNING', __filename);
+	if (req.body.newName == ``) {
+		res.status(400).send({ message: `Wrong newName`, OK: false });
+		log(`[${ip}, !${req.body.area}] Wrong newName`, `WARNING`, __filename);
 		return;
 	}
 
@@ -63,8 +63,8 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	if (!password) return;
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
-		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		res.status(401).send({ message: `Wrong admin code`, OK: false });
+		log(`[${ip}, !${req.body.area}] Wrong admin code`, `WARNING`, __filename);
 		return;
 	}
 
@@ -72,11 +72,11 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 
 	const change = await Caller.updateOne({ phone: phone, area: { $eq: req.body.area } }, { name: req.body.newName });
 	if (change.matchedCount != 1) {
-		res.status(400).send({ message: 'Caller not found', OK: false });
-		log('Caller not found from ' + ip, 'WARNING', __filename);
+		res.status(400).send({ message: `Caller not found`, OK: false });
+		log(`[${ip}, ${req.body.area}] Caller not found`, `WARNING`, __filename);
 		return;
 	}
 
-	res.status(200).send({ message: 'Caller name changed', OK: true });
-	log('Caller name changed from ' + ip, 'INFO', __filename);
+	res.status(200).send({ message: `Caller name changed`, OK: true });
+	log(`[${ip}, ${req.body.area}] Caller name changed`, `INFO`, __filename);
 }

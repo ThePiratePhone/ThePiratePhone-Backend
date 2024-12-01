@@ -44,7 +44,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 				['password', 'string'],
 				['callHoursStart', 'number', true],
 				['callHoursEnd', 'number', true],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -54,7 +54,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 
 	if (req.body.satisfactions && !Array.isArray(req.body.satisfactions)) {
 		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
-		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Invalid satisfaction`, 'WARNING', __filename);
 		return;
 	}
 
@@ -65,7 +65,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		})
 	) {
 		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
-		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Invalid satisfaction`, 'WARNING', __filename);
 		return;
 	}
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
@@ -73,13 +73,13 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
 	if ((await Campaign.findOne({ name: { $eq: req.body.name.trim() }, area: area._id })) != null) {
 		res.status(400).send({ message: 'Campaign already exist', OK: false });
-		log(`Campaign already exist from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Campaign already exist`, 'WARNING', __filename);
 		return;
 	}
 
@@ -95,5 +95,5 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 	await campaign.save();
 	await Area.updateOne({ _id: area._id }, { $push: { CampaignList: campaign._id } });
 	res.status(200).send({ message: 'Campaign created', OK: true });
-	log(`Campaign created from ${area.name} (${ip})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Campaign created`, 'INFO', __filename);
 }

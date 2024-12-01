@@ -42,7 +42,7 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 				['CampaignId', 'string', true],
 				['skip', 'number', true],
 				['limit', 'number', true],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -54,7 +54,7 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -67,7 +67,7 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
 		return;
 	}
 
@@ -77,10 +77,10 @@ export default async function listClientCampaign(req: Request<any>, res: Respons
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!clients || clients.length === 0) {
 		res.status(401).send({ message: 'No clients found', OK: false });
-		log(`No clients found from${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] No clients found`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: { clients: clients, numberOfClients: numberOfClients } });
-	log(`client list campaign send to ${area.name} (${ip})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] client list campaign send`, 'INFO', __filename);
 }

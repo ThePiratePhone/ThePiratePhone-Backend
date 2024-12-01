@@ -52,7 +52,7 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -62,5 +62,5 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 	const output = await Caller.find({ name: regex, area: area }).limit(10);
 
 	res.status(200).send({ message: 'OK', OK: true, data: output });
-	log(`Caller searched from ${ip} (${area.name})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Caller searched`, 'INFO', __filename);
 }

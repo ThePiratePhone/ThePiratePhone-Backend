@@ -37,7 +37,7 @@ export default async function changeCampaingPassword(req: Request<any>, res: Res
 			[
 				['adminCode', 'string'],
 				['newCampaignCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['CampaignId', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],

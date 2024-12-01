@@ -41,7 +41,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 				['campaign', 'string', true],
 				['phone', 'string'],
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -52,7 +52,7 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -61,14 +61,14 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
 	const client = await Client.findOne({ phone: { $eq: phone } });
 	if (!client) {
 		res.status(404).send({ message: 'User not found', OK: false });
-		log(`User not found from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] User not found`, 'WARNING', __filename);
 		return;
 	}
 
@@ -81,12 +81,12 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', 'addClientCampaign.ts');
+		log(`[${ip}, ${req.body.area}] Campaign not found`, 'WARNING', 'addClientCampaign.ts');
 		return;
 	}
 	if (client.campaigns.findIndex(c => c.toString() == campaign?._id.toString()) != -1) {
 		res.status(200).send({ message: 'User already in campaign', OK: true });
-		log(`User already in campaign from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] User already in campaign`, 'WARNING', __filename);
 		return;
 	}
 
@@ -94,5 +94,5 @@ export default async function addClientCampaign(req: Request<any>, res: Response
 	await client.save();
 
 	res.status(200).send({ message: 'User added to campaign', OK: true });
-	log(`User added to campaign from ${area.name} (${ip})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] User added to campaign`, 'INFO', __filename);
 }

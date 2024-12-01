@@ -40,7 +40,7 @@ export default async function changeCallHours(req: Request<any>, res: Response<a
 				['adminCode', 'string'],
 				['newEndHours', 'string'],
 				['newStartHours', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['CampaignId', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],
@@ -54,7 +54,7 @@ export default async function changeCallHours(req: Request<any>, res: Response<a
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -67,20 +67,20 @@ export default async function changeCallHours(req: Request<any>, res: Response<a
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	const dateEnd = Date.parse(req.body.newEndHours);
 	if (!dateEnd) {
 		res.status(400).send({ message: 'Invalid end date', OK: false });
-		log(`Invalid end date from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Invalid end date`, 'WARNING', __filename);
 		return;
 	}
 	const dateStart = Date.parse(req.body.newStartHours);
 	if (!dateStart) {
 		res.status(400).send({ message: 'Invalid start date', OK: false });
-		log(`Invalid start date from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Invalid start date`, 'WARNING', __filename);
 		return;
 	}
 
@@ -90,10 +90,10 @@ export default async function changeCallHours(req: Request<any>, res: Response<a
 	);
 	if (output.matchedCount != 1) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Campaign not found`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Campaign hours changed from ${ip} (${area.name})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Campaign hours changed`, 'INFO', __filename);
 }
