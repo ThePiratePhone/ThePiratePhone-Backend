@@ -35,7 +35,7 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'ObjectId'],
+				['area', 'string'],
 				['CampaignId', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],
@@ -46,7 +46,7 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 
 	if (req.body.satisfactions && !Array.isArray(req.body.satisfactions)) {
 		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
-		log(`[${ip}, !${req.body.area}] Invalid satisfaction`, 'WARNING', __filename);
+		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -55,7 +55,7 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -68,7 +68,7 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -77,7 +77,7 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 			message: 'Invalid satisfaction, satisfactions must be a array<{ name: String, toRecall: Boolean }>',
 			OK: false
 		});
-		log(`[${ip}, ${req.body.area}] Invalid satisfaction`, 'WARNING', __filename);
+		log(`Invalid satisfaction from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -88,5 +88,5 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 
 	await Campaign.updateOne({ _id: campaign._id }, { status: req.body.satisfactions });
 	res.status(200).send({ message: 'Satisfaction updated', OK: true });
-	log(`[${ip}, ${req.body.area}] Satisfaction updated from`, 'INFO', __filename);
+	log(`Satisfaction updated from ${area.name} (${ip})`, 'INFO', __filename);
 }

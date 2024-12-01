@@ -35,7 +35,7 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 			[
 				['adminCode', 'string'],
 				['CampaignId', 'string'],
-				['area', 'ObjectId'],
+				['area', 'string'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -48,7 +48,7 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['_id', 'name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
 		return;
 	}
 	const campaign = await Campaign.findOne({ area: area._id, _id: { $eq: req.body.CampaignId } }, [
@@ -67,10 +67,10 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 	]);
 	if (!campaign) {
 		res.status(404).send({ message: 'no campaign', OK: false });
-		log(`[${ip}, ${req.body.area}] no campaign`, 'WARNING', __filename);
+		log(`no campaign from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: campaign });
-	log(`[${ip}, ${req.body.area}] list campaign`, 'INFO', __filename);
+	log(`list campaign from ${area.name} (${ip})`, 'INFO', __filename);
 }

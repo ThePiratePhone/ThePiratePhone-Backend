@@ -48,7 +48,7 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 	let selector: {} = { area: area._id };
@@ -57,7 +57,7 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 	if (req.body.curentCamaign) {
 		if (!campaign) {
 			res.status(400).send({ message: 'No campaign in progress', OK: false });
-			log(`[${ip}, ${req.body.area}] No campaign in progress`, 'WARNING', __filename);
+			log(`No campaign in progress from ${ip}`, 'WARNING', __filename);
 			return;
 		}
 		selector = { $or: [{ campaigns: campaign._id }, { area: area._id }] };
@@ -86,5 +86,5 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 		});
 	csvStream.end();
 
-	log(`[${ip}, ${req.body.area}] Exported ${callerCounter} callers`, 'INFO', __filename);
+	log(`Exported ${callerCounter} callers from ${ip} (${area.name})`, 'INFO', __filename);
 }

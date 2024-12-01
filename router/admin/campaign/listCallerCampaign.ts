@@ -37,7 +37,7 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 			[
 				['adminCode', 'string'],
 				['CampaignId', 'string'],
-				['area', 'ObjectId'],
+				['area', 'string'],
 				['skip', 'number', true],
 				['limit', 'number', true],
 				['allreadyHaseded', 'boolean', true]
@@ -52,14 +52,14 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
 	const campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
+		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -70,10 +70,10 @@ export default async function listCallerCampaign(req: Request<any>, res: Respons
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!callers || callers.length === 0) {
 		res.status(404).send({ message: 'No callers found', OK: false });
-		log(`[${ip}, ${req.body.area}] No callers found`, 'WARNING', __filename);
+		log(`No callers found from ${area.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true, data: { callers: callers, numberOfCallers: numberOfCallers } });
-	log(`[${ip}, ${req.body.area}] Callers found`, 'INFO', __filename);
+	log(`Callers found from ${area.name} (${ip})`, 'INFO', __filename);
 }

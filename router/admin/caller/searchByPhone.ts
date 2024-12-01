@@ -46,7 +46,7 @@ export default async function SearchByPhone(req: Request<any>, res: Response<any
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		return;
 	}
 
@@ -58,5 +58,5 @@ export default async function SearchByPhone(req: Request<any>, res: Response<any
 		area: { $eq: req.body.area }
 	}).limit(10);
 	res.status(200).send({ message: 'OK', OK: true, data: output });
-	log(`[${ip}, ${req.body.area}] caller searched`, 'INFO', __filename);
+	log(`caller searched from ${ip} (${area.name})`, 'INFO', __filename);
 }

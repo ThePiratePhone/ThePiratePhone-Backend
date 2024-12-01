@@ -48,7 +48,7 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 
 	if (req.body.newPassword.length != 4 || Number.isNaN(parseInt(req.body.newPassword))) {
 		res.status(400).send({ message: 'Invalid new pin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Invalid new pin code`, 'WARNING', __filename);
+		log(`Invalid new pin code from: ` + ip, 'WARNING', __filename);
 		return;
 	}
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
@@ -56,23 +56,23 @@ export default async function changeCallerPassword(req: Request<any>, res: Respo
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
 		return;
 	}
 
 	const phone = clearPhone(req.body.Callerphone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`[${ip}, !${req.body.area}] Invalid phone number`, 'WARNING', __filename);
+		log(`Invalid phone number from ` + ip, 'WARNING', __filename);
 		return;
 	}
 	const result = await Caller.updateOne({ phone: phone, area: area._id }, { pinCode: req.body.newPassword });
 	if (result.matchedCount != 1) {
 		res.status(404).send({ message: 'Caller not found or same password', OK: false });
-		log(`[${ip}, ${req.body.area}] Caller not found or same password from admin`, 'WARNING', __filename);
+		log(`Caller not found or same password from ${area.name} admin (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'Password changed', OK: true });
-	log(`[${ip}, ${req.body.area}] Password of ${phone} changed from admin`, 'INFO', __filename);
+	log(`Password of ${phone} changed from ${area.name} admin (${ip})`, 'INFO', __filename);
 }
