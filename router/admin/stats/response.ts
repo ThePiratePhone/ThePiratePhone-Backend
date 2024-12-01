@@ -31,7 +31,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong Credentials', OK: false });
-		log(`[${ip}, ${req.body.area}] Wrong Creantial`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong Creantial`, 'WARNING', __filename);
 		return;
 	}
 
