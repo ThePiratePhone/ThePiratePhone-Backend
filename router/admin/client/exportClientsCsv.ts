@@ -39,7 +39,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['CampaignId', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],
@@ -52,7 +52,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -65,12 +65,12 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	}
 	if (!campaign || campaign == null) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', 'changeCallHours.ts');
+		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', 'changeCallHours.ts');
 		return;
 	}
 
 	let selector = { campaigns: campaign._id };
-	log(`Exporting clients from ${area.name} (${ip})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Exporting clients`, 'INFO', __filename);
 	res.setHeader('Content-Disposition', 'attachment; filename=export.csv');
 	res.setHeader('Content-Type', 'text/csv');
 
@@ -108,7 +108,7 @@ export default async function exportClientCsv(req: Request<any>, res: Response<a
 	csvStream.end();
 	res.end();
 	log(
-		`Exported ${numberOfClients} clients in ${Date.now() - timeStart} from ${ip} (${area.name})`,
+		`[${ip}, ${req.body.area}] Exported ${numberOfClients} clients in ${Date.now() - timeStart}`,
 		'INFO',
 		__filename
 	);

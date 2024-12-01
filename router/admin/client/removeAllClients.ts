@@ -36,7 +36,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['CampaignId', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],
@@ -49,7 +49,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -62,7 +62,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
 		return;
 	}
 
@@ -72,7 +72,7 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 	});
 	if (!calls) {
 		res.status(500).send({ message: 'Error removing clients', OK: false });
-		log(`Error removing clients from ${ip} (${area.name})`, 'ERROR', __filename);
+		log(`[${ip}, ${req.body.area}] Error removing clients`, 'ERROR', __filename);
 		return;
 	}
 
@@ -83,10 +83,10 @@ export default async function removeAllClients(req: Request<any>, res: Response<
 
 	if (!clients) {
 		res.status(500).send({ message: 'Error removing clients', OK: false });
-		log(`Error removing clients from ${ip} (${area.name})`, 'ERROR', __filename);
+		log(`[${ip}, ${req.body.area}] Error removing clients`, 'ERROR', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Clients removed from ${ip} (${area.name})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Clients removed`, 'INFO', __filename);
 }
