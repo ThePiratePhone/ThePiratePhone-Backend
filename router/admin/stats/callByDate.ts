@@ -48,7 +48,7 @@ export default async function callByDate(req: Request<any>, res: Response<any>) 
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 	let campaign: InstanceType<typeof Campaign> | null = null;
@@ -60,7 +60,7 @@ export default async function callByDate(req: Request<any>, res: Response<any>) 
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Wrong campaign id`, 'WARNING', __filename);
 		return;
 	}
 	res.setHeader('Content-Type', 'application/json');
@@ -83,5 +83,5 @@ export default async function callByDate(req: Request<any>, res: Response<any>) 
 		});
 	res.write(']}');
 	res.end();
-	log(`[${ip}, ${req.body.area}] get call by date`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] get call by date`, 'INFO', __filename);
 }

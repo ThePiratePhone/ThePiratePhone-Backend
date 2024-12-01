@@ -47,7 +47,7 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong Creantial', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong Creantial`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong Creantial`, 'WARNING', __filename);
 		return;
 	}
 
@@ -59,7 +59,7 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Wrong campaign id`, 'WARNING', __filename);
 		return;
 	}
 
@@ -70,5 +70,5 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 		OK: true,
 		data: { numberOfCallers: countCallers }
 	});
-	log(`[${ip}, ${req.body.area}] number of caller get`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] number of caller get`, 'INFO', __filename);
 }

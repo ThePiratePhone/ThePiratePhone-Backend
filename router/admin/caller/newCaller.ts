@@ -51,7 +51,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Invalid pin code for create new caller by admin`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Invalid pin code for create new caller by admin`, 'WARNING', __filename);
 		return;
 	}
 
@@ -59,7 +59,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong phone number for create new caller by admin`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong phone number for create new caller by admin`, 'WARNING', __filename);
 		return;
 	}
 
@@ -68,7 +68,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid credentials', OK: false });
-		log(`[${ip}, !${req.body.area}] Invalid area`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Invalid area`, 'WARNING', __filename);
 		return;
 	}
 

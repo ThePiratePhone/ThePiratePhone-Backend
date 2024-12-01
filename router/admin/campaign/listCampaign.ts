@@ -48,7 +48,7 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['_id', 'name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -65,7 +65,7 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!campaigns || campaigns.length === 0) {
 		res.status(404).send({ message: 'No campaign found', OK: false });
-		log(`[${ip}, ${req.body.area}] No campaign found`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] No campaign found`, 'WARNING', __filename);
 		return;
 	}
 
@@ -74,5 +74,5 @@ export default async function listCampaign(req: Request<any>, res: Response<any>
 		OK: true,
 		data: { campaigns: campaigns, numberOfCampaign: numberOfCampaign }
 	});
-	log(`[${ip}, ${req.body.area}] list campaign`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] list campaign`, 'INFO', __filename);
 }

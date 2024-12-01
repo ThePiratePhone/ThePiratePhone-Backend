@@ -54,7 +54,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 
 	if (req.body.satisfactions && !Array.isArray(req.body.satisfactions)) {
 		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
-		log(`[${ip}, !${req.body.area}] Invalid satisfaction`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Invalid satisfaction`, 'WARNING', __filename);
 		return;
 	}
 
@@ -65,7 +65,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 		})
 	) {
 		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
-		log(`[${ip}, !${req.body.area}] Invalid satisfaction`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Invalid satisfaction`, 'WARNING', __filename);
 		return;
 	}
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
@@ -73,7 +73,7 @@ export default async function createCampaign(req: Request<any>, res: Response<an
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 

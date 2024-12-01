@@ -52,7 +52,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong phone number`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -61,7 +61,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['_id', 'name']);
 	if (!area) {
 		res.status(404).send({ message: 'no area found', OK: false });
-		log(`[${ip}, !${req.body.area}] no area found`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] no area found`, 'WARNING', __filename);
 		return;
 	}
 

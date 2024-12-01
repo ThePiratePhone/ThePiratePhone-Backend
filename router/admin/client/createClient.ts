@@ -54,20 +54,20 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`[${ip}, ${req.body.area}] Wrong phone number`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
 	if ((await Client.findOne({ phone: phone })) != null) {
 		res.status(401).send({ message: 'User already exist', OK: false });
-		log(`[${ip}, ${req.body.area}] User already exist`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] User already exist`, 'WARNING', __filename);
 		return;
 	}
 
@@ -82,9 +82,9 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	try {
 		await user.save();
 		res.status(200).send({ message: 'user ' + user.name + ' created', OK: true });
-		log(`[${ip}, ${req.body.area}] user ${user.name} created`, 'INFO', __filename);
+		log(`[${req.body.area}, ${ip}] user ${user.name} created`, 'INFO', __filename);
 	} catch (error: any) {
 		res.status(500).send({ message: 'Internal server error', OK: false });
-		log(`[${ip}, ${req.body.area}] Internal server error: ${error.message}`, 'ERROR', __filename);
+		log(`[${req.body.area}, ${ip}] Internal server error: ${error.message}`, 'ERROR', __filename);
 	}
 }

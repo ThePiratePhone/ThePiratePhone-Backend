@@ -51,7 +51,7 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -63,7 +63,7 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Wrong campaign id`, 'WARNING', __filename);
 		return;
 	}
 
@@ -71,7 +71,7 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 
 	if (isNaN(req.body.newNumberMaxCall) || req.body.newNumberMaxCall < 1) {
 		res.status(400).send({ message: 'invalid number max call', OK: false });
-		log(`[${ip}, ${req.body.area}] invalid number max call`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] invalid number max call`, 'WARNING', __filename);
 		return;
 	}
 
@@ -81,10 +81,10 @@ export default async function changeNumberMaxCall(req: Request<any>, res: Respon
 	);
 	if (output.matchedCount != 1) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`[${ip}, ${req.body.area}] Campaign not found`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Campaign not found`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`[${ip}, ${req.body.area}] max number of call changed`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] max number of call changed`, 'INFO', __filename);
 }

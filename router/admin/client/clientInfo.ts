@@ -54,7 +54,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong phone number`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -63,7 +63,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -76,14 +76,14 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`[${ip}, ${req.body.area}] Campaign not found`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Campaign not found`, 'WARNING', __filename);
 		return;
 	}
 
 	const client = await Client.findOne({ phone: phone, campaigns: campaign._id });
 	if (!client) {
 		res.status(404).send({ message: 'Client not found', OK: false });
-		log(`[${ip}, ${req.body.area}] Client not found`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Client not found`, 'WARNING', __filename);
 		return;
 	}
 
@@ -101,7 +101,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 			data: { client: client, call: null },
 			message: 'no call found for this client'
 		});
-		log(`[${ip}, ${req.body.area}] No call found for this client`, 'INFO', __filename);
+		log(`[${req.body.area}, ${ip}] No call found for this client`, 'INFO', __filename);
 		return;
 	}
 
@@ -116,5 +116,5 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		data: { client: client, call: calls },
 		message: 'Client info got'
 	});
-	log(`[${ip}, ${req.body.area}] Client info got`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] Client info got`, 'INFO', __filename);
 }

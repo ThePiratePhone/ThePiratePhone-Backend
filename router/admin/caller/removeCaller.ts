@@ -48,7 +48,7 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong phone number for remove caller by admin`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong phone number for remove caller by admin`, 'WARNING', __filename);
 		return;
 	}
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
@@ -56,7 +56,7 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid area', OK: false });
-		log(`[${ip}, !${req.body.area}] Invalid area`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Invalid area`, 'WARNING', __filename);
 		return;
 	}
 

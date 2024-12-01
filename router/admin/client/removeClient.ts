@@ -52,14 +52,14 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 	req.body.phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong phone number`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -72,14 +72,14 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Wrong campaign id`, 'WARNING', __filename);
 		return;
 	}
 
 	const output = await Client.findOne({ phone: { $eq: req.body.phone }, campaigns: { $eq: campaign._id } }, []);
 	if (!output) {
 		res.status(404).send({ message: 'Client not found', OK: false });
-		log(`[${ip}, ${req.body.area}] Client not found`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Client not found`, 'WARNING', __filename);
 		return;
 	}
 	try {
@@ -87,9 +87,9 @@ export default async function removeClient(req: Request<any>, res: Response<any>
 		await Client.findByIdAndDelete(output._id);
 	} catch (e) {
 		res.status(500).send({ message: 'Error removing client', OK: false });
-		log(`[${ip}, ${req.body.area}] Error removing client`, 'ERROR', __filename);
+		log(`[${req.body.area}, ${ip}] Error removing client`, 'ERROR', __filename);
 		return;
 	}
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`[${ip}, ${req.body.area}] Client removed from`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] Client removed from`, 'INFO', __filename);
 }

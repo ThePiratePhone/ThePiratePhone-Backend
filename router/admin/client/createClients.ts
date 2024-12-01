@@ -43,13 +43,13 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	if (!Array.isArray(req.body['data'])) {
 		res.status(400).send({ message: 'data must be an array', OK: false });
-		log(`[${ip}, !${req.body.area}] data must be an array`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] data must be an array`, 'WARNING', __filename);
 		return;
 	}
 
 	if (req.body.data.length > 500) {
 		res.status(400).send({ message: 'Too many users', OK: false });
-		log(`[${ip}, !${req.body.area}] Too many users`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Too many users`, 'WARNING', __filename);
 		return;
 	}
 
@@ -65,14 +65,14 @@ export default async function createClients(req: Request<any>, res: Response<any
 	);
 	if (!area) {
 		res.status(403).send({ message: 'area not found or bad admin password', OK: false });
-		log(`[${ip}, !${req.body.area}] area not found or bad admin password`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] area not found or bad admin password`, 'WARNING', __filename);
 		return;
 	}
 
 	const campaign = await Campaign.findOne({ area: { $eq: area._id }, active: true }, []);
 	if (!campaign) {
 		res.status(404).send({ message: 'no campaign in progress', OK: false });
-		log(`[${ip}, ${req.body.area}] no campaign in progress`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] no campaign in progress`, 'WARNING', __filename);
 		return;
 	}
 
@@ -111,6 +111,6 @@ export default async function createClients(req: Request<any>, res: Response<any
 		}
 	);
 	await Promise.all(sleep);
-	log(`[${ip}, ${req.body.area}] Created ${req.body.data.length - errors.length} users`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] Created ${req.body.data.length - errors.length} users`, 'INFO', __filename);
 	res.status(200).send({ message: 'OK', OK: true, errors: errors });
 }

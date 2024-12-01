@@ -50,7 +50,7 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`[${ip}, !${req.body.area}] Wrong admin code`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -71,7 +71,7 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 		);
 		if (campaign.matchedCount != 1) {
 			res.status(404).send({ message: 'Campaign not found', OK: false });
-			log(`[${ip}, ${req.body.area}] Campaign not found`, 'WARNING', __filename);
+			log(`[${req.body.area}, ${ip}] Campaign not found`, 'WARNING', __filename);
 			return;
 		}
 	}
@@ -79,16 +79,16 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 	if ((await Campaign.countDocuments({ area: area._id, active: true })) > 1) {
 		await Campaign.updateOne({ area: area._id, active: true }, { active: false });
 		res.status(500).send({ message: 'Multiple active campaign', OK: false });
-		log(`[${ip}, ${req.body.area}] Multiple active campaign`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Multiple active campaign`, 'WARNING', __filename);
 		return;
 	}
 
 	if (req.body.active) {
 		res.status(200).send({ message: 'Campaign activated', OK: true });
-		log(`[${ip}, ${req.body.area}] Campaign activated`, 'INFO', __filename);
+		log(`[${req.body.area}, ${ip}] Campaign activated`, 'INFO', __filename);
 		return;
 	} else {
 		res.status(200).send({ message: 'Campaign desactivated', OK: true });
-		log(`[${ip}, ${req.body.area}] Campaign desactivated`, 'INFO', __filename);
+		log(`[${req.body.area}, ${ip}] Campaign desactivated`, 'INFO', __filename);
 	}
 }
