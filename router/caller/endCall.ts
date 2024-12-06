@@ -61,7 +61,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -73,7 +73,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);
 		return;
 	}
 
@@ -89,20 +89,20 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 
 	if (!call) {
 		res.status(403).send({ message: 'No call in progress', OK: false });
-		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] No call in progress`, 'WARNING', __filename);
 		return;
 	}
 
 	const campaign = await Campaign.findById(call?.campaign);
 	if (!campaign) {
 		res.status(500).send({ message: 'Invalid campaign in call', OK: false });
-		log(`invalid campaing in call ${call?.id} from: ${ip}`, 'ERROR', __filename);
+		log(`[${req.body.phone}, ${ip}] invalid campaing in call ${call?.id}`, 'ERROR', __filename);
 		return;
 	}
 
 	if (campaign.status.findIndex(e => e.name == req.body.satisfaction) == -1) {
 		res.status(400).send({ message: 'satisfaction is not in campaign', data: campaign.status, OK: false });
-		log(`satisfaction is not in campaign from: ${ip}`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] satisfaction is not in campaign`, 'WARNING', __filename);
 		return;
 	}
 
@@ -115,9 +115,9 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 	try {
 		await call.save();
 		res.status(200).send({ message: 'Call ended', OK: true });
-		log(`Call ended by ${caller.name} (${phone})`, 'INFO', __filename);
+		log(`[${req.body.phone}, ${ip}] Call ended`, 'INFO', __filename);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Internal error: ${e} from: ${caller.name} (${phone}) ${ip}`, 'ERROR', __filename);
+		log(`[${req.body.phone}, ${ip}] Internal error: ${e}`, 'ERROR', __filename);
 	}
 }

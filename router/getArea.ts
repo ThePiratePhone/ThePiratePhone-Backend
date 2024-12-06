@@ -17,10 +17,10 @@ export default async function getArea(req: Request<any>, res: Response<any>) {
 	const area = await Area.find();
 	if (!area || area.length == 0) {
 		res.status(404).send({ message: 'No area fond', OK: false });
-		log(`Error while getting area from ` + ip, 'WARNING', __filename);
+		log(`[${ip}] Error while getting area`, 'WARNING', __filename);
 		return;
 	}
-	log(`Get area from ` + ip, 'INFO', __filename);
+	log(`[${ip}] Get area`, 'INFO', __filename);
 	res.status(200).send({
 		message: 'OK',
 		OK: true,

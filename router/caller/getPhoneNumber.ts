@@ -53,7 +53,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -67,7 +67,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	]);
 	if (!campaign || !campaign.active) {
 		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
-		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Campaign not found or not active`, 'WARNING', __filename);
 		return;
 	}
 	const caller = await Caller.findOne(
@@ -87,13 +87,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
-		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid credential or incorrect campaing`, 'WARNING', __filename);
 		return;
 	}
 
 	if (!campaign.callPermited) {
 		res.status(403).send({ message: 'Call not permited', OK: false });
-		log(`Call not permited from: ${caller.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] Call not permited`, 'WARNING', __filename);
 		return;
 	}
 
@@ -107,7 +107,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			await call.save();
 		} catch (e) {
 			res.status(500).send({ message: 'Internal error', OK: false });
-			log(`Error while updating call ${caller.name} (${ip})`, 'ERROR', __filename);
+			log(`[${req.body.phone}, ${ip}] Error while updating call ${caller.name} (${ip})`, 'ERROR', __filename);
 			return;
 		}
 		res.status(200).send({
@@ -125,7 +125,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			script: campaign.script,
 			status: campaign.status
 		});
-		log(`Already in a call from: ${caller.name} (${ip})`, 'INFO', __filename);
+		log(`[${req.body.phone}, ${ip}] Already in a call`, 'INFO', __filename);
 		return;
 	}
 
@@ -190,11 +190,11 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		]);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while getting client from: ${caller.name} (${ip})`, 'ERROR', __filename);
+		log(`[${req.body.phone}, ${ip}] Error while getting client`, 'ERROR', __filename);
 	}
 	if (!client || client.length == 0) {
 		res.status(404).send({ message: 'No client to call', OK: false });
-		log(`No client to call from: ${caller.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] No client to call`, 'WARNING', __filename);
 		return;
 	}
 
@@ -210,7 +210,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		await callClient.save();
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while saving call from: ${caller.name} (${ip})`, 'ERROR', __filename);
+		log(`[${req.body.phone}, ${ip}] Error while saving call`, 'ERROR', __filename);
 		return;
 	}
 
@@ -230,5 +230,5 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		script: campaign.script,
 		status: campaign.status
 	});
-	log(`Client to call from: ${caller.name} (${ip})`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] Client to call`, 'INFO', __filename);
 }

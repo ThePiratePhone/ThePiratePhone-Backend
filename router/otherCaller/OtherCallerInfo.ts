@@ -50,35 +50,35 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 
 	const otherPhone = clearPhone(req.body.otherPhone);
 	if (!phoneNumberCheck(otherPhone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 
 	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['_id', 'name']);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);
 		return;
 	}
 
 	const campaign = await Campaign.findOne({ area: { $eq: req.body.area }, active: true });
 	if (!campaign) {
 		res.status(404).send({ message: 'No active campaign', OK: false });
-		log(`No active campaign from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] No active campaign`, 'WARNING', __filename);
 		return;
 	}
 
 	const otherCaller = await Caller.findOne({ phone: otherPhone }, ['_id', 'name', 'phone']);
 	if (!otherCaller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
-		log(`Caller not found: ${otherPhone} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] Caller not`, 'WARNING', __filename);
 		return;
 	}
 
@@ -106,5 +106,5 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		OK: true,
 		data: { count: timeCall[0].count, duration: timeCall[0].totalDuration }
 	});
-	log(`get information of ${otherCaller.phone} (${otherCaller.name}) from: ${phone} (${ip})`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] get information of ${otherCaller.phone}`, 'INFO', __filename);
 }

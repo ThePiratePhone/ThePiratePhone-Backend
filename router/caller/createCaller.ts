@@ -52,7 +52,7 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from: (${phone}) ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -61,13 +61,13 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	]);
 	if (!area) {
 		res.status(404).send({ message: 'area not found or invalid password', OK: false });
-		log(`area not found or invalid password from: (${phone}) ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] area not found or invalid password`, 'WARNING', __filename);
 		return;
 	}
 
 	if ((await Caller.countDocuments({ phone: phone })) != 0) {
 		res.status(409).send({ message: 'caller already exist', OK: false });
-		log(`caller already exist from ${phone} in ${area.name} (${ip})`, 'WARNING', 'createCaller.ts');
+		log(`[${req.body.phone}, ${ip}] caller already exist in ${area.name}`, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
@@ -81,10 +81,10 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 	const result = await newCaller.save();
 	if (!result) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while saving caller from: (${phone}) ${ip}`, 'CRITICAL', 'createCaller.ts');
+		log(`[${req.body.phone}, ${ip}] Error while saving caller`, 'CRITICAL', 'createCaller.ts');
 		return;
 	}
 
 	res.status(200).send({ message: 'Caller created', OK: true });
-	log(`Caller ${newCaller.name} created from ${area.name} (${ip})`, 'INFO', 'createCaller.ts');
+	log(`[${req.body.phone}, ${ip}] Caller ${newCaller.name} created`, 'INFO', 'createCaller.ts');
 }

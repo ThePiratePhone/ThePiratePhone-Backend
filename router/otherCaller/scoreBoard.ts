@@ -41,7 +41,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		(req.body.campaignId && !ObjectId.isValid(req.body.campaignId))
 	) {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Missing parameters`, 'WARNING', __filename);
 		return;
 	}
 
@@ -51,7 +51,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		)?._id.toString();
 		if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
 			res.status(404).send({ message: 'no campaing in progress', OK: false });
-			log(`no campaing in progress from: ` + ip, 'WARNING', __filename);
+			log(`[!${req.body.phone}, ${ip}] no campaing in progress`, 'WARNING', __filename);
 			return;
 		}
 	}
@@ -59,7 +59,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from: ` + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 	const caller = await Caller.findOne({
@@ -76,7 +76,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	});
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
-		log(`Caller not found from: ` + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Caller not found`, 'WARNING', __filename);
 		return;
 	}
 	const topfiveUsers: Array<{
@@ -205,12 +205,12 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	yourPlace++;
 	if (!topfiveUsers) {
 		res.status(500).send({ message: 'No data found', OK: false });
-		log(`No data found from: ` + ip, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] No data found`, 'WARNING', __filename);
 		return;
 	}
 	topfiveUsers.forEach(user => {
 		user.you = user._id.toString() == caller._id.toString();
 	});
 	res.status(200).send({ topfiveUsers, yourPlace, OK: true });
-	log(`Scoreboard sent to ${caller.name} (${ip})`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] Scoreboard sent`, 'INFO', __filename);
 }
