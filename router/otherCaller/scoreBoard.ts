@@ -132,7 +132,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			await Call.aggregate([
 				{
 					$match: {
-						campaign: new ObjectId('66fa8fa1d7d61195b453507d')
+						campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
 					}
 				},
 				{
@@ -161,9 +161,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 				{
 					$project: {
 						_id: 1,
-						caller: {
-							id: { $arrayElemAt: ['$caller._id', 0] }
-						},
+						name: { $arrayElemAt: ['$caller.name', 0] },
 						count: 1,
 						totalDuration: 1
 					}
@@ -178,7 +176,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 				},
 				{
 					$match: {
-						'caller.id': new ObjectId('675832042d65b7802dc468c8')
+						_id: caller._id
 					}
 				}
 			])
