@@ -132,8 +132,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			await Call.aggregate([
 				{
 					$match: {
-						campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId),
-						caller: caller._id
+						campaign: new ObjectId('66fa8fa1d7d61195b453507d')
 					}
 				},
 				{
@@ -142,6 +141,14 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 						count: { $sum: 1 },
 						totalDuration: { $sum: '$duration' }
 					}
+				},
+				{
+					$match: {
+						count: { $gt: 0 }
+					}
+				},
+				{
+					$sort: { count: -1 }
 				},
 				{
 					$lookup: {
@@ -154,43 +161,32 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 				{
 					$project: {
 						_id: 1,
-						name: { $arrayElemAt: ['$caller.name', 0] },
+						caller: {
+							id: { $arrayElemAt: ['$caller._id', 0] }
+						},
 						count: 1,
 						totalDuration: 1
 					}
 				},
 				{
-					$limit: 1
+					$setWindowFields: {
+						sortBy: { count: -1 },
+						output: {
+							rank: { $rank: {} }
+						}
+					}
+				},
+				{
+					$match: {
+						'caller.id': new ObjectId('675832042d65b7802dc468c8')
+					}
 				}
 			])
 		)[0];
 
 		if (user) {
 			topfiveUsers.push(user);
-			yourPlace =
-				(
-					await Call.aggregate([
-						{
-							$group: {
-								_id: '$caller',
-								count: { $sum: 1 },
-								totalDuration: { $sum: '$duration' }
-							}
-						},
-						{
-							$match: {
-								count: { $gte: user.count },
-								caller: { $ne: caller._id }
-							}
-						},
-						{
-							$sort: { count: -1 }
-						},
-						{
-							$count: 'place'
-						}
-					])
-				)[0].place - 1;
+			yourPlace = user.rank - 1;
 		} else {
 			topfiveUsers.push({
 				you: true,
