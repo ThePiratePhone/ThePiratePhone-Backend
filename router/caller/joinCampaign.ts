@@ -53,7 +53,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -64,14 +64,14 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	]);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
-		log(`Invalid credential or incorrect campaing from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid credential or incorrect campaing`, 'WARNING', __filename);
 		return;
 	}
 
 	const area = await Area.findOne({ _id: { $eq: req.body.destinationArea } });
 	if (!area) {
 		res.status(404).send({ message: 'Area not found', OK: false });
-		log(`Area not found from ${caller.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] Area not found from ${caller.name} (${ip})`, 'WARNING', __filename);
 		return;
 	}
 
@@ -91,13 +91,13 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from ${caller.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] Campaign not found`, 'WARNING', __filename);
 		return;
 	}
 
 	if (caller.campaigns.includes(campaign.id)) {
 		res.status(403).send({ message: 'Already joined campaign', OK: false });
-		log(`Already joined campaign from ${caller.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] Already joined campaign`, 'WARNING', __filename);
 		return;
 	}
 
@@ -106,10 +106,10 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		await caller.save();
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Internal error: ${e} from ${caller.name} (${ip})`, 'ERROR', __filename);
+		log(`[${req.body.phone}, ${ip}] Internal error: ${e}`, 'ERROR', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'Campaign joined', OK: true });
-	log(`${caller.name} (${caller.phone}) join campain: ${campaign.name} from ${ip}`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] join campain: ${campaign.name}`, 'INFO', __filename);
 }

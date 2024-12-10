@@ -51,7 +51,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from ` + ip, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Invalid pin code for create new caller by admin`, 'WARNING', __filename);
 		return;
 	}
 
@@ -59,7 +59,7 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log('Wrong phone number', 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong phone number for create new caller by admin`, 'WARNING', __filename);
 		return;
 	}
 
@@ -68,13 +68,13 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(400).send({ message: 'Invalid credentials', OK: false });
-		log(`Invalid area from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Invalid area`, 'WARNING', __filename);
 		return;
 	}
 
 	if (await Caller.findOne({ phone: phone })) {
 		res.status(400).send({ message: 'caller already exist', OK: false });
-		log(`caller already exist from ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] caller already exist`, 'WARNING', __filename);
 		return;
 	}
 
@@ -88,10 +88,10 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 	const result = await newCaller.save();
 	if (!result) {
 		res.status(500).send({ message: 'Internal error', OK: false });
-		log(`Error while saving caller`, 'CRITICAL', __filename);
+		log(`[${ip}, ${req.body.area}] Error while saving caller`, 'CRITICAL', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: `Caller ${newCaller.name} (${newCaller.phone}) created`, OK: true });
-	log(`Caller ${newCaller.name} created from ${area.name} (${ip})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Caller ${newCaller._id} created`, 'INFO', __filename);
 }

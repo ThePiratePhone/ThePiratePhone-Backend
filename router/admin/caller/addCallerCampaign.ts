@@ -39,7 +39,7 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 			[
 				['phone', 'string'],
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['campaign', 'string'],
 				['allreadyHaseded', 'boolean', true]
 			],
@@ -53,7 +53,7 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ` + ip, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -62,29 +62,29 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 	const caller = await Caller.findOne({ phone: { $eq: req.body.phone }, area: area._id }, ['campaigns']);
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
-		log(`Caller not found from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Caller not found`, 'WARNING', __filename);
 		return;
 	}
 
 	const campaign = await Campaign.findOne({ _id: { $eq: req.body.campaign }, area: area._id }, ['_id']);
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Campaign not found`, 'WARNING', __filename);
 		return;
 	}
 
 	if (caller.campaigns.includes(campaign._id)) {
 		res.status(200).send({ message: 'Caller already in campaign', OK: true });
-		log(`Caller already in campaign from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Caller already in campaign`, 'WARNING', __filename);
 		return;
 	}
 	try {
 		await caller.updateOne({ $push: { campaigns: campaign._id } });
 	} catch (e) {
 		res.status(500).send({ message: 'Error adding caller to campaign', OK: false });
-		log(`Error adding caller to campaign from ${area.name} (${ip})`, 'ERROR', __filename);
+		log(`[${ip}, ${req.body.area}] Error adding caller to campaign`, 'ERROR', __filename);
 		return;
 	}
 	res.status(200).send({ message: 'Caller added to campaign', OK: true });
-	log(`Caller added to campaign from ${area.name} (${ip})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Caller added to campaign`, 'INFO', __filename);
 }

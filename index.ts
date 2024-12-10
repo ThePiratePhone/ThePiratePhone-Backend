@@ -16,19 +16,19 @@ if (process.env.JEST_WORKER_ID == undefined) {
 		mongoose
 			.connect(process.env.URI ?? '')
 			.then(() => {
-				log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
+				log(`Successfully connected to MongoDB`, 'DEBUG', 'index.ts');
 			})
 			.catch(error => {
-				log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
+				log(`Error connecting to MongoDB: ${error}`, 'CRITICAL', 'index.ts');
 			});
 	} else {
 		mongoose
 			.connect(process.env.URIDEV ?? '')
 			.then(() => {
-				log('Successfully connected to MongoDB', 'DEBUG', 'index.ts');
+				log(`Successfully connected to MongoDB`, 'DEBUG', 'index.ts');
 			})
 			.catch(error => {
-				log('Error connecting to MongoDB: ' + error, 'CRITICAL', 'index.ts');
+				log(`Error connecting to MongoDB: ${error}`, 'CRITICAL', 'index.ts');
 			});
 	}
 }

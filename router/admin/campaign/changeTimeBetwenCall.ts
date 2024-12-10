@@ -37,7 +37,7 @@ export default async function changeTimeBetwenCall(req: Request<any>, res: Respo
 			[
 				['adminCode', 'string'],
 				['newTimeBetweenCall', 'number'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['CampaignId', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],
@@ -50,7 +50,7 @@ export default async function changeTimeBetwenCall(req: Request<any>, res: Respo
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -62,7 +62,7 @@ export default async function changeTimeBetwenCall(req: Request<any>, res: Respo
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Wrong campaign id from`, 'WARNING', __filename);
 		return;
 	}
 
@@ -70,7 +70,7 @@ export default async function changeTimeBetwenCall(req: Request<any>, res: Respo
 
 	if (isNaN(req.body.newTimeBetweenCall) || req.body.newTimeBetweenCall < 60_000) {
 		res.status(400).send({ message: 'Invalid time between call', OK: false });
-		log(`Invalid time between call from ${ip} (${area.name})`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Invalid time between call`, 'WARNING', __filename);
 		return;
 	}
 
@@ -80,10 +80,10 @@ export default async function changeTimeBetwenCall(req: Request<any>, res: Respo
 	);
 	if (output.matchedCount != 1) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Campaign not found from`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`time betwen call changed from ${ip} (${area.name})`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] time betwen call changed`, 'INFO', __filename);
 }

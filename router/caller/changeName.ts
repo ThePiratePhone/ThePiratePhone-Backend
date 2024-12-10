@@ -45,13 +45,13 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	req.body.phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(req.body.phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log('Wrong phone number from ' + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
 	if (req.body.newName.trim() == '') {
 		res.status(400).send({ message: 'Wrong newName', OK: false });
-		log('Wrong newName from ' + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Wrong newName`, 'WARNING', __filename);
 		return;
 	}
 
@@ -63,10 +63,10 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	);
 	if (change.matchedCount != 1) {
 		res.status(400).send({ message: 'Caller not found', OK: false });
-		log('Caller not found from ' + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Caller not found`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'Caller name changed', OK: true });
-	log('Caller name changed from ' + ip, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] Caller name changed`, 'INFO', __filename);
 }

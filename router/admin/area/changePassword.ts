@@ -32,7 +32,7 @@ export default async function ChangePasword(req: Request<any>, res: Response<any
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['newPassword', 'string']
 			],
 			__filename
@@ -43,18 +43,18 @@ export default async function ChangePasword(req: Request<any>, res: Response<any
 	const passwordClient = sanitizeString(req.body.newPassword);
 	if (passwordClient != req.body.newPassword.trim()) {
 		res.status(400).send({ OK: false, message: 'bad new password (regex faled)' });
-		log(`bad new password (regex faled) from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] bad new password (regex faled)`, 'WARNING', __filename);
 		return;
 	}
 	if (passwordClient == '') {
 		res.status(400).send({ OK: false, message: 'bad new password' });
-		log(`bad new password from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] bad new password`, 'WARNING', __filename);
 		return;
 	}
 
 	if (passwordClient.length > 32) {
 		res.status(400).send({ OK: false, message: 'new password is too long (max 32)' });
-		log(`new password is too long (max 32) from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] new password is too long (max 32)`, 'WARNING', __filename);
 		return;
 	}
 
@@ -66,10 +66,10 @@ export default async function ChangePasword(req: Request<any>, res: Response<any
 	);
 	if (update.matchedCount != 1) {
 		res.status(404).send({ OK: false, message: 'no area found' });
-		log(`no area found from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] no area found`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ OK: true, message: 'password of area changed' });
-	log(`password of area changed from ${ip}`, 'WARNING', __filename);
+	log(`[${req.body.area}, ${ip}] password of area changed`, 'WARNING', __filename);
 }

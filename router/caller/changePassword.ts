@@ -45,7 +45,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log('Wrong phone number from ' + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 	const caller = await Caller.findOne(
@@ -54,13 +54,13 @@ export default async function changePassword(req: Request<any>, res: Response<an
 	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: (${phone}) ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);
 		return;
 	}
 
 	if (typeof req.body.newPin !== 'string' || req.body.newPin.length != 4 || Number.isNaN(parseInt(req.body.newPin))) {
 		res.status(400).send({ message: 'Invalid new pin code', OK: false });
-		log(`Invalid new pin code from: (${phone}) ${ip}`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] Invalid new pin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -72,11 +72,11 @@ export default async function changePassword(req: Request<any>, res: Response<an
 
 		if (result.modifiedCount == 0) {
 			res.status(500).send({ message: 'Invalid database request', OK: false });
-			log(`Invalid database request from: ${caller.name} (${ip})`, 'CRITICAL', __filename);
+			log(`[${req.body.phone}, ${ip}] Invalid database request`, 'CRITICAL', __filename);
 			return;
 		}
 	}
 
 	res.status(200).send({ message: 'password changed', OK: true });
-	log(`user ${phone} password chnaged from: ${caller.name} (${ip})`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] user password chnaged`, 'INFO', __filename);
 }

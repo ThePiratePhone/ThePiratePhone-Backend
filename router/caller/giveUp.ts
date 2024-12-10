@@ -47,7 +47,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -57,7 +57,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
-		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', 'giveUp.ts');
+		log(`[!${req.body.phone}, ${ip}] Invalid credential or incorrect area`, 'WARNING', 'giveUp.ts');
 		return;
 	}
 
@@ -65,11 +65,11 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 
 	if (!currentCall) {
 		res.status(404).send({ message: 'No call in progress', OK: false });
-		log(`No call in progress from: ${phone} (${ip})`, 'WARNING', 'giveUp.ts');
+		log(`[${req.body.phone}, ${ip}] No call in progress`, 'WARNING', 'giveUp.ts');
 		return;
 	}
 
 	await Call.deleteOne({ _id: currentCall._id });
 	res.status(200).send({ message: 'Call ended', OK: true });
-	log(`Call ended from: ${phone} (${ip})`, 'INFO', 'giveUp.ts');
+	log(`[${req.body.phone}, ${ip}] Call ended`, 'INFO', 'giveUp.ts');
 }

@@ -29,12 +29,12 @@ export default async function login(req: Request<any>, res: Response<any>) {
 			: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip) ?? 'no IP';
 	if (!req.body || typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string') {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`Missing parameters from: ` + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Missing parameters`, 'WARNING', __filename);
 		return;
 	}
 	if (req.body.pinCode.length != 4) {
 		res.status(400).send({ message: 'Wrong pin code', OK: false });
-		log(`Wrong pin code from: ` + ip, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Wrong pin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -56,7 +56,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, [
@@ -67,13 +67,13 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	]);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
-		log(`Invalid credential from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);
 		return;
 	}
 	const area = await Area.findOne({ _id: caller.area });
 	if (!area) {
 		res.status(500).send({ message: 'No area', OK: false });
-		log(`No area for this user from: ${phone} (${ip})`, 'ERROR', __filename);
+		log(`[${req.body.phone}, ${ip}] No area for this user`, 'ERROR', __filename);
 		return;
 	}
 	let areaCombo: {
@@ -124,10 +124,10 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		};
 	} catch (error) {
 		res.status(500).send({ message: 'area of campaign not found', OK: false });
-		log(`area of campaign not found for ${caller.name} (${ip})`, 'ERROR', __filename);
+		log(`[${req.body.phone}, ${ip}] area of campaign not found`, 'ERROR', __filename);
 		return;
 	}
 	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: areaCombo } });
-	log(`Login success for ${caller.name} (${ip})`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] Login success`, 'INFO', __filename);
 	return;
 }

@@ -51,7 +51,7 @@ export default async function call(req: Request<any>, res: Response<any>) {
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong Creantial', OK: false });
-		log('Wrong Creantial from ' + ip, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong Creantial`, 'WARNING', __filename);
 		return;
 	}
 
@@ -61,7 +61,7 @@ export default async function call(req: Request<any>, res: Response<any>) {
 
 	if (!campaign || campaign == null) {
 		res.status(404).send({ message: 'no campaign in progress or campaign not found', OK: false });
-		log(`No campaign in progress or campaign not found from: ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] No campaign in progress or campaign not found`, 'WARNING', __filename);
 		return;
 	}
 
@@ -116,5 +116,5 @@ export default async function call(req: Request<any>, res: Response<any>) {
 		}
 	});
 
-	log(`call stats get by ${area.name} (${ip})`, 'INFO', __filename);
+	log(`[${req.body.area}, ${ip}] call stats get`, 'INFO', __filename);
 }

@@ -43,7 +43,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	req.body.newName = req.body.newName.trim();
 	if (req.body.newName == '' || req.body.newName.length > 50) {
 		res.status(400).send({ OK: false, message: 'bad new name' });
-		log(`bad new name from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] bad new name`, 'WARNING', __filename);
 		return;
 	}
 
@@ -56,10 +56,10 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	);
 	if (update.matchedCount != 1) {
 		res.status(404).send({ OK: false, message: 'no area found' });
-		log(`no area found from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] no area found`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ OK: true, message: 'name of area changed' });
-	log(`name of area changed to ${req.body.newName} from ${req.body.area} (${ip})`, 'WARNING', __filename);
+	log(`[${req.body.area}, ${ip}] name of area changed to ${req.body.newName}`, 'WARNING', __filename);
 }

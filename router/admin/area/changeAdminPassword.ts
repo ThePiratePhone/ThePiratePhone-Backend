@@ -45,14 +45,14 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 
 	if (req.body.newPassword.trim() == '') {
 		res.status(400).send({ OK: false, message: 'bad new admin password' });
-		log(`bad new admin password from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] bad new admin password`, 'WARNING', __filename);
 		return;
 	}
 
 	if (req.body.newPassword.length > 512) {
 		//max size
 		res.status(400).send({ OK: false, message: 'new password is too long (max 512)' });
-		log(`new password is too long from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] new password is too long`, 'WARNING', __filename);
 		return;
 	}
 
@@ -62,7 +62,7 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 	} else {
 		if (req.body.newPassword != sanitizeString(req.body.newPassword)) {
 			res.status(400).send({ OK: false, message: 'new password is not a hash' });
-			log(`new password is not a hash from ${ip}`, 'WARNING', __filename);
+			log(`[!${req.body.area}, ${ip}] new password is not a hash`, 'WARNING', __filename);
 			return;
 		}
 	}
@@ -75,10 +75,10 @@ export default async function ChangeAdminPassword(req: Request<any>, res: Respon
 	);
 	if (update.matchedCount != 1) {
 		res.status(404).send({ OK: false, message: 'no area found' });
-		log(`no area found from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] no area found from`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ OK: true, message: 'password of area changed' });
-	log(`admin password of area changed from ${ip}`, 'WARNING', __filename);
+	log(`[${req.body.area}, ${ip}] admin password of area changed from`, 'WARNING', __filename);
 }

@@ -38,7 +38,7 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 			[
 				['adminCode', 'string'],
 				['newName', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['CampaignId', 'string', true],
 				['allreadyHaseded', 'boolean', true]
 			],
@@ -52,7 +52,7 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -65,7 +65,7 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
-		log(`Wrong campaign id from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Wrong campaign id`, 'WARNING', __filename);
 		return;
 	}
 
@@ -75,17 +75,17 @@ export default async function changeName(req: Request<any>, res: Response<any>) 
 		req.body.newName != sanitizeString(req.body.newName)
 	) {
 		res.status(400).send({ message: 'Name invalid', OK: false });
-		log(`Name invalid from ${ip} (${area.name})`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Name invalid`, 'WARNING', __filename);
 		return;
 	}
 
 	const output = await Campaign.updateOne({ _id: campaign._id }, { name: req.body.newName });
 	if (output.matchedCount != 1) {
 		res.status(400).send({ message: 'Campaign not found', OK: false });
-		log(`Campaign not found from ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] Campaign not found`, 'WARNING', __filename);
 		return;
 	}
 
 	res.status(200).send({ message: 'OK', OK: true });
-	log(`Campaign name changed from ${ip} (${area.name})`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Campaign name changed`, 'INFO', __filename);
 }

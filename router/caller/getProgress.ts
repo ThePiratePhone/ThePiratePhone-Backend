@@ -49,7 +49,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Invalid phone number', OK: false });
-		log(`Invalid phone number from: ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -60,7 +60,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
-		log(`Invalid credential or incorrect area from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[!${req.body.phone}, ${ip}] Invalid credential or incorrect area`, 'WARNING', __filename);
 		return;
 	}
 	let campaign: InstanceType<typeof Campaign> | null;
@@ -71,12 +71,12 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	}
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
-		log(`Campaign not found or not active from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] Campaign not found or not active`, 'WARNING', __filename);
 		return;
 	}
 	if (!caller.campaigns.includes(campaign._id) && !(campaign.area.toString() == caller.area.toString())) {
 		res.status(403).send({ message: 'Invalid campaigns', OK: false });
-		log(`Invalid campaigns from: ${phone} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] Invalid campaigns`, 'WARNING', __filename);
 		return;
 	}
 
@@ -117,5 +117,5 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			totalCallTime: totalCallTime[0]?.totalDuration ?? 0
 		}
 	});
-	log(`Caller ${caller.name} (${caller.phone}) requested his progress`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] Caller requested his progress`, 'INFO', __filename);
 }

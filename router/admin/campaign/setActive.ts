@@ -37,7 +37,7 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 				['adminCode', 'string'],
 				['active', 'boolean'],
 				['campaign', 'string', true],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -49,8 +49,8 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 	if (!password) return;
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
@@ -70,25 +70,25 @@ export default async function setActive(req: Request<any>, res: Response<any>) {
 			{ active: true }
 		);
 		if (campaign.matchedCount != 1) {
-			log(`Campaign not found from ${area.name} admin (${ip})`, 'WARNING', __filename);
 			res.status(404).send({ message: 'Campaign not found', OK: false });
+			log(`[${req.body.area}, ${ip}] Campaign not found`, 'WARNING', __filename);
 			return;
 		}
 	}
 
 	if ((await Campaign.countDocuments({ area: area._id, active: true })) > 1) {
 		await Campaign.updateOne({ area: area._id, active: true }, { active: false });
-		log(`Multiple active campaign from ${area.name} admin (${ip})`, 'WARNING', __filename);
 		res.status(500).send({ message: 'Multiple active campaign', OK: false });
+		log(`[${req.body.area}, ${ip}] Multiple active campaign`, 'WARNING', __filename);
 		return;
 	}
 
 	if (req.body.active) {
-		log(`Campaign activated from ${area.name} admin (${ip})`, 'INFO', __filename);
 		res.status(200).send({ message: 'Campaign activated', OK: true });
+		log(`[${req.body.area}, ${ip}] Campaign activated`, 'INFO', __filename);
 		return;
 	} else {
-		log(`Campaign desactivated from ${area.name} admin (${ip})`, 'INFO', __filename);
 		res.status(200).send({ message: 'Campaign desactivated', OK: true });
+		log(`[${req.body.area}, ${ip}] Campaign desactivated`, 'INFO', __filename);
 	}
 }

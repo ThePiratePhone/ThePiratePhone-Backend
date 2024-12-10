@@ -42,7 +42,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 				['firstName', 'string', true],
 				['institution', 'string', true],
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -54,20 +54,20 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
 	if ((await Client.findOne({ phone: phone })) != null) {
 		res.status(401).send({ message: 'User already exist', OK: false });
-		log(`User already exist from ${area.name} (${ip})`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] User already exist`, 'WARNING', __filename);
 		return;
 	}
 
@@ -82,9 +82,9 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	try {
 		await user.save();
 		res.status(200).send({ message: 'user ' + user.name + ' created', OK: true });
-		log(`user ${user.name} created from ${area.name} (${ip})`, 'INFO', __filename);
+		log(`[${req.body.area}, ${ip}] user ${user.name} created`, 'INFO', __filename);
 	} catch (error: any) {
 		res.status(500).send({ message: 'Internal server error', OK: false });
-		log(`Internal server error: ${error.message} from ${area.name} (${ip})`, 'ERROR', __filename);
+		log(`[${req.body.area}, ${ip}] Internal server error: ${error.message}`, 'ERROR', __filename);
 	}
 }

@@ -61,7 +61,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: password });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
-		log(`Wrong admin code from ${ip}`, 'WARNING', 'login.ts');
+		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', 'login.ts');
 		return;
 	}
 
@@ -83,5 +83,5 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		},
 		OK: true
 	});
-	log(`Login from ${area.name} (${ip})`, 'INFO', 'login.ts');
+	log(`[${req.body.area}, ${ip}] Login`, 'INFO', 'login.ts');
 }

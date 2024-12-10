@@ -52,7 +52,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
 		res.status(400).send({ message: 'Wrong phone number', OK: false });
-		log(`Wrong phone number from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
 
@@ -61,7 +61,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['_id', 'name']);
 	if (!area) {
 		res.status(404).send({ message: 'no area found', OK: false });
-		log(`no area found from ${ip}`, 'WARNING', __filename);
+		log(`[!${req.body.area}, ${ip}] no area found`, 'WARNING', __filename);
 		return;
 	}
 
@@ -72,7 +72,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	]);
 	if (!caller) {
 		res.status(404).send({ message: 'no caller found', OK: false });
-		log(`no caller found from ${area.name} ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] no caller found`, 'WARNING', __filename);
 		return;
 	}
 
@@ -81,7 +81,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	}
 	if (!req.body.CampaignId) {
 		res.status(404).send({ message: 'no campaign active', OK: false });
-		log(`no actual campaign from ${area.name} ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] no actual campaign`, 'WARNING', __filename);
 		return;
 	}
 
@@ -142,7 +142,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 
 	if (!data || data.length == 0) {
 		res.status(404).send({ message: 'No data found', OK: false });
-		log(`No data found from ${area.name} ${ip}`, 'WARNING', __filename);
+		log(`[${ip}, ${req.body.area}] No data found`, 'WARNING', __filename);
 		return;
 	}
 	res.status(200).send({
@@ -159,5 +159,5 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		}
 	});
 
-	log(`Caller info get from ${area.name} ${ip}`, 'INFO', __filename);
+	log(`[${ip}, ${req.body.area}] Caller info get`, 'INFO', __filename);
 }
