@@ -1,7 +1,7 @@
+import { Response } from 'express';
+import { sha512 } from 'js-sha512';
 import mongoose from 'mongoose';
 import { log } from './log';
-import { Request, Response } from 'express';
-import { sha512 } from 'js-sha512';
 
 function getFileName(filename: string) {
 	return filename?.split('\\')?.at(-1)?.split('/')?.at(-1) ?? 'error';
@@ -127,7 +127,7 @@ function checkParameters(
 	if (parameters.length == 0) return true;
 	if (!body || Object.keys(body).length == 0) {
 		res.status(400).send({ message: 'Missing parameters body is empty', OK: false });
-		log(`Missing parameters body is empty from ` + ip, 'WARNING', orgin);
+		log(`[${ip}] Missing parameters body is empty`, 'WARNING', orgin);
 		return false;
 	}
 	for (let parameter of parameters) {
@@ -137,7 +137,7 @@ function checkParameters(
 
 		if (body[parameter[0]] == undefined) {
 			res.status(400).send({ message: `Missing parameters (${parameter.join(':')})`, OK: false });
-			log(`Missing parameters (${parameter.join(':')}) from ` + ip, 'WARNING', orgin);
+			log(`[${body.phone ?? ''} ${ip}] Missing parameters (${parameter.join(':')})`, 'WARNING', orgin);
 			return false;
 		}
 
@@ -151,7 +151,7 @@ function checkParameters(
 					message: errorText,
 					OK: false
 				});
-				log(errorText + ` from ` + ip, 'WARNING', orgin);
+				log(`[${ip}] ` + errorText, 'WARNING', orgin);
 				return false;
 			}
 			if (!mongoose.isValidObjectId(body[parameter[0]])) {
@@ -159,7 +159,7 @@ function checkParameters(
 					message: errorText,
 					OK: false
 				});
-				log(errorText + ` from ` + ip, 'WARNING', orgin);
+				log(`[${ip}] ` + errorText, 'WARNING', orgin);
 				return false;
 			}
 		} else if (parameter[1] == 'number' && isNaN(parseInt(body[parameter[0]]))) {
@@ -168,21 +168,21 @@ function checkParameters(
 				message: errorText,
 				OK: false
 			});
-			log(errorText + ` from ` + ip, 'WARNING', orgin);
+			log(`[${ip}] ` + errorText, 'WARNING', orgin);
 			return false;
 			// } else if (parameter[1] == 'array' && !Array.isArray(body[parameter[0]])) {
 			// 	res.status(400).send({
 			// 		message: errorText,
 			// 		OK: false
 			// 	});
-			// 	log(errorText + ` from ` + ip, 'WARNING', orgin);
+			// 	log(`[${ip}] ` + errorText, 'WARNING', orgin);
 			// 	return false;
 		} else if (typeof body[parameter[0]] != parameter[1]) {
 			res.status(400).send({
 				message: errorText,
 				OK: false
 			});
-			log(errorText + ` from ` + ip, 'WARNING', orgin);
+			log(`[${ip}] ` + errorText, 'WARNING', orgin);
 			return false;
 		}
 	}
@@ -192,7 +192,7 @@ function checkParameters(
 function checkPinCode(pinCode: string, res: Response<any>, orgin: string): boolean {
 	if (pinCode.length != 4 || Number.isNaN(parseInt(pinCode))) {
 		res.status(400).send({ message: 'Invalid pin code', OK: false });
-		log(`Invalid pin code from: ` + res.req.hostname, 'WARNING', orgin);
+		log(`[${res.req.hostname}] Invalid pin code`, 'WARNING', orgin);
 		return false;
 	}
 	return true;
@@ -205,7 +205,7 @@ function hashPasword(password: string, allreadyHaseded: boolean, res: Response<a
 	} else {
 		if (password != sanitizeString(password)) {
 			res.status(400).send({ OK: false, message: 'new password is not a hash' });
-			log(`new password is not a hash from ${res.req.hostname}`, 'WARNING', __filename);
+			log(`[${res.req.hostname}] new password is not a hash`, 'WARNING', __filename);
 			return false;
 		}
 	}
@@ -214,12 +214,12 @@ function hashPasword(password: string, allreadyHaseded: boolean, res: Response<a
 
 export {
 	checkParameters,
+	checkPinCode,
 	cleanStatus,
 	clearPhone,
 	getFileName,
+	hashPasword,
 	humainPhone,
 	phoneNumberCheck,
-	checkPinCode,
-	sanitizeString,
-	hashPasword
+	sanitizeString
 };
