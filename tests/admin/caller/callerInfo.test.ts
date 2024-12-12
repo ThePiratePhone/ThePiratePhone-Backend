@@ -137,7 +137,8 @@ describe('post on /admin/caller/callerInfo', () => {
       data: {
         id: '${callerId}',
         name: 'callerInfoTest',
-        phone: '+33634567890'
+        phone: '+33634567890',
+		rank: 1
       }
     }`);
 		expect(res.body).toMatchObject(reg);

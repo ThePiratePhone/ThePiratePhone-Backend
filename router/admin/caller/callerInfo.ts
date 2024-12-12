@@ -7,6 +7,7 @@ import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../../../tools/utils';
+import mongoose from 'mongoose';
 
 /**
  * get information of caller
@@ -85,65 +86,77 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const data: Array<{ totalCount: number; totalDuration: number; campaignDuration: number; campaignCount: number }> =
-		await Call.aggregate([
-			{
-				$facet: {
-					callerTotalData: [
-						{ $match: { Caller: new ObjectId(caller._id) } },
-						{
-							$group: {
-								_id: '$Caller',
-								totalCount: { $sum: 1 },
-								totalDuration: { $sum: '$duration' }
-							}
-						},
-						{
-							$project: {
-								_id: 0,
-								totalCount: 1,
-								totalDuration: 1
-							}
-						}
-					],
-					campaignData: [
-						{
-							$match: {
-								caller: new ObjectId(caller._id),
-								campaign: ObjectId.createFromHexString(req.body.CampaignId)
-							}
-						},
-						{
-							$group: {
-								_id: '$caller',
-								campaignCount: { $sum: 1 },
-								campaignDuration: { $sum: '$duration' }
-							}
-						},
-						{
-							$project: {
-								_id: 0,
-								campaignCount: 1,
-								campaignDuration: 1
-							}
-						}
-					]
-				}
-			},
-			{
-				$project: {
-					TotalCount: { $arrayElemAt: ['$callerTotalData.totalCount', 0] },
-					TotalDuration: { $arrayElemAt: ['$callerTotalData.totalDuration', 0] },
-					campaignCount: { $arrayElemAt: ['$campaignData.campaignCount', 0] },
-					campaignDuration: { $arrayElemAt: ['$campaignData.campaignDuration', 0] }
+	const data: Array<{
+		totalCount: number;
+		totalDuration: number;
+		campaignDuration: number;
+		campaignCount: number;
+		rank: number;
+	}> = await Call.aggregate([
+		{
+			$match: {
+				campaign: ObjectId.createFromHexString(req.body.CampaignId)
+			}
+		},
+		{
+			$group: {
+				_id: '$caller',
+				count: { $sum: 1 },
+				totalDuration: { $sum: '$duration' }
+			}
+		},
+		{
+			$match: {
+				count: { $gt: 0 }
+			}
+		},
+		{
+			$sort: { count: -1 }
+		},
+		{
+			$lookup: {
+				from: 'callers',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'caller'
+			}
+		},
+		{
+			$project: {
+				_id: 1,
+				name: { $arrayElemAt: ['$caller.name', 0] },
+				count: 1,
+				totalDuration: 1
+			}
+		},
+		{
+			$setWindowFields: {
+				sortBy: { count: -1 },
+				output: {
+					rank: { $rank: {} }
 				}
 			}
-		]);
-
-	if (!data || data.length == 0) {
+		},
+		{
+			$match: {
+				_id: caller._id
+			}
+		}
+	]);
+	if (!data) {
 		res.status(404).send({ message: 'No data found', OK: false });
 		log(`[${ip}, ${req.body.area}] No data found`, 'WARNING', __filename);
 		return;
+	}
+
+	if (data.length == 0) {
+		data[0] = {
+			campaignDuration: 0,
+			campaignCount: 0,
+			totalDuration: 0,
+			totalCount: 0,
+			rank: 1
+		};
 	}
 	res.status(200).send({
 		message: 'OK',
@@ -155,7 +168,8 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 			totalTimeCampaign: data[0].campaignDuration,
 			nbCallsCampaign: data[0].campaignCount,
 			totalTime: data[0].totalDuration,
-			nbCalls: data[0].totalCount
+			nbCalls: data[0].totalCount,
+			rank: data[0].rank
 		}
 	});
 
