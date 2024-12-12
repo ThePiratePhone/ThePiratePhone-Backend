@@ -87,10 +87,8 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	}
 
 	const data: Array<{
-		totalCount: number;
+		count: number;
 		totalDuration: number;
-		campaignDuration: number;
-		campaignCount: number;
 		rank: number;
 	}> = await Call.aggregate([
 		{
@@ -151,10 +149,8 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 
 	if (data.length == 0) {
 		data[0] = {
-			campaignDuration: 0,
-			campaignCount: 0,
 			totalDuration: 0,
-			totalCount: 0,
+			count: 0,
 			rank: 1
 		};
 	}
@@ -165,10 +161,8 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 			id: caller._id,
 			name: caller.name,
 			phone: caller.phone,
-			totalTimeCampaign: data[0].campaignDuration,
-			nbCallsCampaign: data[0].campaignCount,
-			totalTime: data[0].totalDuration,
-			nbCalls: data[0].totalCount,
+			totalTimeCampaign: data[0].totalDuration,
+			nbCallsCampaign: data[0].count,
 			rank: data[0].rank
 		}
 	});
