@@ -110,6 +110,18 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	res.status(200).send({ message: 'Campaign joined', OK: true });
+	res.status(200).send({
+		message: 'Campaign joined',
+		data: {
+			name: campaign.name,
+			_id: campaign._id,
+			areaId: area._id,
+			areaName: area.name,
+			callHoursStart: campaign.callHoursStart,
+			callHoursEnd: campaign.callHoursEnd,
+			status: campaign.status
+		},
+		OK: true
+	});
 	log(`[${req.body.phone}, ${ip}] join campain: ${campaign.name}`, 'INFO', __filename);
 }

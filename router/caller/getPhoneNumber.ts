@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 
+import { Area } from '../../Models/Area';
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
@@ -42,7 +42,8 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['area', 'ObjectId']
+				['area', 'ObjectId'],
+				['campaign', 'ObjectId', true]
 			],
 			__filename
 		)
@@ -57,14 +58,34 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ active: true, area: { $eq: req.body.area } }, [
-		'script',
-		'callPermited',
-		'timeBetweenCall',
-		'nbMaxCallCampaign',
-		'active',
-		'status'
-	]);
+	const area = await Area.findOne({ _id: { $eq: req.body.area } });
+	if (!area) {
+		res.status(404).send({ message: 'Area not found', OK: false });
+		log(`[!${req.body.phone}, ${ip}] Area not found from (${ip})`, 'WARNING', __filename);
+		return;
+	}
+
+	let campaign: InstanceType<typeof Campaign> | null = null;
+	if (req.body.CampaignId) {
+		campaign = await Campaign.findOne(
+			{
+				_id: { $eq: req.body.CampaignId },
+				area: area._id,
+				password: { $eq: req.body.campaignPassword }
+			},
+			['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status']
+		);
+	} else {
+		campaign = await Campaign.findOne(
+			{
+				area: area._id,
+				active: true,
+				password: { $eq: req.body.campaignPassword }
+			},
+			['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status']
+		);
+	}
+
 	if (!campaign || !campaign.active) {
 		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
 		log(`[!${req.body.phone}, ${ip}] Campaign not found or not active`, 'WARNING', __filename);
