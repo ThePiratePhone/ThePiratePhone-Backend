@@ -22,9 +22,9 @@ const CallerSchema = new mongoose.Schema({
 		unique: false,
 		index: true
 	},
-	campaigns: {
+	areasJoined: {
 		type: [mongoose.Schema.ObjectId],
-		ref: 'Campaign',
+		ref: 'Area',
 		required: true,
 		default: []
 	},

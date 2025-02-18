@@ -92,7 +92,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		const campaign = await Campaign.find(
 			{
 				$or: [
-					{ _id: { $in: caller.campaigns } },
+					{ area: { $in: caller.areasJoined } },
 					{
 						area: caller.area
 					}

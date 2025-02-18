@@ -47,7 +47,7 @@ import endCall from './router/caller/endCall';
 import getPhoneNumber from './router/caller/getPhoneNumber';
 import getProgress from './router/caller/getProgress';
 import giveUp from './router/caller/giveUp';
-import joinCampaign from './router/caller/joinCampaign';
+import joinCampaign from './router/caller/joinArea';
 import login from './router/caller/login';
 import validateCall from './router/caller/validateCall';
 import getArea from './router/getArea';

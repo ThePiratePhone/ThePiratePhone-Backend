@@ -73,11 +73,11 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 		return;
 	}
 
-	if (caller.campaigns.includes(campaign._id)) {
-		res.status(200).send({ message: 'Caller already in campaign', OK: true });
-		log(`[${ip}, ${req.body.area}] Caller already in campaign`, 'WARNING', __filename);
-		return;
-	}
+	// if (caller.campaigns.includes(campaign._id)) {
+	// 	res.status(200).send({ message: 'Caller already in campaign', OK: true });
+	// 	log(`[${ip}, ${req.body.area}] Caller already in campaign`, 'WARNING', __filename);
+	// 	return;
+	// }
 	try {
 		await caller.updateOne({ $push: { campaigns: campaign._id } });
 	} catch (e) {

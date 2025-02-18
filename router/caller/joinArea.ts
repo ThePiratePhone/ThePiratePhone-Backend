@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
+import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
-import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
 import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Area } from '../../Models/Area';
 
 /**
  *allow a caller to join a campaign
@@ -40,8 +38,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 				['phone', 'string'],
 				['pinCode', 'string'],
 				['destinationArea', 'ObjectId'],
-				['campaignId', 'ObjectId', true],
-				['campaignPassword', 'string']
+				['areaPassword', 'string']
 			],
 			__filename
 		)
@@ -60,7 +57,8 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, [
 		'name',
 		'campaigns',
-		'phone'
+		'phone',
+		'areasJoined'
 	]);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
@@ -68,41 +66,24 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.destinationArea } });
+	const area = await Area.findOne({
+		_id: { $eq: req.body.destinationArea },
+		password: { $eq: req.body.areaPassword }
+	});
 	if (!area) {
-		res.status(404).send({ message: 'Area not found', OK: false });
-		log(`[${req.body.phone}, ${ip}] Area not found from ${caller.name} (${ip})`, 'WARNING', __filename);
+		res.status(404).send({ message: 'new area not found', OK: false });
+		log(`[${req.body.phone}, ${ip}] new area not found from`, 'WARNING', __filename);
 		return;
 	}
-
-	let campaign: InstanceType<typeof Campaign> | null = null;
-	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({
-			_id: { $eq: req.body.CampaignId },
-			area: area._id,
-			password: { $eq: req.body.campaignPassword }
-		});
-	} else {
-		campaign = await Campaign.findOne({
-			area: area._id,
-			active: true,
-			password: { $eq: req.body.campaignPassword }
-		});
-	}
-	if (!campaign) {
-		res.status(404).send({ message: 'Campaign not found', OK: false });
-		log(`[${req.body.phone}, ${ip}] Campaign not found`, 'WARNING', __filename);
-		return;
-	}
-
-	if (caller.campaigns.includes(campaign.id)) {
+	console.log(caller);
+	if (caller.areasJoined.includes(area.id)) {
 		res.status(403).send({ message: 'Already joined campaign', OK: false });
 		log(`[${req.body.phone}, ${ip}] Already joined campaign`, 'WARNING', __filename);
 		return;
 	}
 
 	try {
-		caller.campaigns.push(campaign.id);
+		caller.areasJoined.push(area.id);
 		await caller.save();
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
@@ -113,15 +94,10 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	res.status(200).send({
 		message: 'Campaign joined',
 		data: {
-			name: campaign.name,
-			_id: campaign._id,
 			areaId: area._id,
-			areaName: area.name,
-			callHoursStart: campaign.callHoursStart,
-			callHoursEnd: campaign.callHoursEnd,
-			status: campaign.status
+			areaName: area.name
 		},
 		OK: true
 	});
-	log(`[${req.body.phone}, ${ip}] join campain: ${campaign.name}`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] join area: ${area.name}`, 'INFO', __filename);
 }
