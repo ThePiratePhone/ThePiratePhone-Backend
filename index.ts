@@ -8,7 +8,7 @@ import router from './routes';
 import { log } from './tools/log';
 
 dotenv.config({ path: '.env' });
-const port = 80;
+const port = 8081;
 // in test, the test script will create the connection to the database
 if (process.env.JEST_WORKER_ID == undefined) {
 	// Connect to MongoDB using Mongoose
