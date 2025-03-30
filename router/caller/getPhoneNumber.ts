@@ -79,8 +79,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		campaign = await Campaign.findOne(
 			{
 				area: area._id,
-				active: true,
-				password: { $eq: req.body.campaignPassword }
+				active: true
 			},
 			['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status']
 		);
