@@ -98,7 +98,10 @@ export default async function createClients(req: Request<any>, res: Response<any
 					return true;
 				} else if ((await Client.countDocuments({ phone: phone, campaigns: { $ne: campaign._id } })) == 1) {
 					// client exist in another campaing
-					await Client.updateOne({ phone: phone }, { $push: { campaigns: campaign._id } });
+					await Client.updateOne(
+						{ phone: phone, name: sanitizeString(usr[1] ?? ''), firstname: sanitizeString(usr[2] ?? '') },
+						{ $push: { campaigns: campaign._id } }
+					);
 				} else {
 					// duplicate
 					throw { code: 11000 };
