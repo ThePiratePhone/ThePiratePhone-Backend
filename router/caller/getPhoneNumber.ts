@@ -162,49 +162,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			},
 			{
 				$addFields: {
-					nbCalls: { $size: '$calls' },
-					lastCall: {
-						$ifNull: [
-							{
-								$arrayElemAt: [
-									{
-										$filter: {
-											input: '$calls',
-											as: 'call',
-											cond: { $eq: ['$$call.campaign', campaign._id] }
-										}
-									},
-									-1
-								]
-							},
-							null
-						]
-					},
-					lastStatus: {
-						$ifNull: [
-							{
-								$arrayElemAt: [
-									{
-										$filter: {
-											input: '$calls',
-											as: 'call',
-											cond: { $eq: ['$$call.campaign', campaign._id] }
-										}
-									},
-									-1
-								]
-							},
-							null
-						]
+					calls: {
+						$filter: {
+							input: '$calls',
+							as: 'call',
+							cond: { $eq: ['$$call.campaign', campaign._id] } // Ne garder que les appels de la campagne actuelle
+						}
 					}
-				}
-			},
-			{
-				$match: {
-					$and: [
-						{ campaigns: { $in: [campaign._id] } }, // only client from the campaign
-						{ delete: { $ne: true } } // client not deleted
-					]
 				}
 			},
 			{
@@ -212,51 +176,20 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 					nbCalls: { $size: '$calls' },
 					lastCall: {
 						$ifNull: [
-							{
-								$arrayElemAt: [
-									{
-										$filter: {
-											input: '$calls',
-											as: 'call',
-											cond: { $eq: ['$$call.campaign', campaign._id] }
-										}
-									},
-									-1
-								]
-							},
+							{ $arrayElemAt: [{ $map: { input: '$calls', as: 'call', in: '$$call.start' } }, -1] },
 							null
 						]
 					},
 					lastStatus: {
 						$ifNull: [
-							{
-								$arrayElemAt: [
-									{
-										$filter: {
-											input: '$calls',
-											as: 'call',
-											cond: { $eq: ['$$call.campaign', campaign._id] }
-										}
-									},
-									-1
-								]
-							},
+							{ $arrayElemAt: [{ $map: { input: '$calls', as: 'call', in: '$$call.status' } }, -1] },
 							null
 						]
 					},
 					lastSatisfaction: {
 						$ifNull: [
 							{
-								$arrayElemAt: [
-									{
-										$filter: {
-											input: '$calls',
-											as: 'call',
-											cond: { $eq: ['$$call.campaign', campaign._id] }
-										}
-									},
-									-1
-								]
+								$arrayElemAt: [{ $map: { input: '$calls', as: 'call', in: '$$call.satisfaction' } }, -1]
 							},
 							null
 						]
@@ -266,13 +199,15 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$match: {
 					$and: [
-						{ lastSatisfaction: { $ne: 'In progress' } }, // client not in call
-						{ $or: [{ lastStatus: true }, { nbCalls: 0 }] }, // keep only client with status true or not called
-						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // client not called too much
+						{ campaigns: { $in: [campaign._id] } }, // Filtrer uniquement les clients de la campagne
+						{ delete: { $ne: true } }, // Exclure les clients supprimés
+						{ lastSatisfaction: { $ne: 'In progress' } }, // Exclure les clients en appel
+						{ $or: [{ lastStatus: true }, { nbCalls: 0 }] }, // Garder les clients valides ou jamais appelés
+						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // Ne pas dépasser le nombre max d'appels
 						{
 							$or: [
-								{ lastCall: { $lte: new Date(Date.now() - campaign.timeBetweenCall) } }, // client not called too recently
-								{ lastCall: null } // handle clients who have never been called
+								{ lastCall: { $lte: new Date(Date.now() - campaign.timeBetweenCall) } }, // Respecter le temps minimum entre les appels
+								{ lastCall: null } // Inclure ceux qui n'ont jamais été appelés
 							]
 						}
 					]
