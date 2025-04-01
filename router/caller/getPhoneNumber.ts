@@ -170,7 +170,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$match: {
 					$and: [
-						{ campaigns: campaign._id }, // only client from the campaign
+						{ campaigns: { $in: [campaign._id] } }, // only client from the campaign
 						{ delete: { $ne: true } } // client not deleted
 					]
 				}
