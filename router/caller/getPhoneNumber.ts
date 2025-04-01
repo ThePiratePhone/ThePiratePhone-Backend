@@ -163,8 +163,40 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$addFields: {
 					nbCalls: { $size: '$calls' },
-					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] },
-					lastStatus: { $ifNull: [{ $arrayElemAt: ['$calls.status', -1] }, null] }
+					lastCall: {
+						$ifNull: [
+							{
+								$arrayElemAt: [
+									{
+										$filter: {
+											input: '$calls',
+											as: 'call',
+											cond: { $eq: ['$$call.campaign', campaign._id] }
+										}
+									},
+									-1
+								]
+							},
+							null
+						]
+					},
+					lastStatus: {
+						$ifNull: [
+							{
+								$arrayElemAt: [
+									{
+										$filter: {
+											input: '$calls',
+											as: 'call',
+											cond: { $eq: ['$$call.campaign', campaign._id] }
+										}
+									},
+									-1
+								]
+							},
+							null
+						]
+					}
 				}
 			},
 			{
@@ -178,9 +210,57 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$addFields: {
 					nbCalls: { $size: '$calls' },
-					lastCall: { $ifNull: [{ $arrayElemAt: ['$calls.start', -1] }, null] },
-					lastStatus: { $ifNull: [{ $arrayElemAt: ['$calls.status', -1] }, null] },
-					lastSatisfaction: { $ifNull: [{ $arrayElemAt: ['$calls.satisfaction', -1] }, null] }
+					lastCall: {
+						$ifNull: [
+							{
+								$arrayElemAt: [
+									{
+										$filter: {
+											input: '$calls',
+											as: 'call',
+											cond: { $eq: ['$$call.campaign', campaign._id] }
+										}
+									},
+									-1
+								]
+							},
+							null
+						]
+					},
+					lastStatus: {
+						$ifNull: [
+							{
+								$arrayElemAt: [
+									{
+										$filter: {
+											input: '$calls',
+											as: 'call',
+											cond: { $eq: ['$$call.campaign', campaign._id] }
+										}
+									},
+									-1
+								]
+							},
+							null
+						]
+					},
+					lastSatisfaction: {
+						$ifNull: [
+							{
+								$arrayElemAt: [
+									{
+										$filter: {
+											input: '$calls',
+											as: 'call',
+											cond: { $eq: ['$$call.campaign', campaign._id] }
+										}
+									},
+									-1
+								]
+							},
+							null
+						]
+					}
 				}
 			},
 			{
