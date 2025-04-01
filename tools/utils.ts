@@ -3,10 +3,29 @@ import { sha512 } from 'js-sha512';
 import mongoose from 'mongoose';
 import { log } from './log';
 
+/**
+ * return the filename from file path
+ * @param filename complet file path
+ * @returns file name from filepath
+ */
 function getFileName(filename: string) {
 	return filename?.split('\\')?.at(-1)?.split('/')?.at(-1) ?? 'error';
 }
 
+/**
+ * @summary Clears and formats a phone number.
+ *
+ * This function takes a string representing a phone number and performs several transformations to ensure it is in a standardized format:
+ * - Trims any leading or trailing whitespace.
+ * - Removes all spaces, dots, dashes, 'o', parentheses, and '+' characters.
+ * - Adds a '0' at the beginning if the number starts with '6' or '7'.
+ * - Adjusts numbers starting with '33' to remove the first two digits if they are 11 digits long.
+ * - Converts numbers starting with '06' to '+336' followed by the remaining digits.
+ * - Ensures numbers starting with '0' are prefixed with '+33'.
+ *
+ * @param phoneNumber - The phone number string to be cleared and formatted.
+ * @returns A standardized french phone number string or an empty string if the input is not a valid string.
+ */
 function clearPhone(phoneNumber: string): string {
 	if (typeof phoneNumber != 'string') return '';
 	phoneNumber = phoneNumber.trim();
@@ -35,18 +54,15 @@ function clearPhone(phoneNumber: string): string {
 }
 
 function phoneNumberCheck(phone: string): boolean {
-	// console.log(phone);
 	if (typeof phone != 'string') return false;
 	if (!phone.startsWith('+')) return false;
 
 	const phoneArray = phone.split('');
-	// console.log(phone.length);
 	if (phone.length % 2 == 0) {
 		phoneArray.splice(0, 3);
 	} else {
 		phoneArray.splice(0, 4);
 	}
-	// console.log(phone);
 	phone = phoneArray.join('');
 	if (phone.match(/^[0-9]{9}$/)) return true;
 	return false;
