@@ -104,7 +104,6 @@ describe(' post on /admin/campaign/listCallerCampaign', () => {
 			pinCode: '1234',
 			campaigns: [CampaignId]
 		});
-
 		const res = await request(app).post('/admin/campaign/listCallerCampaign').send({
 			adminCode,
 			area: areaId,

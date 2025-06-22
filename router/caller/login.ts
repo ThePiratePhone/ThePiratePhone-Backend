@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 
 import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
 import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
-import { Types } from 'mongoose';
 
 /**
  * get if your credential is valid
@@ -27,6 +27,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		(Array.isArray(req.headers['x-forwarded-for'])
 			? req.headers['x-forwarded-for'][0]
 			: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip) ?? 'no IP';
+
 	if (!req.body || typeof req.body.phone != 'string' || typeof req.body.pinCode != 'string') {
 		res.status(400).send({ message: 'Missing parameters', OK: false });
 		log(`[!${req.body.phone}, ${ip}] Missing parameters`, 'WARNING', __filename);
@@ -92,7 +93,8 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		const campaign = await Campaign.find(
 			{
 				$or: [
-					{ area: { $in: caller.areasJoined } },
+					//FIXME use campaign list
+					{ area: { $in: caller.campaigns } },
 					{
 						area: caller.area
 					}
