@@ -69,7 +69,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 	}
 	let campaign: InstanceType<typeof Campaign> | null = await Campaign.findOne(
 		{ area: { $eq: req.body.area }, active: true },
-		['_id', 'area']
+		['area']
 	);
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found or not active', OK: false });

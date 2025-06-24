@@ -93,7 +93,7 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const client = await Client.findOne({ phone: phoneNumber }, ['_id']);
+	const client = await Client.findOne({ phone: phoneNumber }, []);
 	if (!client || !client._id || client == null) {
 		res.status(404).send({ message: 'Client not found', OK: false });
 		log(`[${req.body.phone}, ${ip}] Client not found`, 'WARNING', __filename);

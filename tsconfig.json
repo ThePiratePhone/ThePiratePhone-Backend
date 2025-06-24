@@ -14,7 +14,8 @@
 		"typeRoots": ["node_modules/@types"],
 		"noImplicitAny": true,
 		"sourceMap": false,
-		"baseUrl": "./"
+		"baseUrl": "./",
+		"isolatedModules": true
 	},
 	"exclude": ["node_modules"]
 }

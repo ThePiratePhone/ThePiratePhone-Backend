@@ -28,6 +28,12 @@ const CallerSchema = new mongoose.Schema({
 		required: true,
 		default: []
 	},
+	campaigns: {
+		type: [mongoose.Schema.ObjectId],
+		ref: 'Campaign',
+		required: true,
+		default: []
+	},
 	createdAt: {
 		type: Date,
 		default: new Date()

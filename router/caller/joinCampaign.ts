@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
-import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
+import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
 import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
@@ -37,8 +37,8 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['destinationArea', 'ObjectId'],
-				['areaPassword', 'string']
+				['campaignId', 'ObjectId'],
+				['campaignPassword', 'string']
 			],
 			__filename
 		)
@@ -66,24 +66,26 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({
-		_id: { $eq: req.body.destinationArea },
-		password: { $eq: req.body.areaPassword }
-	});
-	if (!area) {
-		res.status(404).send({ message: 'new area not found', OK: false });
-		log(`[${req.body.phone}, ${ip}] new area not found from`, 'WARNING', __filename);
+	const campaign = await Campaign.findOne(
+		{
+			_id: { $eq: req.body.campaignId },
+			password: { $eq: req.body.campaignPassword }
+		},
+		'name'
+	);
+	if (!campaign) {
+		res.status(404).send({ message: 'new campaign not found', OK: false });
+		log(`[${req.body.phone}, ${ip}] new campaign not found from`, 'WARNING', __filename);
 		return;
 	}
-	console.log(caller);
-	if (caller.areasJoined.includes(area.id)) {
+	if (caller.campaigns.includes(campaign.id)) {
 		res.status(403).send({ message: 'Already joined campaign', OK: false });
 		log(`[${req.body.phone}, ${ip}] Already joined campaign`, 'WARNING', __filename);
 		return;
 	}
 
 	try {
-		caller.areasJoined.push(area.id);
+		caller.areasJoined.push(campaign.id);
 		await caller.save();
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
@@ -94,10 +96,10 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	res.status(200).send({
 		message: 'Campaign joined',
 		data: {
-			areaId: area._id,
-			areaName: area.name
+			campaignId: campaign._id,
+			campaignName: campaign.name
 		},
 		OK: true
 	});
-	log(`[${req.body.phone}, ${ip}] join area: ${area.name}`, 'INFO', __filename);
+	log(`[${req.body.phone}, ${ip}] join campaign: ${campaign.name}`, 'INFO', __filename);
 }

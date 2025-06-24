@@ -61,7 +61,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const currentCall = await Call.findOne({ caller: caller._id, satisfaction: 'In progress' }, ['_id']);
+	const currentCall = await Call.findOne({ caller: caller._id, satisfaction: 'In progress' }, []);
 
 	if (!currentCall) {
 		res.status(404).send({ message: 'No call in progress', OK: false });
