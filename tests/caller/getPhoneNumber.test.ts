@@ -68,12 +68,12 @@ describe('post on /caller/getPhoneNumber', () => {
 		expect(res.body).toEqual({ message: 'Invalid phone number', OK: false });
 	});
 
-	it('should return 404 if campaign not found', async () => {
+	it('should return 404 if area not found', async () => {
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
 			.send({ phone: '+33734567890', pinCode: '1234', area: new mongoose.Types.ObjectId() });
 		expect(res.status).toBe(404);
-		expect(res.body).toEqual({ message: 'Campaign not found or not active', OK: false });
+		expect(res.body).toEqual({ message: 'Area not found', OK: false });
 	});
 
 	it('should return 403 if call is not permited', async () => {
@@ -188,14 +188,61 @@ describe('post on /caller/getPhoneNumber', () => {
 	});
 
 	it('should return 404 if no client to call', async () => {
+		await Area.create({
+			name: 'getPhoneNumber10',
+			password: 'password',
+			campaignList: [],
+			adminPassword: 'adminPassword'
+		});
+		const areaId = (await Area.findOne({ name: 'getPhoneNumber10' }))?._id;
+		await Campaign.create({
+			name: 'getPhoneNumber10',
+			script: 'getPhoneNumber10',
+			active: true,
+			area: areaId,
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
+			password: 'password',
+			callPermited: true
+		});
+		const campaignId = (await Campaign.findOne({ name: 'getPhoneNumber10' }))?.id;
+		await Caller.create({
+			name: 'getPhoneNumbertest10',
+			phone: '+33734567891',
+			pinCode: '1234',
+			area: areaId,
+			campaigns: campaignId
+		});
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
-			.send({ phone: '+33734567890', pinCode: '1234', area: areaId });
+			.send({ phone: '+33734567891', pinCode: '1234', area: areaId, campaign: campaignId });
 		expect(res.status).toBe(404);
 		expect(res.body).toEqual({ message: 'No client to call', OK: false });
 	});
 
 	it('should return 404 if client is call to recently', async () => {
+		await Area.create({
+			name: 'getPhoneNumber11',
+			password: 'password',
+			campaignList: [],
+			adminPassword: 'adminPassword'
+		});
+		const areaId = (await Area.findOne({ name: 'getPhoneNumber11' }))?._id;
+		await Campaign.create({
+			name: 'getPhoneNumber11',
+			script: 'getPhoneNumber11',
+			active: true,
+			area: areaId,
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
+			password: 'password',
+			callPermited: true
+		});
+		const campaignId = (await Campaign.findOne({ name: 'getPhoneNumber11' }))?.id;
 		await Client.create({
 			name: 'getPhoneNumber2',
 			firstname: 'test',
@@ -220,14 +267,42 @@ describe('post on /caller/getPhoneNumber', () => {
 			duration: 1000,
 			start: new Date()
 		});
+		await Caller.create({
+			name: 'getPhoneNumbertest10',
+			phone: '+33734567899',
+			pinCode: '1234',
+			area: areaId,
+			campaigns: campaignId
+		});
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
-			.send({ phone: '+33734567890', pinCode: '1234', area: areaId });
+			.send({ phone: '+33734567899', pinCode: '1234', area: areaId });
+		console.log(res.body);
 		expect(res.status).toBe(404);
 		expect(res.body).toEqual({ message: 'No client to call', OK: false });
 	});
 
 	it('should return 200 for recal client', async () => {
+		await Area.create({
+			name: 'getPhoneNumber11',
+			password: 'password',
+			campaignList: [],
+			adminPassword: 'adminPassword'
+		});
+		const areaId = (await Area.findOne({ name: 'getPhoneNumber11' }))?._id;
+		await Campaign.create({
+			name: 'getPhoneNumber11',
+			script: 'getPhoneNumber11',
+			active: true,
+			area: areaId,
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
+			password: 'password',
+			callPermited: true
+		});
+		const campaignId = (await Campaign.findOne({ name: 'getPhoneNumber11' }))?.id;
 		await Client.create({
 			name: 'getPhoneNumber3',
 			firstname: 'test',
@@ -254,7 +329,7 @@ describe('post on /caller/getPhoneNumber', () => {
 		});
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
-			.send({ phone: '+33734567890', pinCode: '1234', area: areaId });
+			.send({ phone: '+33734567895', pinCode: '1234', area: areaId });
 		expect(res.status).toBe(200);
 		expect(res.body).toMatchObject({
 			message: 'Client to call',
@@ -385,7 +460,7 @@ describe('post on /caller/getPhoneNumber', () => {
 			campaigns: campaignId
 		});
 		const res = await request(app).post('/caller/getPhoneNumber').send({
-			phone: '+33734567890',
+			phone: '+33734567898',
 			pinCode: '1234',
 			area: areaId
 		});

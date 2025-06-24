@@ -15,7 +15,8 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"area":mongoDBID
+ * 	"area":mongoDBID,
+ * 	"campaign": mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
