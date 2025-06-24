@@ -7,7 +7,6 @@ import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';
 import { log } from '../../../tools/log';
 import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../../../tools/utils';
-import mongoose from 'mongoose';
 
 /**
  * get information of caller
@@ -59,7 +58,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['_id', 'name']);
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['name']);
 	if (!area) {
 		res.status(404).send({ message: 'no area found', OK: false });
 		log(`[!${req.body.area}, ${ip}] no area found`, 'WARNING', __filename);
@@ -78,7 +77,14 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 	}
 
 	if (!req.body.CampaignId) {
-		req.body.CampaignId = (await Campaign.findOne({ area: area.id, active: true }, ['_id']))?.id;
+		const campaign = await Campaign.findOne({ area: area.id, active: true });
+		if (campaign) {
+			req.body.CampaignId = campaign._id.toString();
+		} else {
+			res.status(404).send({ message: 'no campaign active', OK: false });
+			log(`[${ip}, ${req.body.area}] no actual campaign`, 'WARNING', __filename);
+			return;
+		}
 	}
 	if (!req.body.CampaignId) {
 		res.status(404).send({ message: 'no campaign active', OK: false });

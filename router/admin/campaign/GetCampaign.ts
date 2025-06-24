@@ -45,7 +45,7 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
-	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['_id', 'name']);
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['name']);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);

@@ -61,7 +61,7 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['_id', 'name']);
+	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);
@@ -75,7 +75,7 @@ export default async function OtherCallerInfo(req: Request<any>, res: Response<a
 		return;
 	}
 
-	const otherCaller = await Caller.findOne({ phone: otherPhone }, ['_id', 'name', 'phone']);
+	const otherCaller = await Caller.findOne({ phone: otherPhone }, ['name', 'phone']);
 	if (!otherCaller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
 		log(`[${req.body.phone}, ${ip}] Caller not`, 'WARNING', __filename);

@@ -47,7 +47,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 
 	if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
 		req.body.campaignId = (
-			await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, ['_id'])
+			await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, [])
 		)?._id.toString();
 		if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
 			res.status(404).send({ message: 'no campaing in progress', OK: false });

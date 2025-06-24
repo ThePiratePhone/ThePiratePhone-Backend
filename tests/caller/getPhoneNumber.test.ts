@@ -277,7 +277,6 @@ describe('post on /caller/getPhoneNumber', () => {
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
 			.send({ phone: '+33734567899', pinCode: '1234', area: areaId });
-		console.log(res.body);
 		expect(res.status).toBe(404);
 		expect(res.body).toEqual({ message: 'No client to call', OK: false });
 	});

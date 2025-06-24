@@ -101,7 +101,7 @@ export default async function login(req: Request<any>, res: Response<any>) {
 				],
 				active: true
 			},
-			['_id', 'name', 'callHoursStart', 'callHoursEnd', 'area', 'status']
+			['name', 'callHoursStart', 'callHoursEnd', 'area', 'status']
 		);
 
 		areaCombo = {
