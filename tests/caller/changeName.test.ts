@@ -24,8 +24,7 @@ describe('post on /caller/changeName', () => {
 		const res = await request(app).post('/caller/changeName').send({
 			phone: '0712345678',
 			pinCode: '1234',
-			newName: ' ',
-			area: areaId
+			newName: ' '
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Wrong newName', OK: false });
@@ -35,8 +34,7 @@ describe('post on /caller/changeName', () => {
 		const res = await request(app).post('/caller/changeName').send({
 			phone: '0712345678',
 			pinCode: '123',
-			newName: 'newName',
-			area: areaId
+			newName: 'newName'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
@@ -46,8 +44,7 @@ describe('post on /caller/changeName', () => {
 		const res = await request(app).post('/caller/changeName').send({
 			phone: '071234567',
 			pinCode: 'abcd',
-			newName: 'newName',
-			area: areaId
+			newName: 'newName'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
@@ -57,14 +54,13 @@ describe('post on /caller/changeName', () => {
 		const res = await request(app).post('/caller/changeName').send({
 			phone: '0712345678',
 			pinCode: '1234',
-			newName: 'newName',
-			area: areaId
+			newName: 'newName'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Caller not found', OK: false });
 	});
 
-	it('Should return 200 if user is found', async () => {
+	it('Should return 200 if user is found and new name is set', async () => {
 		await Caller.create({
 			phone: '+33712345678',
 			pinCode: '1234',
@@ -74,14 +70,11 @@ describe('post on /caller/changeName', () => {
 		const res = await request(app).post('/caller/changeName').send({
 			phone: '0712345678',
 			pinCode: '1234',
-			newName: 'newName',
-			area: areaId
+			newName: 'newName'
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toEqual({ message: 'Caller name changed', OK: true });
-	});
 
-	it('user name should be changed', async () => {
 		const caller = await Caller.findOne({ phone: '+33712345678' });
 		expect(caller?.name).toBe('newName');
 	});
