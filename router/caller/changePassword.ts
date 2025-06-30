@@ -11,7 +11,6 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
  * 	"newPin": string {max 4 number}
- * 	"area": mongoDBID
  * }
  * @throws {400}: Missing parameters
  * @throws {400}: Invalid pin code
@@ -33,8 +32,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['newPin', 'string'],
-				['area', 'ObjectId']
+				['newPin', 'string']
 			],
 			__filename
 		)
@@ -48,10 +46,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 		log(`[!${req.body.phone}, ${ip}] Wrong phone number`, 'WARNING', __filename);
 		return;
 	}
-	const caller = await Caller.findOne(
-		{ phone: phone, pinCode: { $eq: String(req.body.pinCode) }, area: { $eq: req.body.area } },
-		['name']
-	);
+	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: String(req.body.pinCode) } }, ['name']);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);
@@ -66,7 +61,7 @@ export default async function changePassword(req: Request<any>, res: Response<an
 
 	if (req.body.newPin != req.body.pinCode) {
 		const result = await Caller.updateOne(
-			{ phone: phone, pinCode: { $eq: String(req.body.pinCode) }, area: { $eq: req.body.area } },
+			{ phone: phone, pinCode: { $eq: String(req.body.pinCode) } },
 			{ pinCode: req.body.newPin }
 		);
 
