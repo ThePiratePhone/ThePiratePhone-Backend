@@ -40,8 +40,7 @@ const CallerSchema = new mongoose.Schema({
 	},
 	area: {
 		type: mongoose.Schema.ObjectId,
-		ref: 'Area',
-		required: true
+		ref: 'Area'
 	}
 });
 
