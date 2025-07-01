@@ -1,176 +1,179 @@
-import dotenv from 'dotenv';
-import { ObjectId } from 'mongodb';
+import { Response } from 'express';
 import mongoose from 'mongoose';
-import request from 'supertest';
-import app from '../index';
+import { checkParameters, checkPinCode, hashPasword } from '../tools/utils';
+jest.mock('mongoose');
+const log = jest.fn();
 
-dotenv.config({ path: '.env' });
+(global as any).log = log;
 
-beforeAll(async () => {
-	await mongoose.connect(process.env.URITEST ?? '');
-});
-
-afterAll(async () => {
-	await mongoose.connection.close();
-});
 describe('checkParameters', () => {
-	it('Should return 400 if no params specify', async () => {
-		const res = await request(app).post('/caller/changeName');
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({ message: 'Missing parameters body is empty', OK: false });
+	let res: Partial<Response>;
+
+	beforeEach(() => {
+		const mockReq = { hostname: 'localhost' } as unknown as import('express').Request;
+		res = {
+			status: jest.fn().mockReturnThis(),
+			send: jest.fn(),
+			req: mockReq
+		};
+		log.mockClear();
 	});
 
-	it('Should return 400 if one params is missing', async () => {
-		const res = await request(app).post('/caller/changeName').send({ phone: '1234567890' });
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({ message: 'Missing parameters (pinCode:string)', OK: false });
+	it('returns false if body is empty', () => {
+		const result = checkParameters({}, res as Response, [['name', 'string']], 'TEST');
+		expect(result).toBe(false);
+		expect(res.status).toHaveBeenCalledWith(400);
+		expect((res.send as jest.Mock).mock.calls[0][0].message).toMatch(/Missing parameters body is empty/);
 	});
 
-	it('Should return 400 if one params have bad type', async () => {
-		const res = await request(app)
-			.post('/caller/changeName')
-			.send({
-				phone: 1234567890,
-				pinCode: '1234',
-				area: new ObjectId('66c37d5c34a15c96c5728746'),
-				newName: 'newName'
-			});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({
-			message: 'Wrong type for parameter (phone is type: number but required type is string)',
-			OK: false
-		});
+	it('returns false if a required parameter is missing', () => {
+		const result = checkParameters({ age: 30 }, res as Response, [['name', 'string']], 'TEST');
+		expect(result).toBe(false);
+		expect(res.status).toHaveBeenCalledWith(400);
+		expect((res.send as jest.Mock).mock.calls[0][0].message).toMatch(/Missing parameters/);
 	});
 
-	it('should return 400 if ObjectId params hase not object id', async () => {
-		const res = await request(app).post('/caller/changeName').send({
-			phone: '1234567890',
-			pinCode: '1234',
-			area: 'cccsddacdaa1ac96c572azer',
-			newName: 'newName'
-		});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({
-			message: 'Wrong type for parameter (area is type: string but required type is ObjectId)',
-			OK: false
-		});
+	it('returns true if optional parameter is missing', () => {
+		const result = checkParameters({ age: 30 }, res as Response, [['name', 'string', true]], 'TEST');
+		expect(result).toBe(true);
 	});
 
-	it('should return 400 if ObjectId params have no 24char', async () => {
-		const res = await request(app).post('/caller/changeName').send({
-			phone: '1234567890',
-			pinCode: '1234',
-			area: 'sdfsdf',
-			newName: 'newName'
-		});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({
-			message: 'Wrong type for parameter (area is type: string but required type is ObjectId)',
-			OK: false
-		});
+	it('returns false if parameter has wrong type', () => {
+		const result = checkParameters({ name: 123 }, res as Response, [['name', 'string']], 'TEST');
+		expect(result).toBe(false);
+		expect((res.send as jest.Mock).mock.calls[0][0].message).toMatch(/Wrong type/);
 	});
 
-	it('sould dont work with bat type for optional parameter', async () => {
-		const res = await request(app)
-			.post('/caller/endCall')
-			.send({
-				phone: '1234567890',
-				pinCode: '123',
-				timeInCall: 1000,
-				satisfaction: 'good',
-				status: true,
-				area: new ObjectId('66c37d5c34a15c96c5728746'),
-				comment: 123
-			});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({
-			message: 'Wrong type for parameter (comment is type: number but required type is string)',
-			OK: false
-		});
+	it('returns false if ObjectId is invalid format', () => {
+		(mongoose.isValidObjectId as jest.Mock).mockReturnValue(false);
+		const result = checkParameters(
+			{ id: '123456789012345678901234' },
+			res as Response,
+			[['id', 'ObjectId']],
+			'TEST'
+		);
+		expect(result).toBe(false);
+		expect((res.send as jest.Mock).mock.calls[0][0].message).toMatch(/Wrong type/);
 	});
 
-	it('sould work with optional parameter', async () => {
-		const res = await request(app)
-			.post('/caller/endCall')
-			.send({
-				phone: '1234567890',
-				pinCode: '123',
-				timeInCall: 1000,
-				satisfaction: 'good',
-				status: true,
-				area: new ObjectId('66c37d5c34a15c96c5728746'),
-				comment: '123'
-			});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
+	it('returns false if ObjectId length is wrong', () => {
+		const result = checkParameters({ id: '123' }, res as Response, [['id', 'ObjectId']], 'TEST');
+		expect(result).toBe(false);
+		expect((res.send as jest.Mock).mock.calls[0][0].message).toMatch(/Wrong type/);
 	});
 
-	it('should work with no optional parameter', async () => {
-		const res = await request(app)
-			.post('/caller/endCall')
-			.send({
-				phone: '1234567890',
-				pinCode: '123',
-				timeInCall: 1000,
-				satisfaction: 'good',
-				status: true,
-				area: new ObjectId('66c37d5c34a15c96c5728746')
-			});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
+	it('returns false if number is NaN', () => {
+		const result = checkParameters({ age: 'abc' }, res as Response, [['age', 'number']], 'TEST');
+		expect(result).toBe(false);
 	});
 
-	it('should work if all parameters are given', async () => {
-		const res = await request(app)
-			.post('/caller/changeName')
-			.send({
-				phone: '1234567890',
-				pinCode: '1234',
-				area: new ObjectId('66c37d5c34a15c96c5728746'),
-				newName: 'newName'
-			});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({ message: 'Wrong phone number', OK: false });
+	it('returns true if all parameters are correct', () => {
+		(mongoose.isValidObjectId as jest.Mock).mockReturnValue(true);
+		const result = checkParameters(
+			{ name: 'John', age: 25, id: '60f7fe7c29e0e8b8e0c12345' },
+			res as Response,
+			[
+				['name', 'string'],
+				['age', 'number'],
+				['id', 'ObjectId']
+			],
+			'TEST'
+		);
+		expect(result).toBe(true);
+	});
+
+	it('returns true if all parameters are correct with optional', () => {
+		(mongoose.isValidObjectId as jest.Mock).mockReturnValue(true);
+		const result = checkParameters(
+			{ name: 'John', age: 25, id: '60f7fe7c29e0e8b8e0c12345' },
+			res as Response,
+			[
+				['name', 'string'],
+				['age', 'number', true],
+				['id', 'ObjectId']
+			],
+			'TEST'
+		);
+		expect(result).toBe(true);
+	});
+
+	it('returns false if optional parameter has wrong type', () => {
+		const result = checkParameters(
+			{ name: 'John', age: 'twenty-five' },
+			res as Response,
+			[
+				['name', 'string'],
+				['age', 'number', true]
+			],
+			'TEST'
+		);
+		expect(result).toBe(false);
+		expect((res.send as jest.Mock).mock.calls[0][0].message).toMatch(/Wrong type/);
 	});
 });
 
 describe('checkPinCode', () => {
-	it('should return 400 if pin code is to short', async () => {
-		const res = await request(app)
-			.post('/caller/changeName')
-			.send({
-				phone: '1234567890',
-				pinCode: '123',
-				area: new ObjectId('66c37d5c34a15c96c5728746'),
-				newName: 'newName'
-			});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
+	let res: Partial<Response>;
+
+	beforeEach(() => {
+		const mockReq = { hostname: 'localhost' } as unknown as import('express').Request;
+		res = {
+			status: jest.fn().mockReturnThis(),
+			send: jest.fn(),
+			req: mockReq
+		};
+		log.mockClear();
 	});
 
-	it('should return 400 if pin code is not a number', async () => {
-		const res = await request(app)
-			.post('/caller/changeName')
-			.send({
-				phone: '1234567890',
-				pinCode: 'abcd',
-				area: new ObjectId('66c37d5c34a15c96c5728746'),
-				newName: 'newName'
-			});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
+	it('rejects a PIN code that is too short', () => {
+		expect(checkPinCode('123', res as Response, 'ORIGIN')).toBe(false);
+		expect(res.status).toHaveBeenCalledWith(400);
 	});
 
-	it('should work if pincode is ok', async () => {
-		const res = await request(app)
-			.post('/caller/changeName')
-			.send({
-				phone: '1234567890',
-				pinCode: '1234',
-				area: new ObjectId('66c37d5c34a15c96c5728746'),
-				newName: 'newName'
-			});
-		expect(res.status).toBe(400);
-		expect(res.body).toEqual({ message: 'Wrong phone number', OK: false });
+	it('rejects a non-numeric PIN code', () => {
+		expect(checkPinCode('abcd', res as Response, 'ORIGIN')).toBe(false);
+		expect(res.status).toHaveBeenCalledWith(400);
+	});
+
+	it('accepts a valid PIN code', () => {
+		expect(checkPinCode('1234', res as Response, 'ORIGIN')).toBe(true);
+	});
+});
+
+describe('hashPassword', () => {
+	let res: Partial<Response>;
+
+	beforeEach(() => {
+		const mockReq = { hostname: 'localhost' } as unknown as import('express').Request;
+		res = {
+			status: jest.fn().mockReturnThis(),
+			send: jest.fn(),
+			req: mockReq
+		};
+		log.mockClear();
+	});
+
+	it('hashes the password if it is not already hashed', () => {
+		const hashed = hashPasword('mypassword', false, res as Response);
+		expect(typeof hashed).toBe('string');
+		expect((hashed as string).length).toBeGreaterThan(0);
+	});
+
+	it('hashes a password even if `alreadyHashed = true` but the length is incorrect', () => {
+		const hashed = hashPasword('short', true, res as Response);
+		expect(typeof hashed).toBe('string');
+	});
+
+	it('rejects an invalid hash', () => {
+		const result = hashPasword('g'.repeat(128), true, res as Response);
+		expect(result).toBe(false);
+		expect(res.status).toHaveBeenCalledWith(400);
+	});
+
+	it('returns the hash if it is already valid', () => {
+		const validHash = 'a'.repeat(128);
+		(global as any).sanitizeString = (s: string) => s;
+		const result = hashPasword(validHash, true, res as Response);
+		expect(result).toBe(validHash);
 	});
 });
