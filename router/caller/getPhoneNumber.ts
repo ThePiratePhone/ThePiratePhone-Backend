@@ -73,12 +73,13 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 
 	let campaign = await Campaign.findOne(
 		{
-			_id: { $eq: req.body.campaign }
+			_id: { $eq: req.body.campaign },
+			active: true
 		},
 		['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status']
 	);
 
-	if (!campaign || !campaign.active) {
+	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
 		log(`[!${req.body.phone}, ${ip}] Campaign not found or not active`, 'WARNING', __filename);
 		return;

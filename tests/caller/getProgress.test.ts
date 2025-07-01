@@ -43,7 +43,6 @@ beforeAll(async () => {
 		name: 'getProgressTest',
 		phone: '+33734567890',
 		pinCode: '1234',
-		area: areaId,
 		campaigns: campaignId
 	});
 	await Client.create({
@@ -64,7 +63,6 @@ describe('post on /caller/getProgress', () => {
 		const res = await request(app).post('/caller/getProgress').send({
 			phone: 'invalid',
 			pinCode: '1234',
-			area: areaId,
 			campaign: campaignId
 		});
 		expect(res.status).toBe(400);
@@ -75,30 +73,44 @@ describe('post on /caller/getProgress', () => {
 		const res = await request(app).post('/caller/getProgress').send({
 			phone: '+33734567890',
 			pinCode: '1235',
-			area: areaId,
 			campaign: campaignId
 		});
 		expect(res.status).toBe(403);
-		expect(res.body).toMatchObject({ message: 'Invalid credential or incorrect area', OK: false });
+		expect(res.body).toMatchObject({ message: 'Invalid credential or incorrect campaigns', OK: false });
 	});
 
-	//desactivate becase if campaign is not in body, it will search for a campaign with active: true from the area
-	// it('should return 400 if Campaign dont exist', async () => {
-	// 	const res = await request(app).post('/caller/getProgress').send({
-	// 		phone: '+33734567890',
-	// 		pinCode: '1234',
-	// 		area: areaId,
-	// 		campaign: new mongoose.Types.ObjectId().toString()
-	// 	});
-	// 	expect(res.status).toBe(400);
-	// 	expect(res.body).toMatchObject({ message: 'Missing parameters body is empty', OK: false });
-	// });
+	it('should return 404 if Campaign is not active', async () => {
+		await Campaign.create({
+			name: 'getProgressTest2',
+			script: 'getProgressTest2',
+			active: false,
+			area: areaId,
+			status: [
+				{ name: 'À rappeler', toRecall: true },
+				{ name: 'À retirer', toRecall: false }
+			],
+			password: 'password'
+		});
+		const campaignId = (await Campaign.findOne({ name: 'getProgressTest2' }))?._id;
+		await Caller.create({
+			name: 'getProgressTest2',
+			phone: '+33734567891',
+			pinCode: '1234',
+			campaigns: campaignId
+		});
+		const res = await request(app).post('/caller/getProgress').send({
+			phone: '+33734567891',
+			pinCode: '1234',
+			campaign: campaignId
+		});
+		expect(res.status).toBe(404);
+		expect(res.body).toMatchObject({ message: 'Campaign not found or not active', OK: false });
+	});
 
 	it('should return 200 if all is ok', async () => {
 		const res = await request(app).post('/caller/getProgress').send({
 			phone: '+33734567890',
 			pinCode: '1234',
-			area: areaId,
 			campaign: campaignId
 		});
 		expect(res.status).toBe(200);
