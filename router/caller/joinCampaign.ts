@@ -57,8 +57,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, [
 		'name',
 		'campaigns',
-		'phone',
-		'areasJoined'
+		'phone'
 	]);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
@@ -85,7 +84,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 	}
 
 	try {
-		caller.areasJoined.push(campaign.id);
+		caller.campaigns.push(campaign.id);
 		await caller.save();
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });

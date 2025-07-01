@@ -119,5 +119,8 @@ describe('post on /caller/joinCampaign', () => {
 		});
 		expect(res.status).toBe(200);
 		expect(res.body.OK).toBe(true);
+		const caller = await Caller.findOne({ phone: '+33534567900' }, ['campaigns']);
+		expect(caller?.campaigns.includes(out._id)).toBe(true);
+		expect(caller?.campaigns.length).toBe(2);
 	});
 });
