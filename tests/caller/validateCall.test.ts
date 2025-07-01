@@ -46,7 +46,6 @@ beforeAll(async () => {
 			name: 'validateCallCaller',
 			phone: '+33334567901',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: campaignId
 		})
 	)._id;
@@ -77,7 +76,7 @@ describe('post on /caller/validateCall', () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: 'invalid',
 			pinCode: '1234',
-			area: areaId,
+			campaign: campaignId,
 			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '34567902',
@@ -92,7 +91,7 @@ describe('post on /caller/validateCall', () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
-			area: areaId,
+			campaign: campaignId,
 			satisfaction: 'Invalid',
 			status: false,
 			phoneNumber: '+33334567902',
@@ -107,7 +106,7 @@ describe('post on /caller/validateCall', () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1235',
-			area: areaId,
+			campaign: campaignId,
 			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567902',
@@ -122,7 +121,7 @@ describe('post on /caller/validateCall', () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567903',
 			pinCode: '1234',
-			area: areaId,
+			campaign: campaignId,
 			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567902',
@@ -137,7 +136,7 @@ describe('post on /caller/validateCall', () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
-			area: areaId,
+			campaign: campaignId,
 			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567903',
@@ -149,24 +148,10 @@ describe('post on /caller/validateCall', () => {
 	});
 
 	it('should return 404 if campaign is not found', async () => {
-		const areaId = (
-			await Area.create({
-				name: 'validateCall2',
-				password: 'password',
-				campaignList: [],
-				adminPassword: 'adminPassword'
-			})
-		)._id;
-		const caller = await Caller.create({
-			name: 'validateCallCaller2',
-			phone: '+33334567904',
-			pinCode: '1234',
-			area: areaId
-		});
 		const res = await request(app).post('/caller/validateCall').send({
-			phone: caller.phone,
-			pinCode: caller.pinCode,
-			area: areaId,
+			phone: '+33334567901',
+			pinCode: '1234',
+			campaign: new mongoose.Types.ObjectId(),
 			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567904',
@@ -181,7 +166,7 @@ describe('post on /caller/validateCall', () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
-			area: areaId,
+			campaign: campaignId,
 			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567903',
@@ -204,7 +189,7 @@ describe('post on /caller/validateCall', () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
-			area: areaId,
+			campaign: campaignId,
 			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567905',
@@ -219,7 +204,7 @@ describe('post on /caller/validateCall', () => {
 		const res = await request(app).post('/caller/validateCall').send({
 			phone: '+33334567901',
 			pinCode: '1234',
-			area: areaId,
+			campaign: campaignId,
 			satisfaction: 'À retirer',
 			status: false,
 			phoneNumber: '+33334567902',

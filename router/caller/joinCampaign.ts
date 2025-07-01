@@ -13,7 +13,7 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * {
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"campaignId": string,
+ * 	"campaignId": mongoDBID,
  * 	"campaignPassword": string
  * }
  *

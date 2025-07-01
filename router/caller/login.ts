@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 
-import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
@@ -13,7 +12,6 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number}
- *	"area": mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
