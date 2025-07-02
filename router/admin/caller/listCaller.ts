@@ -52,7 +52,7 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const numberOfCallers = await Caller.countDocuments({ area: area.id });
+	const numberOfCallers = await Caller.countDocuments({ campaigns: { $in: area.campaignList } });
 
 	if (numberOfCallers === 0) {
 		res.status(404).send({ message: 'No caller found', OK: false });
