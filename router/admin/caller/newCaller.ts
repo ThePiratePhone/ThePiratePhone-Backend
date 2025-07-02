@@ -4,6 +4,7 @@ import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { log } from '../../../tools/log';
 import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { Campaign } from '../../../Models/Campaign';
 
 /**
  * Create a new caller
@@ -78,11 +79,13 @@ export default async function newCaller(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
+	const activeCampaigns = await Campaign.find({ area: area._id, active: true });
+
 	const newCaller = new Caller({
 		name: sanitizeString(req.body.name),
 		phone: phone,
 		pinCode: req.body.pinCode,
-		area: area._id
+		campaigns: activeCampaigns.map(campaign => campaign._id)
 	});
 
 	const result = await newCaller.save();

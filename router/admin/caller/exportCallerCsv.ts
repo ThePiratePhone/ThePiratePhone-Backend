@@ -51,7 +51,7 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
-	let selector: {} = { area: area._id };
+	let selector: {} = {};
 
 	const campaign = await Campaign.findOne({ area: area._id, active: true });
 	if (req.body.curentCamaign) {
@@ -60,7 +60,7 @@ export default async function exportCallerCsv(req: Request<any>, res: Response<a
 			log(`[${ip}, ${req.body.area}] No campaign in progress`, 'WARNING', __filename);
 			return;
 		}
-		selector = { $or: [{ campaigns: campaign._id }, { area: area._id }] };
+		selector = { campaigns: campaign._id };
 	}
 
 	const csvStream = csv.format({ headers: true, delimiter: ';' });

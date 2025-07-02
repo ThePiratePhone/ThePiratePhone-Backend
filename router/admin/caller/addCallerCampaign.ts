@@ -50,7 +50,10 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
-	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, ['name']);
+	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } }, [
+		'name',
+		'campaignList'
+	]);
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
 		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
@@ -59,7 +62,9 @@ export default async function addCallerCampaign(req: Request<any>, res: Response
 
 	req.body.phone = clearPhone(req.body.phone);
 
-	const caller = await Caller.findOne({ phone: { $eq: req.body.phone }, area: area._id }, ['campaigns']);
+	const caller = await Caller.findOne({ phone: { $eq: req.body.phone }, campaigns: { $in: area.campaignList } }, [
+		'campaigns'
+	]);
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
 		log(`[${ip}, ${req.body.area}] Caller not found`, 'WARNING', __filename);

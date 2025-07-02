@@ -58,14 +58,18 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	if (!password) return;
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['name']);
+
+	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, [
+		'name',
+		'campaignList'
+	]);
 	if (!area) {
 		res.status(404).send({ message: 'no area found', OK: false });
 		log(`[!${req.body.area}, ${ip}] no area found`, 'WARNING', __filename);
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: { $eq: phone }, area: { $eq: req.body.area } }, [
+	const caller = await Caller.findOne({ phone: { $eq: phone }, campaigns: { $in: area.campaignList } }, [
 		'_id',
 		'name',
 		'phone'

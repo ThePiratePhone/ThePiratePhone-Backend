@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import request from 'supertest';
+
 import app from '../../../index';
 import { Area } from '../../../Models/Area';
 import { Call } from '../../../Models/Call';
@@ -45,13 +46,12 @@ beforeAll(async () => {
 		password: 'password'
 	});
 	campaignId = campaign._id;
-	Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId } });
+	await Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId } });
 
 	const caller = await Caller.create({
 		name: 'callerInfoTest',
 		phone: '+33634567890',
 		pinCode: '1234',
-		area: areaId,
 		campaigns: [campaignId]
 	});
 	callerId = caller._id;
@@ -104,13 +104,26 @@ describe('post on /admin/caller/callerInfo', () => {
 				adminPassword: adminCode
 			})
 		).id;
+		const Campaign2Id = (
+			await Campaign.create({
+				name: 'callerInfoTest2',
+				script: 'callerInfoTest2',
+				active: false,
+				area: Area2Id,
+				status: [
+					{ name: 'À rappeler', toRecall: true },
+					{ name: 'À retirer', toRecall: false }
+				],
+				password: 'password'
+			})
+		).id;
+		await Area.updateOne({ _id: Area2Id }, { $push: { campaignList: Campaign2Id } });
 		const Caller2Id = (
 			await Caller.create({
 				name: 'callerInfoTest',
 				phone: '+33634567892',
 				pinCode: '1234',
-				area: Area2Id,
-				campaigns: []
+				campaigns: [Campaign2Id]
 			})
 		).id;
 		const res = await request(app).post('/admin/caller/callerInfo').send({
