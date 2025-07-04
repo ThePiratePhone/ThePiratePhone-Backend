@@ -1,10 +1,8 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
-import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
 import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
@@ -21,7 +19,7 @@ import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils
  *
  * @throws {400}: Missing parameters
  * @throws {400}: Wrong phone number
- * @throws {404}: no campaing in progress
+ * @throws {404}: no campaign in progress
  * @throws {404}: Caller not found
  * @throws {500}: No data found
  * @throws {200}: topfiveUsers
@@ -40,7 +38,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['campaignId', 'ObjectId']
+				['campaign', 'ObjectId']
 			],
 			__filename
 		)
@@ -56,7 +54,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	const caller = await Caller.findOne({
 		phone: phone,
 		pinCode: { $eq: req.body.pinCode },
-		campaigns: req.body.campaignId
+		campaigns: req.body.campaign
 	});
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
@@ -72,7 +70,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}> = await Call.aggregate([
 		{
 			$match: {
-				campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
+				campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaign)
 			}
 		},
 		{
@@ -116,7 +114,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			await Call.aggregate([
 				{
 					$match: {
-						campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
+						campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaign)
 					}
 				},
 				{
