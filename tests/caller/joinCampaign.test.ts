@@ -59,8 +59,7 @@ describe('post on /caller/joinCampaign', () => {
 		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: 'invalid',
 			pinCode: '1234',
-			campaignPassword: 'password',
-			campaignId: campaignId
+			campaignPassword: 'password'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body.OK).toBe(false);
@@ -70,8 +69,7 @@ describe('post on /caller/joinCampaign', () => {
 		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: '+33534567901',
 			pinCode: '1234',
-			campaignPassword: 'password',
-			campaignId: campaignId
+			campaignPassword: 'password'
 		});
 		expect(res.status).toBe(403);
 		expect(res.body.OK).toBe(false);
@@ -81,8 +79,7 @@ describe('post on /caller/joinCampaign', () => {
 		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
-			campaignPassword: 'password2',
-			campaignId: campaignId
+			campaignPassword: 'password2'
 		});
 		expect(res.status).toBe(404);
 		expect(res.body.OK).toBe(false);
@@ -92,7 +89,6 @@ describe('post on /caller/joinCampaign', () => {
 		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
-			campaignId,
 			campaignPassword: 'password'
 		});
 		expect(res.status).toBe(403);
@@ -114,7 +110,6 @@ describe('post on /caller/joinCampaign', () => {
 		const res = await request(app).post('/caller/joinCampaign').send({
 			phone: '+33534567900',
 			pinCode: '1234',
-			campaignId: out._id,
 			campaignPassword: 'password2'
 		});
 		expect(res.status).toBe(200);

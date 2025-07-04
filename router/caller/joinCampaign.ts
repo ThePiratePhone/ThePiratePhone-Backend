@@ -13,7 +13,6 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * {
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"campaignId": mongoDBID,
  * 	"campaignPassword": string
  * }
  *
@@ -37,7 +36,6 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['campaignId', 'ObjectId'],
 				['campaignPassword', 'string']
 			],
 			__filename
@@ -65,13 +63,9 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const campaign = await Campaign.findOne(
-		{
-			_id: { $eq: req.body.campaignId },
-			password: { $eq: req.body.campaignPassword }
-		},
-		'name'
-	);
+	const campaign = await Campaign.findOne({
+		password: { $eq: req.body.campaignPassword }
+	});
 	if (!campaign) {
 		res.status(404).send({ message: 'new campaign not found', OK: false });
 		log(`[${req.body.phone}, ${ip}] new campaign not found from`, 'WARNING', __filename);
@@ -94,10 +88,7 @@ export default async function joinCampaign(req: Request<any>, res: Response<any>
 
 	res.status(200).send({
 		message: 'Campaign joined',
-		data: {
-			campaignId: campaign._id,
-			campaignName: campaign.name
-		},
+		data: { campaign },
 		OK: true
 	});
 	log(`[${req.body.phone}, ${ip}] join campaign: ${campaign.name}`, 'INFO', __filename);
