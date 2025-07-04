@@ -37,11 +37,6 @@ const CallerSchema = new mongoose.Schema({
 	createdAt: {
 		type: Date,
 		default: new Date()
-	},
-	area: {
-		type: mongoose.Schema.ObjectId,
-		ref: 'Area',
-		required: true
 	}
 });
 

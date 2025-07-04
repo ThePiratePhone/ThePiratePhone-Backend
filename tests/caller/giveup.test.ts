@@ -43,7 +43,6 @@ beforeAll(async () => {
 		name: 'giveupTest',
 		phone: '+33634567890',
 		pinCode: '1234',
-		area: areaId,
 		campaigns: campaignId
 	});
 	await Client.create({
@@ -62,9 +61,7 @@ describe('post on /caller/giveup', () => {
 	it('should return 400 if phone is invalid', async () => {
 		const res = await request(app).post('/caller/giveup').send({
 			phone: 'invalid',
-			pinCode: '1234',
-			area: areaId,
-			campaign: campaignId
+			pinCode: '1234'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toMatchObject({ message: 'Invalid phone number', OK: false });
@@ -78,15 +75,13 @@ describe('post on /caller/giveup', () => {
 			campaign: campaignId
 		});
 		expect(res.status).toBe(403);
-		expect(res.body).toMatchObject({ message: 'Invalid credential or incorrect area', OK: false });
+		expect(res.body).toMatchObject({ message: 'Invalid credential', OK: false });
 	});
 
 	it('should return 404 if no call in progress', async () => {
 		const res = await request(app).post('/caller/giveup').send({
 			phone: '+33634567890',
-			pinCode: '1234',
-			area: areaId,
-			campaign: campaignId
+			pinCode: '1234'
 		});
 		expect(res.status).toBe(404);
 		expect(res.body).toMatchObject({ message: 'No call in progress', OK: false });
@@ -101,9 +96,7 @@ describe('post on /caller/giveup', () => {
 		});
 		const res = await request(app).post('/caller/giveup').send({
 			phone: '+33634567890',
-			pinCode: '1234',
-			area: areaId,
-			campaign: campaignId
+			pinCode: '1234'
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toMatchObject({ message: 'Call ended', OK: true });

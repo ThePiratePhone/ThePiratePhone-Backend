@@ -10,8 +10,7 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeSt
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"newName": string,
- * 	"area": mongoDBID
+ * 	"newName": string
  * }
  * @throws {400}: missing parameters,
  * @throws {400}: Wrong phone number
@@ -32,8 +31,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['newName', 'string'],
-				['area', 'ObjectId']
+				['newName', 'string']
 			],
 			__filename
 		)
@@ -58,7 +56,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 	req.body.newName = sanitizeString(req.body.newName);
 
 	const change = await Caller.updateOne(
-		{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
+		{ phone: { $eq: req.body.phone }, pinCode: { $eq: req.body.pinCode } },
 		{ $set: { name: req.body.newName } }
 	);
 	if (change.matchedCount != 1) {

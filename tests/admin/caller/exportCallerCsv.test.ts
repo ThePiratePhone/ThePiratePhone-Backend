@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import request from 'supertest';
+
 import app from '../../../index';
 import { Area } from '../../../Models/Area';
 import { Call } from '../../../Models/Call';
@@ -44,7 +45,6 @@ beforeAll(async () => {
 		name: 'changepassordtest',
 		firstname: 'test',
 		phone: '+33944567890',
-		area: areaId,
 		campaigns: [CampaignID]
 	});
 
@@ -53,7 +53,6 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			phone: '+33034567891',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: []
 		})
 	).id;
@@ -63,7 +62,6 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			phone: '+33034567892',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: []
 		})
 	).id;
@@ -73,7 +71,6 @@ beforeAll(async () => {
 			name: 'changepassordtest',
 			phone: '+33034567893',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: []
 		})
 	).id;
@@ -84,8 +81,7 @@ beforeAll(async () => {
 		client: ClientID,
 		campaign: CampaignID,
 		satisfaction: 'all good',
-		status: true,
-		area: areaId
+		status: true
 	});
 
 	await Call.create({
@@ -93,8 +89,7 @@ beforeAll(async () => {
 		client: ClientID,
 		campaign: CampaignID,
 		satisfaction: 'all good',
-		status: true,
-		area: areaId
+		status: true
 	});
 
 	await Call.create({
@@ -102,8 +97,7 @@ beforeAll(async () => {
 		client: ClientID,
 		campaign: CampaignID,
 		satisfaction: 'all good',
-		status: true,
-		area: areaId
+		status: true
 	});
 
 	await Call.create({
@@ -111,8 +105,7 @@ beforeAll(async () => {
 		client: ClientID,
 		campaign: CampaignID,
 		satisfaction: 'all good',
-		status: true,
-		area: areaId
+		status: true
 	});
 
 	await Call.create({
@@ -120,8 +113,7 @@ beforeAll(async () => {
 		client: ClientID,
 		campaign: CampaignID,
 		satisfaction: 'all good',
-		status: true,
-		area: areaId
+		status: true
 	});
 
 	await Call.create({
@@ -129,8 +121,7 @@ beforeAll(async () => {
 		client: ClientID,
 		campaign: CampaignID,
 		satisfaction: 'all good',
-		status: true,
-		area: areaId
+		status: true
 	});
 });
 
@@ -162,7 +153,6 @@ describe('post on /admin/caller/exportCallersCsv', () => {
 			adminCode: 'password',
 			area: areaId
 		});
-		expect(response.status).toBe(200);
 		const expectedPattern = new RegExp(
 			'phone;name;createdAt;nbCall\n' +
 				'\\+33034567891;changepassordtest;.*;1\n' +

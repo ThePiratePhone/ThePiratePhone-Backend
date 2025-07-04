@@ -52,14 +52,14 @@ export default async function listCaller(req: Request<any>, res: Response<any>) 
 		return;
 	}
 
-	const numberOfCallers = await Caller.countDocuments({ area: area.id });
+	const numberOfCallers = await Caller.countDocuments({ campaigns: { $in: area.campaignList } });
 
 	if (numberOfCallers === 0) {
 		res.status(404).send({ message: 'No caller found', OK: false });
 		log(`[${ip}, ${req.body.area}] No caller found`, 'WARNING', __filename);
 		return;
 	}
-	const callers = await Caller.find({ area: area._id })
+	const callers = await Caller.find({ campaigns: { $in: area.campaignList } })
 		.skip(req.body.skip ? req.body.skip : 0)
 		.limit(req.body.limit ? req.body.limit : 50);
 	if (!callers) {

@@ -73,8 +73,7 @@ describe('post on /caller/endCall', () => {
 			pinCode: '1235',
 			timeInCall: 1000,
 			satisfaction: 'In progress',
-			status: true,
-			area: areaId
+			status: true
 		});
 		expect(res.status).toBe(403);
 		expect(res.body).toEqual({ message: 'Invalid credential', OK: false });
@@ -85,7 +84,6 @@ describe('post on /caller/endCall', () => {
 			name: 'changepassordtest3',
 			phone: '+33834567893',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: '66c5db7a64953f8138610d98'
 		});
 
@@ -94,8 +92,7 @@ describe('post on /caller/endCall', () => {
 			pinCode: '1234',
 			timeInCall: 1000,
 			satisfaction: 'Finished',
-			status: true,
-			area: areaId
+			status: true
 		});
 		expect(res.status).toBe(403);
 		expect(res.body).toEqual({ message: 'No call in progress', OK: false });
@@ -106,7 +103,6 @@ describe('post on /caller/endCall', () => {
 			name: 'changepassordtest2',
 			phone: '+33834567892',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: '66c5db7a64953f8138610d98'
 		});
 
@@ -115,16 +111,14 @@ describe('post on /caller/endCall', () => {
 			client: (await Client.findOne({ phone: '+33712457836' }))?._id,
 			campaign: (await Campaign.findOne({ name: 'changepassordtest' }))?._id,
 			satisfaction: 'Finished',
-			status: true,
-			area: areaId
+			status: true
 		});
 		const res = await request(app).post('/caller/endCall').send({
 			phone: '+33834567892',
 			pinCode: '1234',
 			timeInCall: 1000,
 			satisfaction: 'Finished',
-			status: true,
-			area: areaId
+			status: true
 		});
 		expect(res.status).toBe(403);
 		expect(res.body).toEqual({ message: 'No call in progress', OK: false });
@@ -136,8 +130,7 @@ describe('post on /caller/endCall', () => {
 			pinCode: '1234',
 			timeInCall: 1000,
 			satisfaction: 'not in campaign',
-			status: true,
-			area: areaId
+			status: true
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toMatchObject({
@@ -155,14 +148,12 @@ describe('post on /caller/endCall', () => {
 			name: 'changepassordtest2',
 			phone: '+33834567891',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: '66c5db7a64953f8138610d98'
 		});
 		await Client.create({
 			name: 'changepassord',
 			firstname: 'test2',
 			phone: '+33712457837',
-			area: areaId,
 			campaigns: '66c5db7a64953f8138610d98'
 		});
 		await Call.create({
@@ -170,8 +161,7 @@ describe('post on /caller/endCall', () => {
 			client: (await Client.findOne({ phone: '+33712457837' }))?._id,
 			campaign: '66c5db7a64953f8138610d98',
 			satisfaction: 'In progress',
-			status: true,
-			area: areaId
+			status: true
 		});
 
 		const res = await request(app).post('/caller/endCall').send({
@@ -179,8 +169,7 @@ describe('post on /caller/endCall', () => {
 			pinCode: '1234',
 			timeInCall: 1000,
 			satisfaction: 'In progress',
-			status: true,
-			area: areaId
+			status: true
 		});
 		expect(res.status).toBe(500);
 		expect(res.body).toEqual({ message: 'Invalid campaign in call', OK: false });
@@ -191,7 +180,6 @@ describe('post on /caller/endCall', () => {
 			name: 'changepassordtest3',
 			phone: '+33834567894',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: '66c5db7a64953f8138610d98'
 		});
 		await Call.create({
@@ -199,8 +187,7 @@ describe('post on /caller/endCall', () => {
 			client: '66c5db7a64953f8138610d98',
 			campaign: (await Campaign.findOne({ name: 'changepassordtest' }))?._id,
 			satisfaction: 'In progress',
-			status: true,
-			area: areaId
+			status: true
 		});
 	});
 
@@ -210,8 +197,7 @@ describe('post on /caller/endCall', () => {
 			pinCode: '1234',
 			timeInCall: 1000,
 			satisfaction: 'À retirer',
-			status: true,
-			area: areaId
+			status: true
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toEqual({ message: 'Call ended', OK: true });

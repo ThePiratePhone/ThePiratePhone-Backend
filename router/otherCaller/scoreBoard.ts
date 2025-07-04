@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
-import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
-import { clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { checkParameters, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
 /**
  * get the top 5 callers in a campaign and our score
@@ -15,14 +13,13 @@ import { clearPhone, phoneNumberCheck } from '../../tools/utils';
  * body:
  * {
  * 	"phone": string,
- * 	"pinCode": string  {max 4 number},
- * 	"area": mongoDBID,
- * 	"campaignId": mongoDBID | null
+ * 	"pinCode": string  {max 4 number}
+ * 	"campaignId": mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
  * @throws {400}: Wrong phone number
- * @throws {404}: no campaing in progress
+ * @throws {404}: no campaign in progress
  * @throws {404}: Caller not found
  * @throws {500}: No data found
  * @throws {200}: topfiveUsers
@@ -33,28 +30,20 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 		(Array.isArray(req.headers['x-forwarded-for'])
 			? req.headers['x-forwarded-for'][0]
 			: req.headers['x-forwarded-for']?.split(',')?.[0] ?? req.ip) ?? 'no IP';
-	if (
-		!req.body ||
-		typeof req.body.phone != 'string' ||
-		typeof req.body.pinCode != 'string' ||
-		!ObjectId.isValid(req.body.area) ||
-		(req.body.campaignId && !ObjectId.isValid(req.body.campaignId))
-	) {
-		res.status(400).send({ message: 'Missing parameters', OK: false });
-		log(`[!${req.body.phone}, ${ip}] Missing parameters`, 'WARNING', __filename);
-		return;
-	}
 
-	if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
-		req.body.campaignId = (
-			await Campaign.findOne({ area: { $eq: req.body.area }, active: true }, [])
-		)?._id.toString();
-		if (!req.body.campaignId || !ObjectId.isValid(req.body.campaignId)) {
-			res.status(404).send({ message: 'no campaing in progress', OK: false });
-			log(`[!${req.body.phone}, ${ip}] no campaing in progress`, 'WARNING', __filename);
-			return;
-		}
-	}
+	if (
+		!checkParameters(
+			req.body,
+			res,
+			[
+				['phone', 'string'],
+				['pinCode', 'string'],
+				['campaign', 'ObjectId']
+			],
+			__filename
+		)
+	)
+		return;
 
 	const phone = clearPhone(req.body.phone);
 	if (!phoneNumberCheck(phone)) {
@@ -65,14 +54,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	const caller = await Caller.findOne({
 		phone: phone,
 		pinCode: { $eq: req.body.pinCode },
-		$or: [
-			{
-				campaigns: req.body.campaignId
-			},
-			{
-				area: { $eq: req.body.area }
-			}
-		]
+		campaigns: { $eq: req.body.campaign }
 	});
 	if (!caller) {
 		res.status(404).send({ message: 'Caller not found', OK: false });
@@ -88,7 +70,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 	}> = await Call.aggregate([
 		{
 			$match: {
-				campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
+				campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaign)
 			}
 		},
 		{
@@ -132,7 +114,7 @@ export default async function scoreBoard(req: Request<any>, res: Response<any>) 
 			await Call.aggregate([
 				{
 					$match: {
-						campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaignId)
+						campaign: mongoose.Types.ObjectId.createFromHexString(req.body.campaign)
 					}
 				},
 				{

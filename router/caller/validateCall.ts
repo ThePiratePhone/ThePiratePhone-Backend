@@ -14,11 +14,11 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"area": string,
  * 	"satisfaction": number,
  * 	"status": boolean,
  * 	"phoneNumber": string,
- * 	"comment": string
+ * 	"comment": string,
+ * 	"campaign": mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
@@ -43,10 +43,10 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['area', 'ObjectId'],
 				['satisfaction', 'string'],
 				['status', 'boolean'],
 				['phoneNumber', 'string'],
+				['campaign', 'ObjectId'],
 				['comment', 'string', true]
 			],
 			__filename
@@ -70,17 +70,14 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const caller = await Caller.findOne(
-		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
-		['name']
-	);
+	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ active: true, area: { $eq: req.body.area } }, ['status']);
+	const campaign = await Campaign.findOne({ active: true, _id: { $eq: req.body.campaign } }, ['status']);
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found', OK: false });
 		log(`[${req.body.phone}, ${ip}] Campaign not found`, 'WARNING', __filename);
@@ -106,7 +103,7 @@ export default async function validateCall(req: Request<any>, res: Response<any>
 	});
 	if (!call) {
 		res.status(403).send({ message: 'you dont call this client', OK: false });
-		log(`[${req.body.phone}, ${ip}] you dont call this client`, 'WARNING', __filename);
+		log(`[${req.body.phone}, ${ip}] this caller dont have call this client`, 'WARNING', __filename);
 		return;
 	}
 

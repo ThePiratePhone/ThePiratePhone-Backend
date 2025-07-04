@@ -60,7 +60,7 @@ export default async function removeCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const caller = await Caller.findOne({ phone: phone });
+	const caller = await Caller.findOne({ phone: phone, campaigns: { $in: area.campaignList } });
 	if (!caller) {
 		res.status(400).send({ message: 'Caller not found', OK: false });
 		log(`[${ip}, ${req.body.area}] Caller not found`, 'WARNING', __filename);

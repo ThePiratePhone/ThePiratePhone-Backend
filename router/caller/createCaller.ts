@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
-import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
+import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
 import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
 
@@ -11,15 +11,13 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"area": mongoDBID,
- * 	"AreaPassword": string
- * 	"CallerName": string
+ * 	"CallerName": string,
+ * 	"campaignPassword": string
  * }
  * @throws {400}: missing parameters,
- * @throws {400}: pin code are more of 4 char,
  * @throws {400}: Wrong phone number
+ * @throws {400}: Invalid campaign password, campaign not found or disabled
  * @throws {400}: Invalid pin code, pin code isn't only number
- * @throws {404}: area not found or invalid password
  * @throws {409}: caller already exist
  * @throws {500}: Error while saving caller
  * @throws {200}: all fine
@@ -36,9 +34,8 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['area', 'ObjectId'],
-				['AreaPassword', 'string'],
-				['CallerName', 'string']
+				['CallerName', 'string'],
+				['campaignPassword', 'string']
 			],
 			__filename
 		)
@@ -56,26 +53,28 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area }, password: { $eq: req.body.AreaPassword } }, [
-		'name'
-	]);
-	if (!area) {
-		res.status(404).send({ message: 'area not found or invalid password', OK: false });
-		log(`[!${req.body.phone}, ${ip}] area not found or invalid password`, 'WARNING', __filename);
+	const campaign = await Campaign.findOne({
+		password: { $eq: req.body.campaignPassword },
+		active: true
+	});
+
+	if (!campaign) {
+		res.status(400).send({ message: 'Invalid campaign password', OK: false });
+		log(`[${req.body.phone}, ${ip}] Invalid campaign password`, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
 	if ((await Caller.countDocuments({ phone: phone })) != 0) {
 		res.status(409).send({ message: 'caller already exist', OK: false });
-		log(`[${req.body.phone}, ${ip}] caller already exist in ${area.name}`, 'WARNING', 'createCaller.ts');
+		log(`[${req.body.phone}, ${ip}] caller already exist`, 'WARNING', 'createCaller.ts');
 		return;
 	}
 
 	const newCaller = new Caller({
 		phone: phone,
 		pinCode: req.body.pinCode,
-		area: area._id,
-		name: req.body.CallerName
+		name: req.body.CallerName,
+		campaigns: [campaign._id]
 	});
 
 	const result = await newCaller.save();
@@ -85,6 +84,6 @@ export default async function createCaller(req: Request<any>, res: Response<any>
 		return;
 	}
 
-	res.status(200).send({ message: 'Caller created', OK: true });
+	res.status(200).send({ message: 'Caller created', data: { campaign }, OK: true });
 	log(`[${req.body.phone}, ${ip}] Caller ${newCaller.name} created`, 'INFO', 'createCaller.ts');
 }

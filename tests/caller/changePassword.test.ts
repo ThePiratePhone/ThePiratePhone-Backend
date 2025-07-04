@@ -36,8 +36,7 @@ describe('post on /caller/chagePassword', () => {
 		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '123',
-			newPin: '1234',
-			area: areaId
+			newPin: '1234'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
@@ -47,8 +46,7 @@ describe('post on /caller/chagePassword', () => {
 		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: 'abcd',
-			newPin: '1234',
-			area: areaId
+			newPin: '1234'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Invalid pin code', OK: false });
@@ -58,8 +56,7 @@ describe('post on /caller/chagePassword', () => {
 		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345682',
 			pinCode: '1234',
-			newPin: '1234',
-			area: areaId
+			newPin: '1234'
 		});
 		expect(res.status).toBe(403);
 		expect(res.body).toEqual({ message: 'Invalid credential', OK: false });
@@ -69,8 +66,7 @@ describe('post on /caller/chagePassword', () => {
 		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '1234',
-			newPin: '123',
-			area: areaId
+			newPin: '123'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Invalid new pin code', OK: false });
@@ -80,8 +76,7 @@ describe('post on /caller/chagePassword', () => {
 		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '1234',
-			newPin: 'ABCD',
-			area: areaId
+			newPin: 'ABCD'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toEqual({ message: 'Invalid new pin code', OK: false });
@@ -91,8 +86,7 @@ describe('post on /caller/chagePassword', () => {
 		const res = await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '1234',
-			newPin: '1234',
-			area: areaId
+			newPin: '1234'
 		});
 		expect(res.status).toBe(200);
 		expect(res.body).toEqual({ message: 'password changed', OK: true });
@@ -102,8 +96,7 @@ describe('post on /caller/chagePassword', () => {
 		await request(app).post('/caller/changePassword').send({
 			phone: '+34112345681',
 			pinCode: '1234',
-			newPin: '1235',
-			area: areaId
+			newPin: '1235'
 		});
 		const caller = await Caller.findOne({ phone: '+34112345681' });
 		expect(caller?.pinCode).toBe('1235');

@@ -59,7 +59,7 @@ export default async function SearchByName(req: Request<any>, res: Response<any>
 	const escapedNameParts = sanitizeString(req.body.name).split(' ').map(escapeRegExp);
 	const regexParts = escapedNameParts.map(part => `(?=.*${part})`).join('');
 	const regex = new RegExp(`^${regexParts}`, 'i');
-	const output = await Caller.find({ name: regex, area: area }).limit(10);
+	const output = await Caller.find({ name: regex, campaigns: { $in: area.campaignList } }).limit(10);
 
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`[${ip}, ${req.body.area}] Caller searched`, 'INFO', __filename);

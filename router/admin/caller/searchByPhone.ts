@@ -55,7 +55,7 @@ export default async function SearchByPhone(req: Request<any>, res: Response<any
 
 	const output = await Caller.find({
 		phone: { $regex: req.body.phone, $options: 'i' },
-		area: { $eq: req.body.area }
+		campaigns: { $in: area.campaignList }
 	}).limit(10);
 	res.status(200).send({ message: 'OK', OK: true, data: output });
 	log(`[${ip}, ${req.body.area}] caller searched`, 'INFO', __filename);

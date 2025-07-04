@@ -110,7 +110,6 @@ function cleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | 
  * @returns The sanitized string with leading and trailing whitespace removed.
  */
 function sanitizeString(str: string) {
-	str.trim();
 	str = str.replace(/[{,},$]/gm, '');
 	return str.trim();
 }
@@ -215,16 +214,17 @@ function checkPinCode(pinCode: string, res: Response<any>, orgin: string): boole
 }
 
 function hashPasword(password: string, allreadyHaseded: boolean, res: Response<any>): string | false {
-	if (!allreadyHaseded || password.length != 128) {
-		//create hash
-		password = sha512(password);
-	} else {
-		if (password != sanitizeString(password)) {
-			res.status(400).send({ OK: false, message: 'new password is not a hash' });
-			log(`[${res.req.hostname}] new password is not a hash`, 'WARNING', __filename);
-			return false;
-		}
+	if (!allreadyHaseded || password.length !== 128) {
+		return sha512(password).toString();
 	}
+
+	const isHex = /^[a-fA-F0-9]{128}$/.test(password);
+	if (!isHex) {
+		res.status(400).send({ OK: false, message: 'new password is not a hash' });
+		log(`[${res.req.hostname}] new password is not a hash`, 'WARNING', __filename);
+		return false;
+	}
+
 	return password;
 }
 

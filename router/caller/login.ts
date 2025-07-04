@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 
-import { Area } from '../../Models/Area';
 import { Caller } from '../../Models/Caller';
 import { Campaign } from '../../Models/Campaign';
 import { log } from '../../tools/log';
@@ -13,7 +12,6 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number}
- *	"area": mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
@@ -62,7 +60,6 @@ export default async function login(req: Request<any>, res: Response<any>) {
 	}
 	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, [
 		'name',
-		'area',
 		'campaigns',
 		'phone'
 	]);
@@ -71,65 +68,62 @@ export default async function login(req: Request<any>, res: Response<any>) {
 		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);
 		return;
 	}
-	const area = await Area.findOne({ _id: caller.area });
-	if (!area) {
-		res.status(500).send({ message: 'No area', OK: false });
-		log(`[${req.body.phone}, ${ip}] No area for this user`, 'ERROR', __filename);
-		return;
-	}
-	let areaCombo: {
-		area: { name: string; _id: Types.ObjectId };
-		campaignAvailable: {
-			name: string;
-			callHoursEnd: Date | null | undefined;
-			callHoursStart: Date | null | undefined;
-			_id: Types.ObjectId;
-			areaId: Types.ObjectId;
-			areaName: string;
-			status: Array<{ name?: string | null | undefined; toRecall?: boolean | null | undefined }>;
-		}[];
-	};
-	try {
-		const campaign = await Campaign.find(
-			{
-				$or: [
-					//FIXME use campaign list
-					{ area: { $in: caller.campaigns } },
-					{
-						area: caller.area
-					}
-				],
-				active: true
-			},
-			['name', 'callHoursStart', 'callHoursEnd', 'area', 'status']
-		);
+	let campaignAvailable: {
+		name: string;
+		callHoursEnd: Date | null | undefined;
+		callHoursStart: Date | null | undefined;
+		_id: Types.ObjectId;
+		areaId: Types.ObjectId;
+		areaName: string;
+		status: Array<{ name?: string | null | undefined; toRecall?: boolean | null | undefined }>;
+	}[];
 
-		areaCombo = {
-			area: { name: area.name, _id: area._id },
-			campaignAvailable: await Promise.all(
-				campaign.map(async c => {
-					const cArea = await Area.findById(c.area);
-					if (!cArea) {
-						throw 'error';
-					}
-					return {
-						name: c.name,
-						_id: c._id,
-						callHoursStart: c.callHoursStart,
-						callHoursEnd: c.callHoursEnd,
-						areaId: cArea?._id,
-						areaName: cArea?.name,
-						status: c.status
-					};
-				})
-			)
-		};
+	try {
+		campaignAvailable = await Campaign.aggregate([
+			{
+				$match: {
+					_id: { $in: caller.campaigns },
+					active: true
+				}
+			},
+			{
+				$lookup: {
+					from: 'areas',
+					localField: 'area',
+					foreignField: '_id',
+					as: 'areaDetails'
+				}
+			},
+			{
+				$unwind: '$areaDetails'
+			},
+			{
+				$project: {
+					name: 1,
+					callHoursStart: 1,
+					callHoursEnd: 1,
+					status: 1,
+					areaId: '$areaDetails._id',
+					areaName: '$areaDetails.name'
+				}
+			}
+		]);
+		if (
+			!campaignAvailable ||
+			campaignAvailable.length === 0 ||
+			!campaignAvailable.every(c => c.areaId != undefined && c.areaId != null)
+		) {
+			res.status(500).send({ message: 'area of campaign not found', OK: false });
+			log(`[${req.body.phone}, ${ip}] area of campaign not found`, 'WARNING', __filename);
+			return;
+		}
 	} catch (error) {
 		res.status(500).send({ message: 'area of campaign not found', OK: false });
 		log(`[${req.body.phone}, ${ip}] area of campaign not found`, 'ERROR', __filename);
 		return;
 	}
-	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, areaCombo: areaCombo } });
+
+	res.status(200).send({ message: 'OK', OK: true, data: { caller: caller, campaignAvailable } });
 	log(`[${req.body.phone}, ${ip}] Login success`, 'INFO', __filename);
 	return;
 }

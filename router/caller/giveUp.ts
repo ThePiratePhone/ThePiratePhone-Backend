@@ -13,7 +13,6 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * {
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number}
- * 	"area": mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
@@ -34,8 +33,7 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 			res,
 			[
 				['phone', 'string'],
-				['pinCode', 'string'],
-				['area', 'ObjectId']
+				['pinCode', 'string']
 			],
 			__filename
 		)
@@ -51,13 +49,10 @@ export default async function giveUp(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	const caller = await Caller.findOne(
-		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
-		['name', 'phone']
-	);
+	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name', 'phone']);
 	if (!caller) {
-		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
-		log(`[!${req.body.phone}, ${ip}] Invalid credential or incorrect area`, 'WARNING', 'giveUp.ts');
+		res.status(403).send({ message: 'Invalid credential', OK: false });
+		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', 'giveUp.ts');
 		return;
 	}
 

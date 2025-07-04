@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Call } from '../../Models/Call';
 import { Caller } from '../../Models/Caller';
@@ -7,6 +6,7 @@ import { Campaign } from '../../Models/Campaign';
 import { Client } from '../../Models/Client';
 import { log } from '../../tools/log';
 import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../../tools/utils';
+import { Types } from 'mongoose';
 
 /**
  * Get the progress of a caller
@@ -15,7 +15,7 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * {
  * 	"phone": "string",
  * 	"pinCode": string  {max 4 number},
- * 	"area":mongoDBID
+ * 	"campaign":mongoDBID
  * }
  *
  * @throws {400}: Missing parameters
@@ -36,8 +36,7 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['campaign', 'ObjectId', true],
-				['area', 'ObjectId']
+				['campaign', 'ObjectId']
 			],
 			__filename
 		)
@@ -57,20 +56,20 @@ export default async function getProgress(req: Request<any>, res: Response<any>)
 		{
 			phone: phone,
 			pinCode: { $eq: req.body.pinCode },
-			$or: [{ area: { $eq: req.body.area } }, { areasJoined: { $eq: req.body.area } }]
+			campaigns: { $in: [new Types.ObjectId(req.body.campaign)] }
 		},
-		['name', 'campaigns', 'phone', 'area']
+		['name', 'campaigns', 'phone']
 	);
 
 	if (!caller) {
-		res.status(403).send({ message: 'Invalid credential or incorrect area', OK: false });
-		log(`[!${req.body.phone}, ${ip}] Invalid credential or incorrect area`, 'WARNING', __filename);
+		res.status(403).send({ message: 'Invalid credential or incorrect campaigns', OK: false });
+		log(`[!${req.body.phone}, ${ip}] Invalid credential or incorrect campaigns`, 'WARNING', __filename);
 		return;
 	}
-	let campaign: InstanceType<typeof Campaign> | null = await Campaign.findOne(
-		{ area: { $eq: req.body.area }, active: true },
-		['area']
-	);
+	let campaign: InstanceType<typeof Campaign> | null = await Campaign.findOne({
+		_id: { $eq: req.body.campaign },
+		active: true
+	});
 	if (!campaign) {
 		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
 		log(`[${req.body.phone}, ${ip}] Campaign not found or not active`, 'WARNING', __filename);

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 import { Area } from '../../Models/Area';
 import { Call } from '../../Models/Call';
@@ -15,7 +15,6 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck } from '../
  * body:{
  * 	"phone": string,
  * 	"pinCode": string  {max 4 number},
- * 	"area":mongoDBID,
  * 	"campaign": mongoDBID
  * }
  *
@@ -43,8 +42,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			[
 				['phone', 'string'],
 				['pinCode', 'string'],
-				['area', 'ObjectId'],
-				['campaign', 'ObjectId', true]
+				['campaign', 'ObjectId']
 			],
 			__filename
 		)
@@ -59,56 +57,31 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		return;
 	}
 
-	const area = await Area.findOne({ _id: { $eq: req.body.area } });
-	if (!area) {
-		res.status(404).send({ message: 'Area not found', OK: false });
-		log(`[!${req.body.phone}, ${ip}] Area not found from (${ip})`, 'WARNING', __filename);
-		return;
-	}
-
-	let campaign: InstanceType<typeof Campaign> | null = null;
-	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne(
-			{
-				_id: { $eq: req.body.CampaignId },
-				area: area._id,
-				password: { $eq: req.body.campaignPassword }
-			},
-			['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status']
-		);
-	} else {
-		campaign = await Campaign.findOne(
-			{
-				area: area._id,
-				active: true
-			},
-			['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status']
-		);
-	}
-
-	if (!campaign || !campaign.active) {
-		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
-		log(`[!${req.body.phone}, ${ip}] Campaign not found or not active`, 'WARNING', __filename);
-		return;
-	}
 	const caller = await Caller.findOne(
 		{
 			phone: phone,
 			pinCode: { $eq: req.body.pinCode },
-			$or: [
-				{
-					campaigns: campaign.id
-				},
-				{
-					area: { $eq: req.body.area }
-				}
-			]
+			campaigns: { $in: [new Types.ObjectId(req.body.campaign)] }
 		},
 		['name']
 	);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential or incorrect campaing', OK: false });
 		log(`[!${req.body.phone}, ${ip}] Invalid credential or incorrect campaing`, 'WARNING', __filename);
+		return;
+	}
+
+	let campaign = await Campaign.findOne(
+		{
+			_id: { $eq: req.body.campaign },
+			active: true
+		},
+		['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status']
+	);
+
+	if (!campaign) {
+		res.status(404).send({ message: 'Campaign not found or not active', OK: false });
+		log(`[!${req.body.phone}, ${ip}] Campaign not found or not active`, 'WARNING', __filename);
 		return;
 	}
 
@@ -167,7 +140,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 						$filter: {
 							input: '$calls',
 							as: 'call',
-							cond: { $eq: ['$$call.campaign', campaign._id] } // Ne garder que les appels de la campagne actuelle
+							cond: { $eq: ['$$call.campaign', campaign._id] } // Keep only calls from the current campaign
 						}
 					}
 				}
@@ -200,15 +173,15 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$match: {
 					$and: [
-						{ campaigns: { $in: [campaign._id] } }, // Filtrer uniquement les clients de la campagne
-						{ delete: { $ne: true } }, // Exclure les clients supprimés
-						{ lastSatisfaction: { $ne: 'In progress' } }, // Exclure les clients en appel
-						{ $or: [{ lastStatus: true }, { nbCalls: 0 }] }, // Garder les clients valides ou jamais appelés
-						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // Ne pas dépasser le nombre max d'appels
+						{ campaigns: { $in: [campaign._id] } }, // Filter only clients from the campaign
+						{ delete: { $ne: true } }, // Exclude deleted clients
+						{ lastSatisfaction: { $ne: 'In progress' } }, // Exclude clients currently in a call
+						{ $or: [{ lastStatus: true }, { nbCalls: 0 }] }, // Keep valid clients or those never called
+						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // Do not exceed the maximum number of calls
 						{
 							$or: [
-								{ lastCall: { $lte: new Date(Date.now() - campaign.timeBetweenCall) } }, // Respecter le temps minimum entre les appels
-								{ lastCall: null } // Inclure ceux qui n'ont jamais été appelés
+								{ lastCall: { $lte: new Date(Date.now() - campaign.timeBetweenCall) } }, // Respect the minimum time between calls
+								{ lastCall: null } // Include those who have never been called
 							]
 						}
 					]

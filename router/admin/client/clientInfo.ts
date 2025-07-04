@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 
 import { Area } from '../../../Models/Area';
 import { Call } from '../../../Models/Call';
@@ -107,7 +106,7 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 
 	const calls: Array<any> = [];
 	for (const c of call) {
-		const caller = await Caller.findOne({ _id: c.caller, area: area._id });
+		const caller = await Caller.findOne({ _id: c.caller, campaigns: { $in: area.campaignList } });
 		calls.push({ call: c, caller: caller });
 	}
 

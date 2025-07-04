@@ -30,12 +30,10 @@ beforeAll(async () => {
 		script: 'loginTest',
 		active: true,
 		area: areaId,
-
 		status: [
 			{ name: 'À rappeler', toRecall: true },
 			{ name: 'À retirer', toRecall: false }
 		],
-
 		password: 'password'
 	});
 	campaignId = (await Campaign.findOne({ name: 'loginTest' }))?._id;
@@ -88,7 +86,6 @@ describe('post on /caller/login', () => {
 				name: 'loginTest2',
 				phone: '+33434567902',
 				pinCode: '1234',
-				area: fakeAreaID,
 				campaigns: campaignID2
 			})
 		)?._id;
@@ -99,6 +96,7 @@ describe('post on /caller/login', () => {
 		expect(res.status).toBe(500);
 		expect(res.body.OK).toBe(false);
 	});
+
 	it('should return 200 if all is correct', async () => {
 		const res = await request(app).post('/caller/login').send({
 			phone: '+33434567901',
@@ -106,5 +104,21 @@ describe('post on /caller/login', () => {
 		});
 		expect(res.status).toBe(200);
 		expect(res.body.OK).toBe(true);
+		expect(res.body.data.caller.name).toBe('loginTest');
+		expect(res.body.data.caller.phone).toBe('+33434567901');
+		expect(res.body.data.campaignAvailable.length).toBe(1);
+		expect(res.body.data.campaignAvailable[0].name).toBe('loginTest');
+		expect(res.body.data.campaignAvailable[0].callHoursStart).toBeDefined();
+		expect(res.body.data.campaignAvailable[0].callHoursEnd).toBeDefined();
+		expect(res.body.data.campaignAvailable[0].areaId).toBeDefined();
+		expect(res.body.data.campaignAvailable[0].areaName).toBe('loginTest');
+		expect(res.body.data.campaignAvailable[0].status).toMatchObject([
+			{ name: 'À rappeler', toRecall: true },
+			{ name: 'À retirer', toRecall: false }
+		]);
+		expect(res.body.data.campaignAvailable[0]._id).toBeDefined();
+		expect(res.body.data.campaignAvailable[0].areaId).toBeDefined();
+		expect(res.body.data.campaignAvailable[0].areaId.toString()).toBe(areaId?.toString());
+		expect(res.body.data.campaignAvailable[0]._id.toString()).toBe(campaignId?.toString());
 	});
 });

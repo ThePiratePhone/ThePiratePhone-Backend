@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
 import { Campaign } from '../../../Models/Campaign';

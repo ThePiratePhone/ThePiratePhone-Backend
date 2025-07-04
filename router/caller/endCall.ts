@@ -16,9 +16,7 @@ import { checkParameters, checkPinCode, clearPhone, phoneNumberCheck, sanitizeSt
  * 	"timeInCall": number,
  * 	"satisfaction": number {-1, 0, 1, 2, 3, 4},
  * 	"comment": string | null,
- * 	"status": Boolean,
- *
- * 	"area": mongoDBID
+ * 	"status": Boolean
  * }
  *
  * @throws {400}: Missing parameters
@@ -48,7 +46,6 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 				['timeInCall', 'number'],
 				['satisfaction', 'string'],
 				['status', 'boolean'],
-				['area', 'ObjectId'],
 				['comment', 'string', true]
 			],
 			__filename
@@ -67,10 +64,7 @@ export default async function endCall(req: Request<any>, res: Response<any>) {
 
 	req.body.timeInCall = Math.min(req.body.timeInCall, 1_200_000);
 
-	const caller = await Caller.findOne(
-		{ phone: phone, pinCode: { $eq: req.body.pinCode }, area: { $eq: req.body.area } },
-		['name']
-	);
+	const caller = await Caller.findOne({ phone: phone, pinCode: { $eq: req.body.pinCode } }, ['name']);
 	if (!caller) {
 		res.status(403).send({ message: 'Invalid credential', OK: false });
 		log(`[!${req.body.phone}, ${ip}] Invalid credential`, 'WARNING', __filename);

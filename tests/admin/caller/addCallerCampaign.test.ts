@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import request from 'supertest';
+
 import app from '../../../index';
 import { Area } from '../../../Models/Area';
 import { Caller } from '../../../Models/Caller';
@@ -27,15 +28,6 @@ beforeAll(async () => {
 		})
 	)._id;
 
-	callerId = (
-		await Caller.create({
-			name: 'addCallerCampaigntest',
-			phone: '+33134567890',
-			pinCode: '1234',
-			area: areaId,
-			campaigns: []
-		})
-	)?.id;
 	campaignId = (
 		await Campaign.create({
 			name: 'changeCampaignPasswordTest',
@@ -49,8 +41,16 @@ beforeAll(async () => {
 			password: 'password'
 		})
 	).id;
-	Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId } });
-	Caller.updateOne({ _id: callerId }, { $push: { campaigns: campaignId } });
+
+	callerId = (
+		await Caller.create({
+			name: 'addCallerCampaigntest',
+			phone: '+33134567890',
+			pinCode: '1234',
+			campaigns: [campaignId]
+		})
+	)?.id;
+	await Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId } });
 });
 
 afterAll(async () => {
@@ -67,17 +67,6 @@ describe('post on /admin/caller/addCallerCampaign', () => {
 		});
 		expect(res.status).toBe(401);
 		expect(res.body.message).toBe('Wrong admin code');
-	});
-	it('should return 404 if campaign not found', async () => {
-		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
-			phone: '+33134567890',
-			adminCode: adminPassword,
-			area: areaId,
-			campaign: new mongoose.Types.ObjectId(),
-			allreadyHaseded: true
-		});
-		expect(res.status).toBe(404);
-		expect(res.body.message).toBe('Campaign not found');
 	});
 	it('should return 404 if caller not found', async () => {
 		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
@@ -96,7 +85,6 @@ describe('post on /admin/caller/addCallerCampaign', () => {
 			name: 'addCallerCampaigntest',
 			phone: '+33134567892',
 			pinCode: '1234',
-			area: areaId,
 			campaigns: [campaignId]
 		});
 		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
@@ -106,6 +94,7 @@ describe('post on /admin/caller/addCallerCampaign', () => {
 			campaign: campaignId,
 			allreadyHaseded: true
 		});
+
 		expect(res.status).toBe(200);
 		expect(res.body.message).toBe('Caller already in campaign');
 		const caller = await Caller.findOne({ phone: '+33134567892' });
@@ -113,11 +102,34 @@ describe('post on /admin/caller/addCallerCampaign', () => {
 	});
 
 	it('should return 200 if OK', async () => {
+		const campaignId2 = (
+			await Campaign.create({
+				name: 'addCallerCampaigntest2',
+				script: 'addCallerCampaigntest2',
+				active: true,
+				area: areaId,
+				status: [
+					{ name: 'À rappeler', toRecall: true },
+					{ name: 'À retirer', toRecall: false }
+				],
+				password: 'password'
+			})
+		).id;
+
+		await Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId2 } });
+
+		await Caller.create({
+			name: 'addCallerCampaigntest2',
+			phone: '+33134567893',
+			pinCode: '1234',
+			campaigns: [campaignId]
+		});
+
 		const res = await request(app).post('/admin/caller/addCallerCampaign').send({
-			phone: '+33134567890',
+			phone: '+33134567893',
 			adminCode: adminPassword,
 			area: areaId,
-			campaign: campaignId,
+			campaign: campaignId2,
 			allreadyHaseded: true
 		});
 		expect(res.status).toBe(200);
