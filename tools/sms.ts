@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import * as https from 'https';
 
+import { log } from './log';
+
 dotenv.config({ path: '.env' });
 
 class Sms {
@@ -38,6 +40,11 @@ class Sms {
 	}
 
 	private async checkSmsTools(): Promise<boolean | null> {
+		if (!this.gatway) {
+			log(`[sms] Wrong gatway`, 'WARNING', __filename);
+			this.enabled = false;
+			return null;
+		}
 		const httpsAgent = new https.Agent({
 			rejectUnauthorized: this.selfSigned
 		});
@@ -64,13 +71,17 @@ class Sms {
 				return null;
 			}
 		} catch (err) {
-			console.error('Error fetching SMS gateway:', err);
+			log(`[sms] Error fetching SMS gateway`, 'WARNING', __filename);
 			this.enabled = false;
 			return null;
 		}
 	}
 
 	private async refreshToken(): Promise<void> {
+		if (!this.gatway) {
+			log(`[sms] Wrong gatway`, 'WARNING', __filename);
+		}
+
 		const httpsAgent = new https.Agent({
 			rejectUnauthorized: this.selfSigned
 		});
@@ -102,9 +113,14 @@ class Sms {
 		message: string,
 		createIfNotExist: boolean = true
 	): Promise<any> {
+		if (!this.gatway) {
+			log(`[sms] Wrong gatway`, 'WARNING', __filename);
+		}
+
 		if (this.token === null) {
 			await this.refreshToken();
 		}
+
 		if (!this.enabled) {
 			throw new Error('SMS service is not enabled');
 		}
