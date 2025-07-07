@@ -6,11 +6,6 @@ const AreaModel = new mongoose.Schema({
 		required: true,
 		index: true
 	},
-	password: {
-		type: String,
-		required: true,
-		index: true
-	},
 	campaignList: {
 		type: Array<typeof mongoose.Schema.ObjectId>,
 		ref: 'Campaign',
@@ -23,6 +18,12 @@ const AreaModel = new mongoose.Schema({
 	createdAt: {
 		type: Date,
 		default: Date.now()
+	},
+	adminPhone: {
+		type: Array<[string, string | undefined]>, // [phone, name?]
+		required: true,
+		index: false,
+		default: []
 	}
 });
 
