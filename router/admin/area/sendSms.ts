@@ -26,14 +26,15 @@ export default async function sendSms(req: Request<any>, res: Response<any>) {
 		return;
 
 	if (req.body.phone && !Array.isArray(req.body.phone)) {
-		res.status(400).send({ message: 'Invalid phone, phone must be a array<string>', OK: false });
+		res.status(400).send({ message: 'Invalid phone, phone must be a array<[phone, name]>', OK: false });
 		log(`[!${req.body.area}, ${ip}] Invalid phone`, 'WARNING', __filename);
 		return;
 	}
 
-	const errored = false;
+	let errored = false;
 	req.body.phone.map((phone: [string, string | undefined]) => {
 		if ((!errored && typeof phone[0] !== 'string') || !phoneNumberCheck(phone[0])) {
+			errored = true;
 			res.status(400).send({ message: 'Invalid phone number', OK: false });
 			log(`[!${req.body.area}, ${ip}] Invalid phone number: ${phone[0]}`, 'WARNING', __filename);
 			return;
@@ -53,8 +54,8 @@ export default async function sendSms(req: Request<any>, res: Response<any>) {
 	const password = hashPasword(req.body.adminCode, req.body.allreadyHaseded, res);
 	const area = await Area.findOne({ _id: { $eq: req.body.area }, adminPassword: { $eq: password } }, ['adminPhone']);
 	if (!area) {
-		res.status(404).send({ message: 'no area found', OK: false });
-		log(`[!${req.body.area}, ${ip}] no area found`, 'WARNING', __filename);
+		res.status(404).send({ message: 'no area found, or bad password', OK: false });
+		log(`[!${req.body.area}, ${ip}] no area found, or bad password`, 'WARNING', __filename);
 		return;
 	}
 

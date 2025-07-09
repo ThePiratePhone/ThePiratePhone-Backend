@@ -21,7 +21,7 @@ class Sms {
 		this.password = process.env.SMS_PASSWORD ?? '';
 		this.user = process.env.SMS_USER ?? '';
 		this.gatway = process.env.SMS_GATEWAY ?? '';
-		//unactivate self-signed certificate by default if slef-signed is t
+		//unactivate self-signed certificate by default if slef-signed is true
 		this.selfSigned = process.env.SMS_SELFSIGNED === 'true' ? false : true;
 		this.checkSmsTools()
 			.then(isSmsTools => {

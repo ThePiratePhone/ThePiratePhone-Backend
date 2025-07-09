@@ -3,6 +3,7 @@ import { Router } from 'express';
 import ChangeAdminPassword from './router/admin/area/changeAdminPassword';
 import ChangeAreaName from './router/admin/area/changeName';
 import sendSms from './router/admin/area/sendSms';
+import setPhone from './router/admin/area/setPhone';
 import smsStatus from './router/admin/area/smsStatus';
 import addCallerCampaign from './router/admin/caller/addCallerCampaign';
 import callerInfo from './router/admin/caller/callerInfo';
@@ -91,6 +92,7 @@ router.post('/admin/area/changeName', ChangeAreaName);
 router.post('/admin/area/changeAdminPassword', ChangeAdminPassword);
 router.post('/admin/area/smsStatus', smsStatus);
 router.post('/admin/area/sendSms', sendSms);
+router.post('/admin/area/setPhone', setPhone);
 
 //admin/caller
 router.post('/admin/caller/addCallerCampaign', addCallerCampaign);
