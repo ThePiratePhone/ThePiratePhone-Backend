@@ -23,7 +23,7 @@ export default async function setPhone(req: Request<any>, res: Response<any>) {
 	)
 		return;
 
-	if (req.body.phone && !Array.isArray(req.body.phone)) {
+	if ((req.body.phone && !Array.isArray(req.body.phone)) || req.body.phone.length === 0) {
 		res.status(400).send({ message: 'Invalid phone, phone must be a array<[phone, name]>', OK: false });
 		log(`[!${req.body.area}, ${ip}] Invalid phone`, 'WARNING', __filename);
 		return;
@@ -54,12 +54,12 @@ export default async function setPhone(req: Request<any>, res: Response<any>) {
 		{ adminPhone: req.body.phone },
 		['adminPhone']
 	);
-	if (!area) {
+	if (area.matchedCount === 0) {
 		res.status(404).send({ message: 'no area found, or bad password', OK: false });
 		log(`[!${req.body.area}, ${ip}] no area found, or bad password`, 'WARNING', __filename);
 		return;
 	}
 
-	res.status(200).send({ OK: true, message: 'admin phone numer updated' });
-	log(`[${req.body.area}, ${ip}] admin phone numer updated`, 'INFO', __filename);
+	res.status(200).send({ OK: true, message: 'admin phone number updated' });
+	log(`[${req.body.area}, ${ip}] admin phone number updated`, 'INFO', __filename);
 }
