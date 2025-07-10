@@ -61,7 +61,7 @@ describe('POST /admin/area/setPhone', () => {
 			phone: []
 		});
 		expect(res.status).toBe(400);
-		expect(res.body).toHaveProperty('message', 'Invalid phone number');
+		expect(res.body).toHaveProperty('message', 'Invalid phone, phone must be a array<[phone, name]>');
 		expect(res.body).toHaveProperty('OK', false);
 	});
 
