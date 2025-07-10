@@ -32,7 +32,7 @@ export default async function ChangeName(req: Request<any>, res: Response<any>) 
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['newName', 'string'],
 				['allreadyHaseded', 'boolean', true]
 			],

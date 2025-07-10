@@ -39,3 +39,10 @@ or
 ```bash
 npm run test file
 ```
+
+## versioning
+major.minor.patch
+
+- **major**: add or remove a model object for the database
+- **minor**: modification on a model, requires a database upgrade
+- **patch**: no modification on the database

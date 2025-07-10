@@ -1,10 +1,7 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { checkParameters, checkPinCode, hashPasword } from '../tools/utils';
+import { checkParameters, checkPinCode, hashPasword } from '../../tools/utils';
 jest.mock('mongoose');
-const log = jest.fn();
-
-(global as any).log = log;
 
 describe('checkParameters', () => {
 	let res: Partial<Response>;
@@ -16,7 +13,6 @@ describe('checkParameters', () => {
 			send: jest.fn(),
 			req: mockReq
 		};
-		log.mockClear();
 	});
 
 	it('returns false if body is empty', () => {
@@ -122,7 +118,6 @@ describe('checkPinCode', () => {
 			send: jest.fn(),
 			req: mockReq
 		};
-		log.mockClear();
 	});
 
 	it('rejects a PIN code that is too short', () => {
@@ -150,7 +145,6 @@ describe('hashPassword', () => {
 			send: jest.fn(),
 			req: mockReq
 		};
-		log.mockClear();
 	});
 
 	it('hashes the password if it is not already hashed', () => {

@@ -34,7 +34,7 @@ export default async function SearchByPhone(req: Request<any>, res: Response<any
 			[
 				['adminCode', 'string'],
 				['phone', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename

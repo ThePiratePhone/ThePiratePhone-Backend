@@ -2,7 +2,10 @@ import { Router } from 'express';
 
 import ChangeAdminPassword from './router/admin/area/changeAdminPassword';
 import ChangeAreaName from './router/admin/area/changeName';
-import changeAreaPassword from './router/admin/area/changePassword';
+import sendSms from './router/admin/area/sendSms';
+import setPhone from './router/admin/area/setPhone';
+import smsStatus from './router/admin/area/smsStatus';
+import addCallerCampaign from './router/admin/caller/addCallerCampaign';
 import callerInfo from './router/admin/caller/callerInfo';
 import changeCallerPassword from './router/admin/caller/changeCallerPassword';
 import ChangeName from './router/admin/caller/changeName';
@@ -26,7 +29,6 @@ import listCampaign from './router/admin/campaign/listCampaign';
 import listClientCampaign from './router/admin/campaign/listClientCampaign';
 import setActive from './router/admin/campaign/setActive';
 import setSatisfaction from './router/admin/campaign/setSatisfaction';
-import addCallerCampaign from './router/admin/caller/addCallerCampaign';
 import clientInfo from './router/admin/client/clientInfo';
 import createClient from './router/admin/client/createClient';
 import createClients from './router/admin/client/createClients';
@@ -88,7 +90,9 @@ router.post('/admin/client/exportClientsCsv', exportClientCsv);
 //admin/area
 router.post('/admin/area/changeName', ChangeAreaName);
 router.post('/admin/area/changeAdminPassword', ChangeAdminPassword);
-router.post('/admin/area/changePassword', changeAreaPassword);
+router.post('/admin/area/smsStatus', smsStatus);
+router.post('/admin/area/sendSms', sendSms);
+router.post('/admin/area/setPhone', setPhone);
 
 //admin/caller
 router.post('/admin/caller/addCallerCampaign', addCallerCampaign);
@@ -118,7 +122,6 @@ router.post('/admin/campaign/changeScript', changeScript);
 router.post('/admin/campaign/setSatisfaction', setSatisfaction);
 
 //admin/
-router.post('/admin/changePassword', changeAreaPassword);
 router.post('/admin/createCampaign', createCampaign);
 router.post('/admin/login', loginAdmin);
 

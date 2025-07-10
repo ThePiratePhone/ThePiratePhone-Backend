@@ -35,7 +35,7 @@ export default async function numberOfCallers(req: Request<any>, res: Response<a
 			[
 				['campaign', 'string', true],
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
