@@ -40,7 +40,7 @@ export default async function callerInfo(req: Request<any>, res: Response<any>) 
 			[
 				['adminCode', 'string'],
 				['phone', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['CampaignId', 'ObjectId', true],
 				['allreadyHaseded', 'boolean', true]
 			],

@@ -15,7 +15,7 @@ export default async function setPhone(req: Request<any>, res: Response<any>) {
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename

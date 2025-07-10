@@ -16,7 +16,7 @@ export default async function smsStatus(req: Request<any>, res: Response<any>) {
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
 			__filename
@@ -40,8 +40,7 @@ export default async function smsStatus(req: Request<any>, res: Response<any>) {
 		data: {
 			adminPhone,
 			service,
-			enabled: sms.enabled,
-			superAdminPhone: process.env.SUPERADMIN_PHONE
+			enabled: sms.enabled
 		}
 	});
 	log(`[${req.body.area}, ${ip}] sms status requested`, 'INFO', __filename);

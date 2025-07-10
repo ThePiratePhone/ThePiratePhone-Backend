@@ -16,7 +16,7 @@ export default async function sendSms(req: Request<any>, res: Response<any>) {
 			res,
 			[
 				['adminCode', 'string'],
-				['area', 'string'],
+				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true],
 				['message', 'string']
 			],
