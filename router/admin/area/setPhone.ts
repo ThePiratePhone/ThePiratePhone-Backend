@@ -23,7 +23,7 @@ export default async function setPhone(req: Request<any>, res: Response<any>) {
 	)
 		return;
 
-	if ((req.body.phone && !Array.isArray(req.body.phone)) || req.body.phone.length === 0) {
+	if (req.body.phone && (!Array.isArray(req.body.phone) || req.body.phone.length === 0)) {
 		res.status(400).send({ message: 'Invalid phone, phone must be a array<[phone, name]>', OK: false });
 		log(`[!${req.body.area}, ${ip}] Invalid phone`, 'WARNING', __filename);
 		return;

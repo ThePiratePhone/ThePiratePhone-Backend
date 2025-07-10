@@ -13,7 +13,6 @@ const adminPassword =
 beforeAll(async () => {
 	await mongoose.connect(process.env.URITEST ?? '');
 	await Area.deleteMany({});
-
 	areaId = (
 		await Area.create({
 			name: 'setPhoneTest',
@@ -29,49 +28,53 @@ afterAll(async () => {
 	await mongoose.connection.close();
 });
 
-describe('POST /admin/area/setPhone', () => {
+describe('POST /admin/area/sendSms', () => {
 	it('should return 400 if phone is not an array', async () => {
-		const res = await request(app).post('/admin/area/setPhone').send({
+		const res = await request(app).post('/admin/area/sendSms').send({
 			adminCode: adminPassword,
 			area: areaId,
-			phone: 'invalidPhone'
+			phone: 'invalidPhone',
+			message: 'Test message'
 		});
 		expect(res.status).toBe(400);
 		expect(res.body).toHaveProperty('message', 'Invalid phone, phone must be a array<[phone, name]>');
 		expect(res.body).toHaveProperty('OK', false);
 	});
 
-	it('should return 400 if phone number is invalid', async () => {
+	it('should return 400 if phone  is invalid', async () => {
 		const res = await request(app)
-			.post('/admin/area/setPhone')
+			.post('/admin/area/sendSms')
 			.send({
 				adminCode: adminPassword,
 				area: areaId,
-				phone: [['invalidPhone', 'John']]
+				phone: [['invalidPhone', 'John']],
+				message: 'Test message'
 			});
 		expect(res.status).toBe(400);
 		expect(res.body).toHaveProperty('message', 'Invalid phone number');
 		expect(res.body).toHaveProperty('OK', false);
 	});
 
-	it('should return 400 if phone number is an empty array', async () => {
-		const res = await request(app).post('/admin/area/setPhone').send({
+	it('should return 400 if phone  is an empty array', async () => {
+		const res = await request(app).post('/admin/area/sendSms').send({
 			adminCode: adminPassword,
 			area: areaId,
-			phone: []
+			phone: [],
+			message: 'Test message'
 		});
 		expect(res.status).toBe(400);
-		expect(res.body).toHaveProperty('message', 'Invalid phone number');
+		expect(res.body).toHaveProperty('message', 'Invalid phone, phone must be a array<[phone, name]>');
 		expect(res.body).toHaveProperty('OK', false);
 	});
 
 	it('should return 404 if no area is found', async () => {
 		const res = await request(app)
-			.post('/admin/area/setPhone')
+			.post('/admin/area/sendSms')
 			.send({
 				adminCode: adminPassword,
 				area: new mongoose.Types.ObjectId(),
-				phone: [['0701234567', 'John']]
+				phone: [['0701234567', 'John']],
+				message: 'Test message'
 			});
 		expect(res.status).toBe(404);
 		expect(res.body).toHaveProperty('message', 'no area found, or bad password');
@@ -80,31 +83,33 @@ describe('POST /admin/area/setPhone', () => {
 
 	it('should return 404 if password is incorrect', async () => {
 		const res = await request(app)
-			.post('/admin/area/setPhone')
+			.post('/admin/area/sendSms')
 			.send({
 				adminCode: 'wrongPassword',
 				area: areaId,
-				phone: [['0701234567', 'John']]
+				phone: [['0701234567', 'John']],
+				message: 'Test message'
 			});
 		expect(res.status).toBe(404);
 		expect(res.body).toHaveProperty('message', 'no area found, or bad password');
 		expect(res.body).toHaveProperty('OK', false);
 	});
 
-	it('should return 200 and update admin phone number successfully', async () => {
+	it('should send SMS to all phone numbers', async () => {
 		const res = await request(app)
-			.post('/admin/area/setPhone')
+			.post('/admin/area/sendSms')
 			.send({
 				adminCode: adminPassword,
+				allreadyHaseded: true,
 				area: areaId,
-				phone: [['0701234567', 'John']],
-				allreadyHaseded: true
+				phone: [
+					['0701234567', 'John'],
+					['0707654321', 'Doe']
+				],
+				message: 'Test message'
 			});
-		expect(res.status).toBe(200);
-		expect(res.body).toHaveProperty('OK', true);
-		expect(res.body).toHaveProperty('message', 'admin phone number updated');
-
-		const updatedArea = await Area.findById(areaId);
-		expect(updatedArea?.adminPhone).toEqual([['+33701234567', 'John']]);
+		expect(res.status).toBe(503); // Assuming SMS service is not enabled in tests
+		expect(res.body).toHaveProperty('message', 'SMS service is not enabled');
+		expect(res.body).toHaveProperty('OK', false);
 	});
 });

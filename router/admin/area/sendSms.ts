@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { Area } from '../../../Models/Area';
 import { log } from '../../../tools/log';
 import sms from '../../../tools/sms';
-import { checkParameters, hashPasword, phoneNumberCheck } from '../../../tools/utils';
+import { checkParameters, clearPhone, hashPasword, phoneNumberCheck } from '../../../tools/utils';
 
 export default async function sendSms(req: Request<any>, res: Response<any>) {
 	const ip =
@@ -25,7 +25,7 @@ export default async function sendSms(req: Request<any>, res: Response<any>) {
 	)
 		return;
 
-	if (req.body.phone && !Array.isArray(req.body.phone)) {
+	if (req.body.phone && (!Array.isArray(req.body.phone) || req.body.phone.length === 0)) {
 		res.status(400).send({ message: 'Invalid phone, phone must be a array<[phone, name]>', OK: false });
 		log(`[!${req.body.area}, ${ip}] Invalid phone`, 'WARNING', __filename);
 		return;
@@ -33,7 +33,7 @@ export default async function sendSms(req: Request<any>, res: Response<any>) {
 
 	let errored = false;
 	req.body.phone.map((phone: [string, string | undefined]) => {
-		if ((!errored && typeof phone[0] !== 'string') || !phoneNumberCheck(phone[0])) {
+		if ((!errored && typeof phone[0] !== 'string') || !phoneNumberCheck(clearPhone(phone[0]))) {
 			errored = true;
 			res.status(400).send({ message: 'Invalid phone number', OK: false });
 			log(`[!${req.body.area}, ${ip}] Invalid phone number: ${phone[0]}`, 'WARNING', __filename);
@@ -47,7 +47,7 @@ export default async function sendSms(req: Request<any>, res: Response<any>) {
 	//pass phone to [name, phone]
 	req.body.phone = req.body.phone.map((phone: string | [string, string | undefined]) => {
 		if (Array.isArray(phone) && phone.length === 2) {
-			return [phone[1], phone[0]];
+			return [phone[1], clearPhone(phone[0])];
 		}
 	});
 
