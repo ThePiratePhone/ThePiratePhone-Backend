@@ -34,7 +34,7 @@ export default async function smsStatus(req: Request<any>, res: Response<any>) {
 
 	const service = sms.enabled ? (sms.isSmsTools ? 'sms-tools' : 'sms-gateway') : 'inactif';
 	const adminPhone = Array.isArray(area.adminPhone) ? [...area.adminPhone] : [];
-	adminPhone.push([process.env.SUPERADMIN_PHONE, 'Super Admin']);
+	adminPhone.push([process.env.SUPERADMIN_PHONE ?? '+33700000000', 'Super Admin']);
 	res.status(200).send({
 		OK: true,
 		data: {

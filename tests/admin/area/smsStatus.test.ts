@@ -66,7 +66,10 @@ describe('post on /admin/area/smsStatus', () => {
 
 		expect(response.status).toBe(200);
 		expect(response.body).toHaveProperty('OK', true);
-		expect(response.body.data.adminPhone).toContainEqual([process.env.SUPERADMIN_PHONE ?? null, 'Super Admin']);
+		expect(response.body.data.adminPhone).toContainEqual([
+			process.env.SUPERADMIN_PHONE ?? '+33700000000',
+			'Super Admin'
+		]);
 		expect(response.body.data.adminPhone).toContainEqual(['+33600000000', 'Test Admin']);
 		expect(response.body.data.adminPhone).toContainEqual(['+33611111111', 'Test Admin 2']);
 	});

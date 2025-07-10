@@ -32,7 +32,7 @@ export default async function sendSms(req: Request<any>, res: Response<any>) {
 	}
 
 	let errored = false;
-	req.body.phone.map((phone: [string, string | undefined]) => {
+	req.body.phone.forEach((phone: [string, string | undefined]) => {
 		if ((!errored && typeof phone[0] !== 'string') || !phoneNumberCheck(clearPhone(phone[0]))) {
 			errored = true;
 			res.status(400).send({ message: 'Invalid phone number', OK: false });

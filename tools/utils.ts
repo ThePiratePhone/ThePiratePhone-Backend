@@ -57,7 +57,7 @@ function phoneNumberCheck(phone: string): boolean {
 	if (typeof phone != 'string') return false;
 	if (!phone.startsWith('+')) return false;
 
-	phone = phone.replace(' ', '');
+	phone = phone.replaceAll(' ', '');
 
 	const phoneArray = phone.split('');
 	if (phone.length % 2 == 0) {

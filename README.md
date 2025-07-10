@@ -40,7 +40,7 @@ or
 npm run test file
 ```
 
-## versionning
+## versioning
 major.minor.patch
 
 - **major**: add or remove a model object for the database
