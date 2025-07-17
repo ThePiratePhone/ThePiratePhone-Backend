@@ -28,6 +28,7 @@ import listCallerCampaign from './router/admin/campaign/listCallerCampaign';
 import listCampaign from './router/admin/campaign/listCampaign';
 import listClientCampaign from './router/admin/campaign/listClientCampaign';
 import setActive from './router/admin/campaign/setActive';
+import setPriority from './router/admin/campaign/setPriority';
 import setSatisfaction from './router/admin/campaign/setSatisfaction';
 import clientInfo from './router/admin/client/clientInfo';
 import createClient from './router/admin/client/createClient';
@@ -120,6 +121,7 @@ router.post('/admin/campaign/listCampaign', listCampaign);
 router.post('/admin/campaign/getCampaign', getCampaign);
 router.post('/admin/campaign/changeScript', changeScript);
 router.post('/admin/campaign/setSatisfaction', setSatisfaction);
+router.post('/admin/campaign/setPriority', setPriority);
 
 //admin/
 router.post('/admin/createCampaign', createCampaign);

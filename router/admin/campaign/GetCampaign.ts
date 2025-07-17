@@ -63,7 +63,8 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 		'callPermited',
 		'nbMaxCallCampaign',
 		'satisfactions',
-		'status'
+		'status',
+		'sortGroup'
 	]);
 	if (!campaign) {
 		res.status(404).send({ message: 'no campaign', OK: false });
@@ -71,6 +72,21 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 		return;
 	}
 
-	res.status(200).send({ message: 'OK', OK: true, data: campaign });
+	await campaign.updateOne(
+		{ _id: campaign._id },
+		{
+			sortGroup: [
+				{ name: 'prio1', id: 1 },
+				{ name: 'prio2', id: 2 }
+			]
+		}
+	);
+	console.log(campaign);
+
+	res.status(200).send({
+		message: 'OK',
+		OK: true,
+		data: campaign
+	});
 	log(`[${ip}, ${req.body.area}] list campaign`, 'INFO', __filename);
 }

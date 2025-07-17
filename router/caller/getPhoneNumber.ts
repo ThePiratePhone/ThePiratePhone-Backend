@@ -126,6 +126,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 	let client: mongoose.Document[] | null = null;
 	try {
 		client = await Client.aggregate([
+			// Lookup all calls related to the client
 			{
 				$lookup: {
 					from: 'calls',
@@ -134,17 +135,19 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 					as: 'calls'
 				}
 			},
+			// Keep only calls related to the current campaign
 			{
 				$addFields: {
 					calls: {
 						$filter: {
 							input: '$calls',
 							as: 'call',
-							cond: { $eq: ['$$call.campaign', campaign._id] } // Keep only calls from the current campaign
+							cond: { $eq: ['$$call.campaign', campaign._id] }
 						}
 					}
 				}
 			},
+			// Compute number of calls, last call time, last status and satisfaction
 			{
 				$addFields: {
 					nbCalls: { $size: '$calls' },
@@ -170,23 +173,50 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 					}
 				}
 			},
+			// Lookup the campaign data from the client's priority.campaign field
+			{
+				$lookup: {
+					from: 'campaigns',
+					localField: 'priority.campaign',
+					foreignField: '_id',
+					as: 'campaignData'
+				}
+			},
+			// Unwind the campaign array (we expect only one campaign)
+			{ $unwind: '$campaignData' },
+
+			// Compute the index of the client's priority.id inside the campaign's sortGroup list
+			{
+				$addFields: {
+					sortIndex: {
+						$indexOfArray: ['$campaignData.sortGroup.id', '$priority.id'] // or campaign._id
+					}
+				}
+			},
+
+			// Filter valid clients
 			{
 				$match: {
 					$and: [
-						{ campaigns: { $in: [campaign._id] } }, // Filter only clients from the campaign
-						{ delete: { $ne: true } }, // Exclude deleted clients
-						{ lastSatisfaction: { $ne: 'In progress' } }, // Exclude clients currently in a call
-						{ $or: [{ lastStatus: true }, { nbCalls: 0 }] }, // Keep valid clients or those never called
-						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } }, // Do not exceed the maximum number of calls
+						{ campaigns: { $in: [campaign._id] } },
+						{ delete: { $ne: true } },
+						{ lastSatisfaction: { $ne: 'In progress' } },
+						{ $or: [{ lastStatus: true }, { nbCalls: 0 }] },
+						{ nbCalls: { $lt: campaign.nbMaxCallCampaign } },
 						{
 							$or: [
-								{ lastCall: { $lte: new Date(Date.now() - campaign.timeBetweenCall) } }, // Respect the minimum time between calls
-								{ lastCall: null } // Include those who have never been called
+								{ lastCall: { $lte: new Date(Date.now() - campaign.timeBetweenCall) } },
+								{ lastCall: null }
 							]
 						}
 					]
 				}
 			},
+
+			// Sort clients by sortIndex according to the campaign's sortGroup
+			{ $sort: { sortIndex: 1 } },
+
+			// Return only selected fields
 			{
 				$project: {
 					_id: 1,
