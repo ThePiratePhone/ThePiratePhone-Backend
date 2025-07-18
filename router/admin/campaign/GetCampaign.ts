@@ -12,7 +12,7 @@ import { checkParameters, hashPasword } from '../../../tools/utils';
  * body:{
  * 	"adminCode": string,
  * 	"area": mongoDBID,
- * 	"CampaignId": mongoDBID,
+ * 	"CampaignId"?: mongoDBID,
  * 	"allreadyHaseded": boolean
  * }
  *
@@ -34,7 +34,7 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 			res,
 			[
 				['adminCode', 'string'],
-				['CampaignId', 'string'],
+				['CampaignId', 'string', true],
 				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true]
 			],
@@ -51,7 +51,8 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 		log(`[!${req.body.area}, ${ip}] Wrong admin code`, 'WARNING', __filename);
 		return;
 	}
-	const campaign = await Campaign.findOne({ area: area._id, _id: { $eq: req.body.CampaignId } }, [
+	let campaign: any = null;
+	let returnType = [
 		'_id',
 		'name',
 		'active',
@@ -65,23 +66,20 @@ export default async function getCampaign(req: Request<any>, res: Response<any>)
 		'satisfactions',
 		'status',
 		'sortGroup'
-	]);
+	];
+	if (req.body.CampaignId) {
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id }, returnType);
+	} else {
+		campaign = await Campaign.findOne({ area: area._id, active: true }, returnType);
+	}
 	if (!campaign) {
 		res.status(404).send({ message: 'no campaign', OK: false });
 		log(`[${ip}, ${req.body.area}] no campaign`, 'WARNING', __filename);
 		return;
 	}
 
-	await campaign.updateOne(
-		{ _id: campaign._id },
-		{
-			sortGroup: [
-				{ name: 'prio1', id: 1 },
-				{ name: 'prio2', id: 2 }
-			]
-		}
-	);
-	console.log(campaign);
+	//remove last priority, it's internal used
+	campaign.sortGroup.pop();
 
 	res.status(200).send({
 		message: 'OK',

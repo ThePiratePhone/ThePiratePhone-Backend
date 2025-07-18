@@ -79,24 +79,26 @@ export default async function setPriority(req: Request<any>, res: Response<any>)
 		return;
 	}
 
-	if (!req.body.priority.every((e: any) => typeof e?.name === 'string' && typeof e?.id === 'number')) {
+	if (
+		!req.body.priority.every(
+			(e: any) => typeof e?.name === 'string' && typeof e?.id === 'string' && e?.name.length != 8
+		)
+	) {
 		res.status(400).send({
-			message: 'Invalid priority, priority must be a array<{ name: string, id: number }>',
+			message: 'Invalid priority, priority must be a array<{ name: string, id: string(length = 8) }>',
 			OK: false
 		});
 		log(`[${req.body.area}, ${ip}] Invalid priority`, 'WARNING', __filename);
 		return;
 	}
 
-	await Campaign.updateOne(
-		{ _id: campaign._id },
-		{
-			sortGroup: req.body.priority.map((e: any) => ({
-				name: sanitizeString(e.name),
-				id: e.id
-			}))
-		}
-	);
+	const priority = req.body.priority.map((e: any) => ({
+		name: sanitizeString(e.name),
+		id: e.id
+	}));
+	priority.push({ name: 'default', id: '-1' });
+
+	await Campaign.updateOne({ _id: campaign._id }, { sortGroup: priority });
 	res.status(200).send({ message: 'Priority updated', OK: true });
 	log(`[${req.body.area}, ${ip}] Priority updated for ${campaign.name}`, 'INFO', __filename);
 }

@@ -30,7 +30,12 @@ const ClientSchema = new mongoose.Schema({
 		default: []
 	},
 	priority: {
-		type: { campaign: mongoose.Schema.ObjectId, id: String },
+		type: [
+			{
+				campaign: mongoose.Schema.ObjectId,
+				id: String
+			}
+		],
 		required: false,
 		default: []
 	},
