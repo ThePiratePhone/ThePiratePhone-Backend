@@ -86,7 +86,6 @@ export default async function createClients(req: Request<any>, res: Response<any
 					return false;
 				}
 				if ((await Client.countDocuments({ phone: phone })) == 0) {
-					console.log(phone, sanitizeString(usr[1] ?? ''), sanitizeString(usr[2] ?? ''));
 					const user = new Client({
 						name: sanitizeString(usr[1] ?? ''),
 						firstname: sanitizeString(usr[2] ?? ''),

@@ -87,21 +87,24 @@ describe(' post on /admin/campaign/listClientCampaign', () => {
 			name: 'listClientCampaignTest1',
 			phone: '+33693456780',
 			area: areaId,
-			campaigns: CampaignId
+			campaigns: CampaignId,
+			priority: [{ campaign: CampaignId, id: '-1' }]
 		});
 
 		await Client.create({
 			name: 'listClientCampaignTest2',
 			phone: '+33693456781',
 			area: areaId,
-			campaigns: CampaignId
+			campaigns: CampaignId,
+			priority: [{ campaign: CampaignId, id: '-1' }]
 		});
 
 		await Client.create({
 			name: 'listClientCampaignTest3',
 			phone: '+33693456782',
 			area: areaId,
-			campaigns: CampaignId
+			campaigns: CampaignId,
+			priority: [{ campaign: CampaignId, id: '-1' }]
 		});
 
 		const res = await request(app).post('/admin/campaign/listClientCampaign').send({

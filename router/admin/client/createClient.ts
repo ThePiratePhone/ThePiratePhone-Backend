@@ -61,12 +61,16 @@ export default async function createClient(req: Request<any>, res: Response<any>
 	if (!password) return;
 
 	if (
-		!req.body.priority ||
-		!Array.isArray(req.body.priority) ||
-		req.body.priority.every(
-			(e: any) =>
-				!e.campaign || !e.id || typeof e.campaign !== 'string' || typeof e.id !== 'string' || e.id.length != 8
-		)
+		req.body.priority &&
+		(!Array.isArray(req.body.priority) ||
+			req.body.priority.every(
+				(e: any) =>
+					!e.campaign ||
+					!e.id ||
+					typeof e.campaign !== 'string' ||
+					typeof e.id !== 'string' ||
+					e.id.length != 8
+			))
 	) {
 		res.status(400).send({
 			message: 'Invalid priority, priority must be a array<{ campaign: objectId, id: string(lenght=8) }>',
@@ -115,7 +119,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 				institution: sanitizeString(req.body.institution ?? ''),
 				area: area._id,
 				campaigns: [campaign._id],
-				priority: req.body.priority
+				priority: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }]
 			}
 		);
 		if (client.modifiedCount === 0) {
@@ -135,7 +139,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 			institution: sanitizeString(req.body.institution ?? ''),
 			area: area._id,
 			campaigns: [campaign._id],
-			sortGroup: req.body.priority
+			sortGroup: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }]
 		});
 	}
 

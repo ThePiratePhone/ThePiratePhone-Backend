@@ -47,7 +47,8 @@ beforeAll(async () => {
 			name: 'removeClientTest',
 			phone: '+33134567890',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		})
 	).id;
 	Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId } });
@@ -132,14 +133,16 @@ describe('post on /admin/client/removeClient', () => {
 			name: 'removeClientTest',
 			phone: '+33134567891',
 			area: areaId,
-			campaigns: campaignId
+			campaigns: campaignId,
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 
 		await Client.create({
 			name: 'removeClientTest',
 			phone: '+33134567892',
 			area: areaId,
-			campaigns: campaignId
+			campaigns: campaignId,
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const res = await request(app).post('/admin/client/removeClient').send({
 			adminCode,

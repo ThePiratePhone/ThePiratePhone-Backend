@@ -45,7 +45,8 @@ beforeAll(async () => {
 		name: 'changepassordtest',
 		firstname: 'test',
 		phone: '+33944567890',
-		campaigns: [CampaignID]
+		campaigns: [CampaignID],
+		priority: [{ campaign: CampaignID, id: '-1' }]
 	});
 
 	const CallerId1 = (

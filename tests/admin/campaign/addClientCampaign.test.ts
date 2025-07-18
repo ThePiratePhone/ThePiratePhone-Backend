@@ -5,6 +5,7 @@ import app from '../../../index';
 import { Area } from '../../../Models/Area';
 import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
+import { ObjectId } from 'mongodb';
 
 dotenv.config({ path: '.env' });
 
@@ -50,7 +51,8 @@ beforeAll(async () => {
 			name: 'callerInfoTest',
 			phone: '+33634567890',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		})
 	)._id;
 });
@@ -121,7 +123,8 @@ describe('post on /admin/campaign/addClientCampaign', () => {
 		await Client.create({
 			name: 'callerInfoTest',
 			phone: '+33634567892',
-			area: areaId
+			area: areaId,
+			priority: [{ campaign: new ObjectId(), id: '-1' }]
 		});
 		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,
@@ -153,7 +156,8 @@ describe('post on /admin/campaign/addClientCampaign', () => {
 		await Client.create({
 			name: 'callerInfoTest',
 			phone: '+33634567893',
-			area: areaId
+			area: areaId,
+			priority: [{ campaign: new ObjectId(), id: '-1' }]
 		});
 		const res = await request(app).post('/admin/campaign/addClientCampaign').send({
 			campaign: campaignId,

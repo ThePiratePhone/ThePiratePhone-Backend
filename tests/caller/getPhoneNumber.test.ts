@@ -50,7 +50,8 @@ beforeAll(async () => {
 		firstname: 'test',
 		phone: '+33712457836',
 		area: areaId,
-		campaigns: [campaignId]
+		campaigns: [campaignId],
+		priority: [{ campaign: campaignId, id: '-1' }]
 	});
 });
 
@@ -262,7 +263,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			firstname: 'test',
 			phone: '+33712457837',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber5',
@@ -319,7 +321,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			firstname: 'test',
 			phone: '+33712457838',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber6',
@@ -360,7 +363,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			firstname: 'test',
 			phone: '+33712457839',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber7',
@@ -427,7 +431,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			phone: '+33712457840',
 			area: areaId,
 			campaigns: [campaignId],
-			delete: true
+			delete: true,
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber8',
@@ -461,7 +466,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			firstname: 'test',
 			phone: '+33712457841',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber9',

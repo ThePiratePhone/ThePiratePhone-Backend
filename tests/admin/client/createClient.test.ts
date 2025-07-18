@@ -61,7 +61,8 @@ beforeAll(async () => {
 			name: 'createClienttest',
 			phone: '+33134567890',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		})
 	)?.id;
 

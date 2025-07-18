@@ -47,7 +47,8 @@ beforeAll(async () => {
 			name: 'removeClientsTest',
 			phone: '+33134567890',
 			area: areaId,
-			campaign: campaignId
+			campaign: campaignId,
+			priority: [{ campaign: campaignId, id: '-1' }]
 		})
 	).id;
 	Area.updateOne({ _id: areaId }, { $push: { campaignList: campaignId } });
