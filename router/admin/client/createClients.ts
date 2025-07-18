@@ -86,11 +86,13 @@ export default async function createClients(req: Request<any>, res: Response<any
 					return false;
 				}
 				if ((await Client.countDocuments({ phone: phone })) == 0) {
+					console.log(phone, sanitizeString(usr[1] ?? ''), sanitizeString(usr[2] ?? ''));
 					const user = new Client({
 						name: sanitizeString(usr[1] ?? ''),
 						firstname: sanitizeString(usr[2] ?? ''),
 						phone: phone,
-						campaigns: [campaign._id]
+						campaigns: [campaign._id],
+						priority: [{ campaign: campaign._id, id: '-1' }]
 					});
 					// create it
 					await user.save();
@@ -102,13 +104,17 @@ export default async function createClients(req: Request<any>, res: Response<any
 						{ $push: { campaigns: campaign._id } }
 					);
 				} else {
-					// duplicate
-					throw { code: 11000 };
+					// client exist in this campaign, update name and firstnames
+					await Client.updateOne({
+						phone: phone,
+						name: sanitizeString(usr[1] ?? ''),
+						firstname: sanitizeString(usr[2] ?? ''),
+						priority: [{ campaign: campaign._id, id: '-1' }]
+					});
 				}
 			} catch (error: any) {
-				if (error.code != 11000) {
-					errors.push([usr[0], phone, error.message]);
-				}
+				console.log(error);
+				errors.push([usr[1] + ' ' + usr[2], phone, error.message]);
 			}
 		}
 	);
