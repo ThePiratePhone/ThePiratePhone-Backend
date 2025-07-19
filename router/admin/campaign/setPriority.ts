@@ -81,7 +81,7 @@ export default async function setPriority(req: Request<any>, res: Response<any>)
 
 	if (
 		!req.body.priority.every(
-			(e: any) => typeof e?.name === 'string' && typeof e?.id === 'string' && e?.name.length != 8
+			(e: any) => typeof e?.name === 'string' && typeof e?.id === 'string' && (e?.id.length == 8 || e?.id == '-1')
 		)
 	) {
 		res.status(400).send({

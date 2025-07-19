@@ -98,7 +98,7 @@ describe('post on /admin/client/createClient', () => {
 		expect(res.body.message).toBe('Wrong phone number');
 	});
 
-	it('should return 401 if user already exist', async () => {
+	it('should return 422 if user already exist', async () => {
 		const res = await request(app).post('/admin/client/createClient').send({
 			phone: '+33134567890',
 			name: 'createClienttest',
@@ -106,7 +106,7 @@ describe('post on /admin/client/createClient', () => {
 			area: areaId,
 			allreadyHaseded: true
 		});
-		expect(res.status).toBe(401);
+		expect(res.status).toBe(422);
 		expect(res.body.message).toBe('User already exist');
 	});
 

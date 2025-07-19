@@ -69,7 +69,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 					!e.id ||
 					typeof e.campaign !== 'string' ||
 					typeof e.id !== 'string' ||
-					e.id.length != 8
+					(e.id.length != 8 && e.id != '-1') // Allow '-1' for default priority
 			))
 	) {
 		res.status(400).send({
@@ -96,7 +96,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 
 	const exist = (await Client.findOne({ phone: phone })) != null;
 	if (!req.body.updateIfExist && exist) {
-		res.status(401).send({ message: 'User already exist', OK: false });
+		res.status(422).send({ message: 'User already exist', OK: false });
 		log(`[${req.body.area}, ${ip}] User already exist`, 'WARNING', __filename);
 		return;
 	}
@@ -110,6 +110,11 @@ export default async function createClient(req: Request<any>, res: Response<any>
 
 	let client: InstanceType<typeof Client>;
 	if (exist) {
+		if ((await Client.countDocuments({ phone, _id: { $not: { $eq: req.body.updateKey } } })) != 0) {
+			res.status(422).send({ message: 'phone number already exist', OK: false });
+			log(`[${req.body.area}, ${ip}] phone number already exist`, 'WARNING', __filename);
+			return;
+		}
 		const client = await Client.updateOne(
 			{ _id: req.body.updateKey },
 			{
