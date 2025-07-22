@@ -12,7 +12,7 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeStr
  * body:{
  * 	"adminCode": string,
  * 	"area": string,
- * 	"data": [phone, name, firstname, institution],
+ * 	"data": [phone, name, firstname, institution, priority],
  * 	"allreadyHaseded": boolean
  * }
  * @throws {400}: missing parameters,
@@ -40,9 +40,27 @@ export default async function createClients(req: Request<any>, res: Response<any
 		)
 	)
 		return;
-	if (!Array.isArray(req.body['data'])) {
+	if (!Array.isArray(req.body.data)) {
 		res.status(400).send({ message: 'data must be an array', OK: false });
 		log(`[!${req.body.area}, ${ip}] data must be an array`, 'WARNING', __filename);
+		return;
+	}
+
+	// Vérification que chaque élément de data est un objet avec les propriétés requises
+	const isValidData = req.body.data.every(
+		(usr: any) =>
+			typeof usr === 'object' &&
+			usr !== null &&
+			typeof usr.phone === 'string' &&
+			typeof usr.name === 'string' &&
+			(usr.firstname === undefined || typeof usr.firstname === 'string') &&
+			(usr.institution === undefined || typeof usr.institution === 'string') &&
+			(usr.priority === undefined || typeof usr.priority === 'string')
+	);
+
+	if (!isValidData) {
+		res.status(400).send({ message: 'Each data entry must be an object with valid properties', OK: false });
+		log(`[!${req.body.area}, ${ip}] Invalid data format`, 'WARNING', __filename);
 		return;
 	}
 
@@ -68,7 +86,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	}
 
-	const campaign = await Campaign.findOne({ area: { $eq: area._id }, active: true }, []);
+	const campaign = await Campaign.findOne({ area: { $eq: area._id }, active: true }, ['sortGroup']);
 	if (!campaign) {
 		res.status(404).send({ message: 'no campaign in progress', OK: false });
 		log(`[${req.body.area}, ${ip}] no campaign in progress`, 'WARNING', __filename);
@@ -76,22 +94,23 @@ export default async function createClients(req: Request<any>, res: Response<any
 	}
 
 	const errors: Array<[string | undefined, string | undefined, string]> = [];
-	//format: [phone, name, firstname, institution]
+	// Traitement des données en tant qu'objets
 	const sleep: Array<Promise<boolean>> = req.body.data.map(
-		async (usr: [string | undefined, string | undefined, string | undefined, string | undefined]) => {
-			const phone = clearPhone(usr[0] ?? '');
+		async (usr: { phone: string; name: string; firstname?: string; institution?: string; priority?: string }) => {
+			const priorityId = campaign.sortGroup.find(e => e.name === usr.priority)?._id ?? '-1';
+			const phone = clearPhone(usr.phone);
 			try {
 				if (!phoneNumberCheck(phone)) {
-					errors.push([usr[1] + ' ' + usr[2], usr[0], 'Wrong phone number']);
+					errors.push([usr.name + ' ' + (usr.firstname || ''), usr.phone, 'Wrong phone number']);
 					return false;
 				}
 				if ((await Client.countDocuments({ phone: phone })) == 0) {
 					const user = new Client({
-						name: sanitizeString(usr[1] ?? ''),
-						firstname: sanitizeString(usr[2] ?? ''),
+						name: sanitizeString(usr.name),
+						firstname: sanitizeString(usr.firstname || ''),
 						phone: phone,
 						campaigns: [campaign._id],
-						priority: [{ campaign: campaign._id, id: '-1' }]
+						priority: [{ campaign: campaign._id, id: priorityId }]
 					});
 					// create it
 					await user.save();
@@ -99,21 +118,24 @@ export default async function createClients(req: Request<any>, res: Response<any
 				} else if ((await Client.countDocuments({ phone: phone, campaigns: { $ne: campaign._id } })) == 1) {
 					// client exist in another campaing
 					await Client.updateOne(
-						{ phone: phone, name: sanitizeString(usr[1] ?? ''), firstname: sanitizeString(usr[2] ?? '') },
+						{
+							phone: phone,
+							name: sanitizeString(usr.name),
+							firstname: sanitizeString(usr.firstname || '')
+						},
 						{ $push: { campaigns: campaign._id } }
 					);
 				} else {
 					// client exist in this campaign, update name and firstnames
 					await Client.updateOne({
 						phone: phone,
-						name: sanitizeString(usr[1] ?? ''),
-						firstname: sanitizeString(usr[2] ?? ''),
+						name: sanitizeString(usr.name),
+						firstname: sanitizeString(usr.firstname || ''),
 						priority: [{ campaign: campaign._id, id: '-1' }]
 					});
 				}
 			} catch (error: any) {
-				console.log(error);
-				errors.push([usr[1] + ' ' + usr[2], phone, error.message]);
+				errors.push([usr.name + ' ' + (usr.firstname || ''), phone, error.message]);
 			}
 		}
 	);
