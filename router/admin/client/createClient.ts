@@ -5,6 +5,7 @@ import { Campaign } from '../../../Models/Campaign';
 import { Client } from '../../../Models/Client';
 import { log } from '../../../tools/log';
 import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeString } from '../../../tools/utils';
+import { ObjectId } from 'mongodb';
 
 /**
  * create a client
@@ -80,6 +81,16 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		return;
 	}
 
+	if ((req.body.updateIfExist && !req.body.updateKey) || (req.body.updateKey && !req.body.updateIfExist)) {
+		res.status(400).send({ message: 'updateIfExist and updateKey must be both set or not set', OK: false });
+		log(
+			`[!${req.body.area}, ${ip}] updateIfExist and updateKey must be both set or not set`,
+			'WARNING',
+			__filename
+		);
+		return;
+	}
+
 	const area = await Area.findOne({ adminPassword: { $eq: password }, _id: { $eq: req.body.area } });
 	if (!area) {
 		res.status(401).send({ message: 'Wrong admin code', OK: false });
@@ -115,19 +126,20 @@ export default async function createClient(req: Request<any>, res: Response<any>
 			log(`[${req.body.area}, ${ip}] phone number already exist`, 'WARNING', __filename);
 			return;
 		}
+
 		const client = await Client.updateOne(
 			{ _id: req.body.updateKey },
 			{
 				name: sanitizeString(req.body.name),
 				phone: phone,
-				firstName: sanitizeString(req.body.firstName ?? ''),
+				firstname: sanitizeString(req.body.firstName ?? ''),
 				institution: sanitizeString(req.body.institution ?? ''),
 				area: area._id,
 				campaigns: [campaign._id],
 				priority: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }]
 			}
 		);
-		if (client.modifiedCount === 0) {
+		if (client.matchedCount === 0) {
 			res.status(404).send({ message: 'Client not found', OK: false });
 			log(`[${req.body.area}, ${ip}] Client not found`, 'WARNING', __filename);
 			return;
@@ -140,7 +152,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		client = new Client({
 			name: sanitizeString(req.body.name),
 			phone: phone,
-			firstName: sanitizeString(req.body.firstName ?? ''),
+			firstname: sanitizeString(req.body.firstName ?? ''),
 			institution: sanitizeString(req.body.institution ?? ''),
 			area: area._id,
 			campaigns: [campaign._id],

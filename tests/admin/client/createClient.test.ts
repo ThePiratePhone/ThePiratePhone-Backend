@@ -158,5 +158,26 @@ describe('post on /admin/client/createClient', () => {
 		expect(res.status).toBe(200);
 		const client = await Client.findOne({ phone: '+33134567890' });
 		expect(client?.name).toBe('createClienttestUpdated');
+		expect(client?.firstname).toBe('createClienttestUpdated');
+		expect(client?.institution).toBe('createClienttestUpdated');
+	});
+
+	it('should return 200 if updating existing client but change phone', async () => {
+		const res = await request(app).post('/admin/client/createClient').send({
+			phone: '+33134567893',
+			name: 'createClienttestUpdated',
+			adminCode: adminPassword,
+			firstName: 'createClienttestUpdated',
+			institution: 'createClienttestUpdated',
+			area: areaId,
+			allreadyHaseded: true,
+			updateKey: clientId,
+			updateIfExist: true
+		});
+		expect(res.status).toBe(200);
+		const client = await Client.findOne({ phone: '+33134567890' });
+		expect(client?.name).toBe('createClienttestUpdated');
+		expect(client?.firstname).toBe('createClienttestUpdated');
+		expect(client?.institution).toBe('createClienttestUpdated');
 	});
 });
