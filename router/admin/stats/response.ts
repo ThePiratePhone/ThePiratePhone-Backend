@@ -35,7 +35,7 @@ export default async function response(req: Request<any>, res: Response<any>) {
 		return;
 	}
 
-	let campaign;
+	let campaign: InstanceType<typeof Campaign> | null = null;
 	if (!req.body.CampaignId) campaign = await Campaign.findOne({ area: area.id, active: true }, ['status']);
 	else campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area.id }, ['status']);
 

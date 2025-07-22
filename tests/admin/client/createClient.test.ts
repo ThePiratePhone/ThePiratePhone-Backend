@@ -61,7 +61,8 @@ beforeAll(async () => {
 			name: 'createClienttest',
 			phone: '+33134567890',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		})
 	)?.id;
 
@@ -97,7 +98,7 @@ describe('post on /admin/client/createClient', () => {
 		expect(res.body.message).toBe('Wrong phone number');
 	});
 
-	it('should return 401 if user already exist', async () => {
+	it('should return 422 if user already exist', async () => {
 		const res = await request(app).post('/admin/client/createClient').send({
 			phone: '+33134567890',
 			name: 'createClienttest',
@@ -105,7 +106,7 @@ describe('post on /admin/client/createClient', () => {
 			area: areaId,
 			allreadyHaseded: true
 		});
-		expect(res.status).toBe(401);
+		expect(res.status).toBe(422);
 		expect(res.body.message).toBe('User already exist');
 	});
 
@@ -122,5 +123,40 @@ describe('post on /admin/client/createClient', () => {
 		expect(res.status).toBe(200);
 		const client = await Client.findOne({ phone: '+33134567891' });
 		expect(client).not.toBeNull();
+	});
+
+	it('should return 200 with priority', async () => {
+		const res = await request(app)
+			.post('/admin/client/createClient')
+			.send({
+				phone: '+33134567892',
+				name: 'createClienttest2',
+				adminCode: adminPassword,
+				firstName: 'createClienttest2',
+				institution: 'createClienttest2',
+				area: areaId,
+				allreadyHaseded: true,
+				priority: [{ campaign: campaignId, id: 'md4rye5b' }]
+			});
+		expect(res.status).toBe(200);
+		const client = await Client.findOne({ phone: '+33134567892' });
+		expect(client).not.toBeNull();
+	});
+
+	it('should return 200 if updating existing client', async () => {
+		const res = await request(app).post('/admin/client/createClient').send({
+			phone: '+33134567890',
+			name: 'createClienttestUpdated',
+			adminCode: adminPassword,
+			firstName: 'createClienttestUpdated',
+			institution: 'createClienttestUpdated',
+			area: areaId,
+			allreadyHaseded: true,
+			updateKey: clientId,
+			updateIfExist: true
+		});
+		expect(res.status).toBe(200);
+		const client = await Client.findOne({ phone: '+33134567890' });
+		expect(client?.name).toBe('createClienttestUpdated');
 	});
 });

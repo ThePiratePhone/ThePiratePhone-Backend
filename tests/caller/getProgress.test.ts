@@ -50,7 +50,8 @@ beforeAll(async () => {
 		firstname: 'test',
 		phone: '+33712457836',
 		area: areaId,
-		campaigns: [campaignId]
+		campaigns: [campaignId],
+		priority: [{ campaign: campaignId, id: '-1' }]
 	});
 });
 

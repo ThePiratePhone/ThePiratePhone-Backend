@@ -50,7 +50,8 @@ beforeAll(async () => {
 		firstname: 'test',
 		phone: '+33712457836',
 		area: areaId,
-		campaigns: [campaignId]
+		campaigns: [campaignId],
+		priority: [{ campaign: campaignId, id: '-1' }]
 	});
 	await Call.create({
 		caller: (await Caller.findOne({ phone: '+33834567890' }))?._id,
@@ -154,7 +155,8 @@ describe('post on /caller/endCall', () => {
 			name: 'changepassord',
 			firstname: 'test2',
 			phone: '+33712457837',
-			campaigns: '66c5db7a64953f8138610d98'
+			campaigns: '66c5db7a64953f8138610d98',
+			priority: [{ campaign: '66c5db7a64953f8138610d98', id: '-1' }]
 		});
 		await Call.create({
 			caller: (await Caller.findOne({ phone: '+33834567891' }))?._id,

@@ -6,12 +6,12 @@ import { log } from '../../../tools/log';
 import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
 
 /**
- * Set the satisfaction of a campaign
+ * Set the priority of a campaign
  *
  * @example
  * body:{
  * 	"adminCode": string,
- * 	"satisfactions": Array<{ name: string, toRecall: boolean }>,
+ * 	"priority": Array<{ name: string, id: string(length = 8) }>,
  * 	"area": mongoDBID,
  * 	"CampaignId": mongoDBID,
  * 	"allreadyHaseded": boolean
@@ -19,12 +19,12 @@ import { checkParameters, hashPasword, sanitizeString } from '../../../tools/uti
  *
  * @throws {400} - Missing parameters
  * @throws {400} - bad hash for admin code
- * @throws {400} - Invalid satisfaction satisfactions must be a array<{ name: string, toRecall: boolean }>
+ * @throws {400} - Invalid priority, priority must be a array<{ name: string, id: string(length = 8) }>
  * @throws {401} - Wrong admin code
  * @throws {401} - Wrong campaign id
  * @throws {200} - OK
  */
-export default async function setSatisfaction(req: Request<any>, res: Response<any>) {
+export default async function setPriority(req: Request<any>, res: Response<any>) {
 	const ip =
 		(Array.isArray(req.headers['x-forwarded-for'])
 			? req.headers['x-forwarded-for'][0]
@@ -44,9 +44,12 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 	)
 		return;
 
-	if (req.body.satisfactions && !Array.isArray(req.body.satisfactions)) {
-		res.status(400).send({ message: 'Invalid satisfaction, satisfactions must be a array<string>', OK: false });
-		log(`[!${req.body.area}, ${ip}] Invalid satisfaction`, 'WARNING', __filename);
+	if (!req.body.priority || !Array.isArray(req.body.priority)) {
+		res.status(400).send({
+			message: 'Invalid priority, priority must be a array<{ name: string, id: string(length = 8) }>',
+			OK: false
+		});
+		log(`[!${req.body.area}, ${ip}] Invalid priority`, 'WARNING', __filename);
 		return;
 	}
 
@@ -62,9 +65,13 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 	let campaign: InstanceType<typeof Campaign> | null = null;
 
 	if (req.body.CampaignId) {
-		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id });
+		campaign = await Campaign.findOne({ _id: { $eq: req.body.CampaignId }, area: area._id }, [
+			'_id',
+			'name',
+			'sortGroup'
+		]);
 	} else {
-		campaign = await Campaign.findOne({ area: area._id, active: true });
+		campaign = await Campaign.findOne({ area: area._id, active: true }, ['_id', 'name', 'sortGroup']);
 	}
 	if (!campaign) {
 		res.status(401).send({ message: 'Wrong campaign id', OK: false });
@@ -72,21 +79,26 @@ export default async function setSatisfaction(req: Request<any>, res: Response<a
 		return;
 	}
 
-	if (!req.body.satisfactions.every((e: any) => typeof e?.name == 'string' && typeof e?.toRecall == 'boolean')) {
+	if (
+		!req.body.priority.every(
+			(e: any) => typeof e?.name === 'string' && typeof e?.id === 'string' && (e?.id.length == 8 || e?.id == '-1')
+		)
+	) {
 		res.status(400).send({
-			message: 'Invalid satisfaction, satisfactions must be a array<{ name: String, toRecall: Boolean }>',
+			message: 'Invalid priority, priority must be a array<{ name: string, id: string(length = 8) }>',
 			OK: false
 		});
-		log(`[${req.body.area}, ${ip}] Invalid satisfaction`, 'WARNING', __filename);
+		log(`[${req.body.area}, ${ip}] Invalid priority`, 'WARNING', __filename);
 		return;
 	}
 
-	req.body.satisfactions = req.body.satisfactions.map((e: any) => ({
+	const priority = req.body.priority.map((e: any) => ({
 		name: sanitizeString(e.name),
-		toRecall: e.toRecall
+		id: e.id
 	}));
+	priority.push({ name: 'default', id: '-1' });
 
-	await Campaign.updateOne({ _id: campaign._id }, { status: req.body.satisfactions });
-	res.status(200).send({ message: 'Satisfaction updated', OK: true });
-	log(`[${req.body.area}, ${ip}] Satisfaction updated for ${campaign.name}`, 'INFO', __filename);
+	await Campaign.updateOne({ _id: campaign._id }, { sortGroup: priority });
+	res.status(200).send({ message: 'Priority updated', OK: true });
+	log(`[${req.body.area}, ${ip}] Priority updated for ${campaign.name}`, 'INFO', __filename);
 }

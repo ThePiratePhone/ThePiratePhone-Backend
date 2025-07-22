@@ -158,7 +158,8 @@ describe('post on api/otherCaller/info', () => {
 		await Area.findByIdAndUpdate(areaId, { $push: { campaignList: campaignID } });
 		const clientId = await Client.create({
 			phone: '+33423456782',
-			name: 'name1'
+			name: 'name1',
+			priority: [{ campaign: campaignID, id: '-1' }]
 		});
 		await Call.create({
 			caller: callerId,

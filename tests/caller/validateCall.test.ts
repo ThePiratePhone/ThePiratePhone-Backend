@@ -54,7 +54,8 @@ beforeAll(async () => {
 		await Client.create({
 			name: 'validateCallClient',
 			phone: '+33334567902',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		})
 	)._id;
 
@@ -182,7 +183,8 @@ describe('post on /caller/validateCall', () => {
 			await Client.create({
 				name: 'validateCallClient2',
 				phone: '+33334567905',
-				campaigns: [campaignId]
+				campaigns: [campaignId],
+				priority: [{ campaign: campaignId, id: '-1' }]
 			})
 		)._id;
 

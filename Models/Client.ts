@@ -29,6 +29,16 @@ const ClientSchema = new mongoose.Schema({
 		required: true,
 		default: []
 	},
+	priority: {
+		type: [
+			{
+				campaign: mongoose.Schema.ObjectId,
+				id: String
+			}
+		],
+		required: false,
+		default: []
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now()

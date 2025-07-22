@@ -92,7 +92,8 @@ export default async function clientInfo(req: Request<any>, res: Response<any>) 
 		'satisfaction',
 		'status',
 		'start',
-		'comment'
+		'comment',
+		'priority'
 	]);
 	if (!call || call.length === 0) {
 		res.status(200).send({

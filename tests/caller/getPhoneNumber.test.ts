@@ -50,7 +50,8 @@ beforeAll(async () => {
 		firstname: 'test',
 		phone: '+33712457836',
 		area: areaId,
-		campaigns: [campaignId]
+		campaigns: [campaignId],
+		priority: [{ campaign: campaignId, id: '-1' }]
 	});
 });
 
@@ -227,7 +228,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumbertest10',
 			phone: '+33734567891',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
@@ -262,13 +264,15 @@ describe('post on /caller/getPhoneNumber', () => {
 			firstname: 'test',
 			phone: '+33712457837',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber5',
 			phone: '+33734567894',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Call.create({
 			caller: (await Caller.findOne({ phone: '+33734567894' }))?._id,
@@ -284,7 +288,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumbertest10',
 			phone: '+33734567900',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
@@ -319,13 +324,15 @@ describe('post on /caller/getPhoneNumber', () => {
 			firstname: 'test',
 			phone: '+33712457838',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber6',
 			phone: '+33734567895',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Call.create({
 			caller: (await Caller.findOne({ phone: '+33734567895' }))?._id,
@@ -360,13 +367,15 @@ describe('post on /caller/getPhoneNumber', () => {
 			firstname: 'test',
 			phone: '+33712457839',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber7',
 			phone: '+33734567896',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const caller = (await Caller.findOne({ phone: '+33734567896' }))?._id;
 		const client = (await Client.findOne({ phone: '+33712457839' }))?._id;
@@ -427,13 +436,15 @@ describe('post on /caller/getPhoneNumber', () => {
 			phone: '+33712457840',
 			area: areaId,
 			campaigns: [campaignId],
-			delete: true
+			delete: true,
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber8',
 			phone: '+33734567897',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Call.create({
 			caller: (await Caller.findOne({ phone: '+33734567897' }))?._id,
@@ -461,13 +472,15 @@ describe('post on /caller/getPhoneNumber', () => {
 			firstname: 'test',
 			phone: '+33712457841',
 			area: areaId,
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Caller.create({
 			name: 'getPhoneNumber9',
 			phone: '+33734567898',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const res = await request(app).post('/caller/getPhoneNumber').send({
 			phone: '+33734567898',
@@ -482,6 +495,47 @@ describe('post on /caller/getPhoneNumber', () => {
 				name: 'getPhoneNumber6',
 				firstname: 'test',
 				phone: '+33712457841'
+			}
+		});
+	});
+
+	it('should work with priority', async () => {
+		await Client.create({
+			name: 'getPhoneNumber7',
+			firstname: 'test',
+			phone: '+33712457842',
+			area: areaId,
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
+		});
+		await Client.create({
+			name: 'getPhoneNumber8',
+			firstname: 'test',
+			phone: '+33712457843',
+			area: areaId,
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: 'md4rye5b' }]
+		});
+		await Caller.create({
+			name: 'getPhoneNumber10',
+			phone: '+33734567999',
+			pinCode: '1234',
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
+		});
+		const res = await request(app).post('/caller/getPhoneNumber').send({
+			phone: '+33734567999',
+			pinCode: '1234',
+			campaign: campaignId
+		});
+		expect(res.status).toBe(200);
+		expect(res.body).toMatchObject({
+			message: 'Client to call',
+			OK: true,
+			client: {
+				name: 'getPhoneNumber8',
+				firstname: 'test',
+				phone: '+33712457843'
 			}
 		});
 	});

@@ -67,6 +67,15 @@ const CampaignSchema = new mongoose.Schema({
 			{ name: 'À rappeler', toRecall: true },
 			{ name: 'À retirer', toRecall: false }
 		]
+	},
+	sortGroup: {
+		type: [{ name: String, id: String }],
+		required: true,
+		default: [
+			{ name: 'prio1', id: 'md4rye5b' },
+			{ name: 'prio2', id: 'md4ryvjl' },
+			{ name: 'default', id: '-1' }
+		]
 	}
 });
 
