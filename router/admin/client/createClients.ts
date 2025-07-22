@@ -46,9 +46,15 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	}
 
+	if (req.body.data.length > 500) {
+		res.status(400).send({ message: 'Too many users', OK: false });
+		log(`[!${req.body.area}, ${ip}] Too many users`, 'WARNING', __filename);
+		return;
+	}
+
 	// Vérification que chaque élément de data est un objet avec les propriétés requises
-	const isValidData = req.body.data.every(
-		(usr: any) =>
+	const isValidData = req.body.data.every((usr: any) => {
+		return (
 			typeof usr === 'object' &&
 			usr !== null &&
 			typeof usr.phone === 'string' &&
@@ -56,17 +62,12 @@ export default async function createClients(req: Request<any>, res: Response<any
 			(usr.firstname === undefined || typeof usr.firstname === 'string') &&
 			(usr.institution === undefined || typeof usr.institution === 'string') &&
 			(usr.priority === undefined || typeof usr.priority === 'string')
-	);
+		);
+	});
 
 	if (!isValidData) {
 		res.status(400).send({ message: 'Each data entry must be an object with valid properties', OK: false });
 		log(`[!${req.body.area}, ${ip}] Invalid data format`, 'WARNING', __filename);
-		return;
-	}
-
-	if (req.body.data.length > 500) {
-		res.status(400).send({ message: 'Too many users', OK: false });
-		log(`[!${req.body.area}, ${ip}] Too many users`, 'WARNING', __filename);
 		return;
 	}
 

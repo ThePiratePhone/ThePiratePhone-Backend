@@ -55,7 +55,7 @@ describe('post on /admin/client/createClients', () => {
 			.send({
 				adminCode: 'password',
 				area: areaId,
-				data: Array.from({ length: 501 }, () => ['+33634567890', 'callerInfoTest', 'callerInfoTest', ''])
+				data: Array.from({ length: 501 }, () => [{ phone: '+33634567890', name: 'callerInfoTest' }])
 			});
 		expect(res.status).toEqual(400);
 		expect(res.body).toEqual({ message: 'Too many users', OK: false });
@@ -96,12 +96,11 @@ describe('post on /admin/client/createClients', () => {
 	it('should return error if data is not on the right format', async () => {
 		const res = await request(app)
 			.post('/admin/client/createClients')
-			.send({ adminCode: 'password', area: areaId, data: ['not an array'] });
-		expect(res.status).toEqual(200);
+			.send({ adminCode: 'password', area: areaId, data: ['not an object'] });
+		expect(res.status).toEqual(400);
 		expect(res.body).toEqual({
-			message: 'OK',
-			OK: true,
-			errors: [['o t', 'n', 'Wrong phone number']]
+			message: 'Each data entry must be an object with valid properties',
+			OK: false
 		});
 	});
 
@@ -112,8 +111,18 @@ describe('post on /admin/client/createClients', () => {
 				adminCode: 'password',
 				area: areaId,
 				data: [
-					['+33634567890', 'callerInfoTest', 'callerInfoTest', '1'],
-					['+33634567891', 'callerInfoTest2', 'callerInfoTest2', '2']
+					{
+						phone: '+33634567890',
+						name: 'callerInfoTest',
+						firstname: 'callerInfoTest',
+						priority: 'prio 1'
+					},
+					{
+						phone: '+33634567891',
+						name: 'callerInfoTest2',
+						firstname: 'callerInfoTest2',
+						priority: 'prio 2'
+					}
 				]
 			});
 		expect(res.status).toEqual(200);
