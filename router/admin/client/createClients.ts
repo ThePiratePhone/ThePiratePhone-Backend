@@ -52,7 +52,6 @@ export default async function createClients(req: Request<any>, res: Response<any
 		return;
 	}
 
-	// Vérification que chaque élément de data est un objet avec les propriétés requises
 	const isValidData = req.body.data.every((usr: any) => {
 		return (
 			typeof usr === 'object' &&
@@ -95,7 +94,6 @@ export default async function createClients(req: Request<any>, res: Response<any
 	}
 
 	const errors: Array<[string | undefined, string | undefined, string]> = [];
-	// Traitement des données en tant qu'objets
 	const sleep: Array<Promise<boolean>> = req.body.data.map(
 		async (usr: { phone: string; name: string; firstname?: string; institution?: string; priority?: string }) => {
 			const priorityId = campaign.sortGroup.find(e => e.name === usr.priority)?.id ?? '-1';

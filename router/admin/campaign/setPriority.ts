@@ -6,12 +6,12 @@ import { log } from '../../../tools/log';
 import { checkParameters, hashPasword, sanitizeString } from '../../../tools/utils';
 
 /**
- * Set the satisfaction of a campaign
+ * Set the priority of a campaign
  *
  * @example
  * body:{
  * 	"adminCode": string,
- * 	"priority": Array<{ name: string, id: number }>,
+ * 	"priority": Array<{ name: string, id: string(length = 8) }>,
  * 	"area": mongoDBID,
  * 	"CampaignId": mongoDBID,
  * 	"allreadyHaseded": boolean
@@ -19,7 +19,7 @@ import { checkParameters, hashPasword, sanitizeString } from '../../../tools/uti
  *
  * @throws {400} - Missing parameters
  * @throws {400} - bad hash for admin code
- * @throws {400} - Invalid priority, priority must be a array<{ name: string, id: number }>
+ * @throws {400} - Invalid priority, priority must be a array<{ name: string, id: string(length = 8) }>
  * @throws {401} - Wrong admin code
  * @throws {401} - Wrong campaign id
  * @throws {200} - OK
@@ -44,9 +44,9 @@ export default async function setPriority(req: Request<any>, res: Response<any>)
 	)
 		return;
 
-	if (req.body.priority && !Array.isArray(req.body.priority)) {
+	if (!req.body.priority || !Array.isArray(req.body.priority)) {
 		res.status(400).send({
-			message: 'Invalid priority, priority must be a array<{ name: string, id: number }>',
+			message: 'Invalid priority, priority must be a array<{ name: string, id: string(length = 8) }>',
 			OK: false
 		});
 		log(`[!${req.body.area}, ${ip}] Invalid priority`, 'WARNING', __filename);
