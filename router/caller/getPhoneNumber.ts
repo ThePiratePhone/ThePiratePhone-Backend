@@ -189,7 +189,16 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			{
 				$addFields: {
 					sortIndex: {
-						$indexOfArray: ['$campaignData.sortGroup.id', '$priority.id'] // or campaign._id
+						$indexOfArray: [
+							{
+								$map: {
+									input: '$campaignData.sortGroup',
+									as: 'group',
+									in: { $toString: '$$group.id' }
+								}
+							},
+							{ $toString: { $arrayElemAt: ['$priority.id', 0] } }
+						]
 					}
 				}
 			},
@@ -216,6 +225,9 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			// Sort clients by sortIndex according to the campaign's sortGroup
 			{ $sort: { sortIndex: 1 } },
 
+			//keep only the first client
+			{ $limit: 1 },
+
 			// Return only selected fields
 			{
 				$project: {
@@ -223,14 +235,17 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 					name: 1,
 					firstname: 1,
 					institution: 1,
-					phone: 1
+					phone: 1,
+					'priority.id': 1
 				}
 			}
 		]);
 	} catch (e) {
 		res.status(500).send({ message: 'Internal error', OK: false });
 		log(`[${req.body.phone}, ${ip}] Error while getting client`, 'ERROR', __filename);
+		return;
 	}
+
 	if (!client || client.length == 0) {
 		res.status(404).send({ message: 'No client to call', OK: false });
 		log(`[${req.body.phone}, ${ip}] No client to call`, 'WARNING', __filename);

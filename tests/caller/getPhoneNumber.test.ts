@@ -228,7 +228,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumbertest10',
 			phone: '+33734567891',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
@@ -270,7 +271,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumber5',
 			phone: '+33734567894',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Call.create({
 			caller: (await Caller.findOne({ phone: '+33734567894' }))?._id,
@@ -286,7 +288,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumbertest10',
 			phone: '+33734567900',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const res = await request(app)
 			.post('/caller/getPhoneNumber')
@@ -328,7 +331,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumber6',
 			phone: '+33734567895',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Call.create({
 			caller: (await Caller.findOne({ phone: '+33734567895' }))?._id,
@@ -370,7 +374,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumber7',
 			phone: '+33734567896',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const caller = (await Caller.findOne({ phone: '+33734567896' }))?._id;
 		const client = (await Client.findOne({ phone: '+33712457839' }))?._id;
@@ -438,7 +443,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumber8',
 			phone: '+33734567897',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		await Call.create({
 			caller: (await Caller.findOne({ phone: '+33734567897' }))?._id,
@@ -473,7 +479,8 @@ describe('post on /caller/getPhoneNumber', () => {
 			name: 'getPhoneNumber9',
 			phone: '+33734567898',
 			pinCode: '1234',
-			campaigns: [campaignId]
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
 		});
 		const res = await request(app).post('/caller/getPhoneNumber').send({
 			phone: '+33734567898',

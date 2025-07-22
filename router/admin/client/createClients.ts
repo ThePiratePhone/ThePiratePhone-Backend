@@ -58,7 +58,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 			typeof usr === 'object' &&
 			usr !== null &&
 			typeof usr.phone === 'string' &&
-			typeof usr.name === 'string' &&
+			(usr.name === undefined || typeof usr.name === 'string') &&
 			(usr.firstname === undefined || typeof usr.firstname === 'string') &&
 			(usr.institution === undefined || typeof usr.institution === 'string') &&
 			(usr.priority === undefined || typeof usr.priority === 'string')
@@ -98,7 +98,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 	// Traitement des données en tant qu'objets
 	const sleep: Array<Promise<boolean>> = req.body.data.map(
 		async (usr: { phone: string; name: string; firstname?: string; institution?: string; priority?: string }) => {
-			const priorityId = campaign.sortGroup.find(e => e.name === usr.priority)?._id ?? '-1';
+			const priorityId = campaign.sortGroup.find(e => e.name === usr.priority)?.id ?? '-1';
 			const phone = clearPhone(usr.phone);
 			try {
 				if (!phoneNumberCheck(phone)) {
