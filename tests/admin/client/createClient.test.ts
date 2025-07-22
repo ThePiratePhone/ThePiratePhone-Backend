@@ -124,4 +124,39 @@ describe('post on /admin/client/createClient', () => {
 		const client = await Client.findOne({ phone: '+33134567891' });
 		expect(client).not.toBeNull();
 	});
+
+	it('should return 200 with priority', async () => {
+		const res = await request(app)
+			.post('/admin/client/createClient')
+			.send({
+				phone: '+33134567892',
+				name: 'createClienttest2',
+				adminCode: adminPassword,
+				firstName: 'createClienttest2',
+				institution: 'createClienttest2',
+				area: areaId,
+				allreadyHaseded: true,
+				priority: [{ campaign: campaignId, id: 'md4rye5b' }]
+			});
+		expect(res.status).toBe(200);
+		const client = await Client.findOne({ phone: '+33134567892' });
+		expect(client).not.toBeNull();
+	});
+
+	it('should return 200 if updating existing client', async () => {
+		const res = await request(app).post('/admin/client/createClient').send({
+			phone: '+33134567890',
+			name: 'createClienttestUpdated',
+			adminCode: adminPassword,
+			firstName: 'createClienttestUpdated',
+			institution: 'createClienttestUpdated',
+			area: areaId,
+			allreadyHaseded: true,
+			updateKey: clientId,
+			updateIfExist: true
+		});
+		expect(res.status).toBe(200);
+		const client = await Client.findOne({ phone: '+33134567890' });
+		expect(client?.name).toBe('createClienttestUpdated');
+	});
 });

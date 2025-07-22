@@ -127,13 +127,16 @@ export default async function createClients(req: Request<any>, res: Response<any
 						{ $push: { campaigns: campaign._id } }
 					);
 				} else {
-					// client exist in this campaign, update name and firstnames
-					await Client.updateOne({
-						phone: phone,
-						name: sanitizeString(usr.name),
-						firstname: sanitizeString(usr.firstname || ''),
-						priority: [{ campaign: campaign._id, id: '-1' }]
-					});
+					// client exist in this campaign, update name, firstnames and priority
+					await Client.updateOne(
+						{ phone: phone },
+						{
+							phone: phone,
+							name: sanitizeString(usr.name),
+							firstname: sanitizeString(usr.firstname || ''),
+							priority: [{ campaign: campaign._id, id: '-1' }]
+						}
+					);
 				}
 			} catch (error: any) {
 				errors.push([usr.name + ' ' + (usr.firstname || ''), phone, error.message]);

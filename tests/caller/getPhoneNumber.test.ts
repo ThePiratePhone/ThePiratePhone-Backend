@@ -498,4 +498,45 @@ describe('post on /caller/getPhoneNumber', () => {
 			}
 		});
 	});
+
+	it('should work with priority', async () => {
+		await Client.create({
+			name: 'getPhoneNumber7',
+			firstname: 'test',
+			phone: '+33712457842',
+			area: areaId,
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
+		});
+		await Client.create({
+			name: 'getPhoneNumber8',
+			firstname: 'test',
+			phone: '+33712457843',
+			area: areaId,
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: 'md4rye5b' }]
+		});
+		await Caller.create({
+			name: 'getPhoneNumber10',
+			phone: '+33734567999',
+			pinCode: '1234',
+			campaigns: [campaignId],
+			priority: [{ campaign: campaignId, id: '-1' }]
+		});
+		const res = await request(app).post('/caller/getPhoneNumber').send({
+			phone: '+33734567999',
+			pinCode: '1234',
+			campaign: campaignId
+		});
+		expect(res.status).toBe(200);
+		expect(res.body).toMatchObject({
+			message: 'Client to call',
+			OK: true,
+			client: {
+				name: 'getPhoneNumber8',
+				firstname: 'test',
+				phone: '+33712457843'
+			}
+		});
+	});
 });

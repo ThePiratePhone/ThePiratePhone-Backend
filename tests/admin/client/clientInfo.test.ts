@@ -160,7 +160,8 @@ describe('post on /admin/client/clientInfo', () => {
 			client: {
 				name: 'clientInfotest',
 				phone: '+33134567890',
-				campaigns: [campaignId]
+				campaigns: [campaignId],
+				priority: [{ campaign: campaignId, id: '-1' }]
 			},
 			call: expect.any(Array)
 		});

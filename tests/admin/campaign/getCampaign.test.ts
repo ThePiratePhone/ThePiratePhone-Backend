@@ -91,4 +91,15 @@ describe(' post on /admin/campaign/getCampaign', () => {
 		expect(res.body.message).toBe('OK');
 		expect(res.body.data.active).toBe(true);
 	});
+
+	it('should return 200 if is correct without campaign id', async () => {
+		const res = await request(app).post('/admin/campaign/getCampaign').send({
+			adminCode,
+			area: areaId,
+			allreadyHaseded: true
+		});
+		expect(res.status).toBe(200);
+		expect(res.body.message).toBe('OK');
+		expect(res.body.data.active).toBe(true);
+	});
 });

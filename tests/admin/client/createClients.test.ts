@@ -130,4 +130,27 @@ describe('post on /admin/client/createClients', () => {
 		const clients = await Client.find({ campaigns: campaignId });
 		expect(clients.length).toEqual(2);
 	});
+	it('should return 200 if all fine and update', async () => {
+		const res = await request(app)
+			.post('/admin/client/createClients')
+			.send({
+				adminCode: 'password',
+				area: areaId,
+				data: [
+					{
+						phone: '+33634567890',
+						name: 'callerInfoTestUpdated',
+						firstname: 'callerInfoTestUpdated',
+						priority: 'prio 1'
+					}
+				],
+				updateIfExist: true
+			});
+		expect(res.status).toEqual(200);
+		expect(res.body).toEqual({ message: 'OK', OK: true, errors: [] });
+		const clients = await Client.find({ campaigns: campaignId });
+		expect(clients.length).toEqual(2);
+		const updatedClient = clients.find(c => c.phone === '+33634567890');
+		expect(updatedClient?.name).toEqual('callerInfoTestUpdated');
+	});
 });

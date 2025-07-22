@@ -144,7 +144,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 			institution: sanitizeString(req.body.institution ?? ''),
 			area: area._id,
 			campaigns: [campaign._id],
-			sortGroup: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }]
+			priority: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }]
 		});
 	}
 
