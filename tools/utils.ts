@@ -133,7 +133,18 @@ function checkParameters(
 	parameters: Array<
 		[
 			string,
-			'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function' | 'ObjectId',
+			(
+				| 'string'
+				| 'number'
+				| 'bigint'
+				| 'boolean'
+				| 'symbol'
+				| 'undefined'
+				| 'object'
+				| 'function'
+				| 'ObjectId'
+				| 'Date'
+			),
 			// | 'array' dont work with array
 			boolean?
 		]
@@ -194,6 +205,13 @@ function checkParameters(
 			// 	});
 			// 	log(`[${ip}] ` + errorText, 'WARNING', orgin);
 			// 	return false;
+		} else if (parameter[1] == 'Date' && !isNaN(new Date(body[parameter[0]]).getTime())) {
+			res.status(400).send({
+				message: errorText,
+				OK: false
+			});
+			log(`[${ip}] ` + errorText, 'WARNING', orgin);
+			return false;
 		} else if (typeof body[parameter[0]] != parameter[1]) {
 			res.status(400).send({
 				message: errorText,

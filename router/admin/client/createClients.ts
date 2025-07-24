@@ -12,8 +12,9 @@ import { checkParameters, clearPhone, hashPasword, phoneNumberCheck, sanitizeStr
  * body:{
  * 	"adminCode": string,
  * 	"area": string,
- * 	"data": [phone, name, firstname, institution, priority],
+ * 	"data": [{phone:string, name?:string, firstname?:string, institution?:string, priority?:string, firstIntegration?:date, integrationReason?:string}],
  * 	"allreadyHaseded": boolean
+ * 	"defaultReason": string
  * }
  * @throws {400}: missing parameters,
  * @throws {400}: new password is not a hash
@@ -34,7 +35,8 @@ export default async function createClients(req: Request<any>, res: Response<any
 			[
 				['adminCode', 'string'],
 				['area', 'ObjectId'],
-				['allreadyHaseded', 'boolean', true]
+				['allreadyHaseded', 'boolean', true],
+				['defaultReason', 'string', true]
 			],
 			ip
 		)
@@ -60,12 +62,18 @@ export default async function createClients(req: Request<any>, res: Response<any
 			(usr.name === undefined || typeof usr.name === 'string') &&
 			(usr.firstname === undefined || typeof usr.firstname === 'string') &&
 			(usr.institution === undefined || typeof usr.institution === 'string') &&
-			(usr.priority === undefined || typeof usr.priority === 'string')
+			(usr.priority === undefined || typeof usr.priority === 'string') &&
+			(usr.firstIntegration === undefined || !isNaN(parseInt(usr.firstIntegration))) &&
+			(usr.integrationReason === undefined || typeof usr.integrationReason === 'string')
 		);
 	});
 
 	if (!isValidData) {
-		res.status(400).send({ message: 'Each data entry must be an object with valid properties', OK: false });
+		res.status(400).send({
+			message:
+				'Each data entry must be an object with valid properties: {phone:string, name?:string, firstname?:string, institution?:string, priority?:string, firstIntegration?:date, integrationReason?:string}',
+			OK: false
+		});
 		log(`[!${req.body.area}, ${ip}] Invalid data format`, 'WARNING', __filename);
 		return;
 	}
@@ -95,7 +103,15 @@ export default async function createClients(req: Request<any>, res: Response<any
 
 	const errors: Array<[string | undefined, string | undefined, string]> = [];
 	const sleep: Array<Promise<boolean>> = req.body.data.map(
-		async (usr: { phone: string; name: string; firstname?: string; institution?: string; priority?: string }) => {
+		async (usr: {
+			phone: string;
+			name?: string;
+			firstname?: string;
+			institution?: string;
+			priority?: string;
+			firstIntegration?: Date;
+			integrationReason?: string;
+		}) => {
 			const priorityId = campaign.sortGroup.find(e => e.name === usr.priority)?.id ?? '-1';
 			const phone = clearPhone(usr.phone);
 			try {
@@ -103,41 +119,59 @@ export default async function createClients(req: Request<any>, res: Response<any
 					errors.push([usr.name + ' ' + (usr.firstname || ''), usr.phone, 'Wrong phone number']);
 					return false;
 				}
-				if ((await Client.countDocuments({ phone: phone })) == 0) {
+				if ((await Client.countDocuments({ phone })) == 0) {
 					const user = new Client({
-						name: sanitizeString(usr.name),
+						name: sanitizeString(usr.name || 'unknown'),
 						firstname: sanitizeString(usr.firstname || ''),
-						phone: phone,
+						phone,
 						campaigns: [campaign._id],
-						priority: [{ campaign: campaign._id, id: priorityId }]
+						priority: [{ campaign: campaign._id, id: priorityId }],
+						firstIntegration: (() => {
+							const date = new Date(usr.firstIntegration || '');
+							return isNaN(date.getTime()) ? Date.now() : date.getTime();
+						})(),
+						integrationReason: sanitizeString(usr.integrationReason || '')
 					});
 					// create it
 					await user.save();
 					return true;
-				} else if ((await Client.countDocuments({ phone: phone, campaigns: { $ne: campaign._id } })) == 1) {
+				} else if ((await Client.countDocuments({ phone, campaigns: { $ne: campaign._id } })) == 1) {
 					// client exist in another campaing
 					await Client.updateOne(
+						{ phone },
 						{
-							phone: phone,
-							name: sanitizeString(usr.name),
-							firstname: sanitizeString(usr.firstname || '')
+							phone,
+							name: sanitizeString(usr.name || 'unknown'),
+							firstname: sanitizeString(usr.firstname || ''),
+							firstIntegration: (() => {
+								const date = new Date(usr.firstIntegration || '');
+								return isNaN(date.getTime()) ? Date.now() : date.getTime();
+							})(),
+							integrationReason:
+								sanitizeString(usr.integrationReason || '') ?? sanitizeString(req.body.defaultReason)
 						},
 						{ $push: { campaigns: campaign._id } }
 					);
 				} else {
 					// client exist in this campaign, update name, firstnames and priority
 					await Client.updateOne(
-						{ phone: phone },
+						{ phone },
 						{
-							phone: phone,
-							name: sanitizeString(usr.name),
+							phone,
+							name: sanitizeString(usr.name || 'unknown'),
 							firstname: sanitizeString(usr.firstname || ''),
-							priority: [{ campaign: campaign._id, id: '-1' }]
+							priority: [{ campaign: campaign._id, id: '-1' }],
+							firstIntegration: (() => {
+								const date = new Date(usr.firstIntegration || '');
+								return isNaN(date.getTime()) ? Date.now() : date.getTime();
+							})(),
+							integrationReason:
+								sanitizeString(usr.integrationReason || '') ?? sanitizeString(req.body.defaultReason)
 						}
 					);
 				}
 			} catch (error: any) {
-				errors.push([usr.name + ' ' + (usr.firstname || ''), phone, error.message]);
+				errors.push([usr.name || '' + ' ' + usr.firstname || '', phone, error.message]);
 			}
 		}
 	);
