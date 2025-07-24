@@ -146,7 +146,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 					const date = new Date(req.body.firstIntegration);
 					return isNaN(date.getTime()) ? Date.now() : date.getTime();
 				})(),
-				integrationReason: req.body.integrationReason ?? 'unknown'
+				integrationReason: sanitizeString(req.body.integrationReason) ?? 'unknown'
 			}
 		);
 		if (client.matchedCount === 0) {
@@ -167,8 +167,11 @@ export default async function createClient(req: Request<any>, res: Response<any>
 			area: area._id,
 			campaigns: [campaign._id],
 			priority: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }],
-			firstIntegration: req.body.firstIntegration ?? new Date(),
-			integrationReason: req.body.integrationReason ?? 'unknown'
+			firstIntegration: (() => {
+				const date = new Date(req.body.firstIntegration);
+				return isNaN(date.getTime()) ? Date.now() : date.getTime();
+			})(),
+			integrationReason: sanitizeString(req.body.integrationReason) ?? 'unknown'
 		});
 	}
 
