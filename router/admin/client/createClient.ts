@@ -160,7 +160,7 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		}
 	} else {
 		client = new Client({
-			name: sanitizeString(req.body.name) ?? 'unknown',
+			name: sanitizeString(req.body.name || 'unknown'),
 			phone: phone,
 			firstname: sanitizeString(req.body.firstName ?? ''),
 			institution: sanitizeString(req.body.institution ?? ''),

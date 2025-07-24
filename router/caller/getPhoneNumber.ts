@@ -114,6 +114,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		if (!client) {
 			res.status(404).send({ message: 'Client not found', OK: false });
 			log(`[${req.body.phone}, ${ip}] Client not found`, 'WARNING', __filename);
+			return;
 		}
 
 		res.status(200).send({

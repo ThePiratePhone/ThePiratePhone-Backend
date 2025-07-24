@@ -63,7 +63,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 			(usr.firstname === undefined || typeof usr.firstname === 'string') &&
 			(usr.institution === undefined || typeof usr.institution === 'string') &&
 			(usr.priority === undefined || typeof usr.priority === 'string') &&
-			(usr.firstIntegration === undefined || !isNaN(parseInt(usr.firstIntegration))) &&
+			(usr.firstIntegration === undefined || !isNaN(new Date(usr.firstIntegration).getTime())) &&
 			(usr.integrationReason === undefined || typeof usr.integrationReason === 'string')
 		);
 	});
@@ -147,8 +147,7 @@ export default async function createClients(req: Request<any>, res: Response<any
 								const date = new Date(usr.firstIntegration || '');
 								return isNaN(date.getTime()) ? Date.now() : date.getTime();
 							})(),
-							integrationReason:
-								sanitizeString(usr.integrationReason || '') ?? sanitizeString(req.body.defaultReason)
+							integrationReason: sanitizeString(usr.integrationReason || req.body.defaultReason || '')
 						},
 						{ $push: { campaigns: campaign._id } }
 					);
@@ -165,13 +164,12 @@ export default async function createClients(req: Request<any>, res: Response<any
 								const date = new Date(usr.firstIntegration || '');
 								return isNaN(date.getTime()) ? Date.now() : date.getTime();
 							})(),
-							integrationReason:
-								sanitizeString(usr.integrationReason || '') ?? sanitizeString(req.body.defaultReason)
+							integrationReason: sanitizeString(usr.integrationReason || req.body.defaultReason || '')
 						}
 					);
 				}
 			} catch (error: any) {
-				errors.push([usr.name || '' + ' ' + usr.firstname || '', phone, error.message]);
+				errors.push([(usr.name || '') + ' ' + (usr.firstname || ''), phone, error.message]);
 			}
 		}
 	);

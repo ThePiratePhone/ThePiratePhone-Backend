@@ -111,8 +111,8 @@ function cleanStatus(status: 'In progress' | 'to recall' | 'Done' | 'deleted' | 
  * @param str - The string to be sanitized.
  * @returns The sanitized string with leading and trailing whitespace removed.
  */
-function sanitizeString(str: string) {
-	str = str.replace(/[{,},$]/gm, '');
+function sanitizeString(str?: string) {
+	str = str?.replace(/[{,},$]/gm, '') ?? '';
 	return str.trim();
 }
 
@@ -205,7 +205,7 @@ function checkParameters(
 			// 	});
 			// 	log(`[${ip}] ` + errorText, 'WARNING', orgin);
 			// 	return false;
-		} else if (parameter[1] == 'Date' && !isNaN(new Date(body[parameter[0]]).getTime())) {
+		} else if (parameter[1] == 'Date' && isNaN(new Date(body[parameter[0]]).getTime())) {
 			res.status(400).send({
 				message: errorText,
 				OK: false

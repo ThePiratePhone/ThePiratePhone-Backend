@@ -41,7 +41,7 @@ const ClientSchema = new mongoose.Schema({
 	},
 	firstIntegration: {
 		type: Date,
-		default: Date.now()
+		default: Date.now
 	},
 	integrationReason: {
 		type: String,
@@ -49,7 +49,7 @@ const ClientSchema = new mongoose.Schema({
 	},
 	createdAt: {
 		type: Date,
-		default: Date.now()
+		default: Date.now
 	}
 });
 
