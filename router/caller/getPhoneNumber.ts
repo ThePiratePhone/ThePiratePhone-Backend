@@ -76,7 +76,7 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			_id: { $eq: req.body.campaign },
 			active: true
 		},
-		['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status']
+		['script', 'callPermited', 'timeBetweenCall', 'nbMaxCallCampaign', 'active', 'status', 'sortGroup']
 	);
 
 	if (!campaign) {
@@ -104,10 +104,23 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 			log(`[${req.body.phone}, ${ip}] Error while updating call ${caller.name} (${ip})`, 'ERROR', __filename);
 			return;
 		}
+		const client = await Client.findOne({ _id: { $eq: call.client } }, [
+			'name',
+			'firstname',
+			'institution',
+			'phone',
+			'priority'
+		]);
+		if (!client) {
+			res.status(404).send({ message: 'Client not found', OK: false });
+			log(`[${req.body.phone}, ${ip}] Client not found`, 'WARNING', __filename);
+			return;
+		}
+
 		res.status(200).send({
 			message: 'Client to call',
 			OK: true,
-			client: await Client.findOne({ _id: { $eq: call.client } }, ['name', 'firstname', 'institution', 'phone']),
+			client: client,
 			callHistory: await Call.find(
 				{
 					client: { $eq: call.client },
@@ -117,7 +130,10 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 				['status', 'satisfaction', 'duration', 'comment', 'start']
 			),
 			script: campaign.script,
-			status: campaign.status
+			status: campaign.status,
+			priority:
+				(campaign.sortGroup.find(group => group.id == (client as any).priority[0].id) as any)?.name ??
+				'not found'
 		});
 		log(`[${req.body.phone}, ${ip}] Already in a call`, 'INFO', __filename);
 		return;
@@ -282,7 +298,10 @@ export default async function getPhoneNumber(req: Request<any>, res: Response<an
 		client: client[0],
 		callHistory: lastsCall ?? [],
 		script: campaign.script,
-		status: campaign.status
+		status: campaign.status,
+		priority:
+			(campaign.sortGroup.find(group => group.id == (client[0] as any).priority[0].id) as any)?.name ??
+			'not found'
 	});
 	log(`[${req.body.phone}, ${ip}] Client to call`, 'INFO', __filename);
 }

@@ -22,7 +22,10 @@ import { ObjectId } from 'mongodb';
  * 	firstName?: string,
  * 	institution?: string,
  * 	updateIfExist?: boolean,
- * 	updateKey: ObjectId
+ * 	updateKey: ObjectId,
+ *  priority?: Array<{ campaign: ObjectId, id: string (lenght= 8 || 2) }>,
+ * 	firstIntegration?: Date,
+ * 	integrationReason?: string
  * }
  *
  * @throws {400} if missing parameters
@@ -52,7 +55,9 @@ export default async function createClient(req: Request<any>, res: Response<any>
 				['area', 'ObjectId'],
 				['allreadyHaseded', 'boolean', true],
 				['updateIfExist', 'boolean', true],
-				['updateKey', 'ObjectId', true]
+				['updateKey', 'ObjectId', true],
+				['firstIntegration', 'Date', true],
+				['integrationReason', 'string', true]
 			],
 			__filename
 		)
@@ -130,13 +135,18 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		const client = await Client.updateOne(
 			{ _id: req.body.updateKey },
 			{
-				name: sanitizeString(req.body.name),
+				name: sanitizeString(req.body.name || 'unknown'),
 				phone: phone,
-				firstname: sanitizeString(req.body.firstName ?? ''),
-				institution: sanitizeString(req.body.institution ?? ''),
+				firstname: sanitizeString(req.body.firstName || ''),
+				institution: sanitizeString(req.body.institution || ''),
 				area: area._id,
 				campaigns: [campaign._id],
-				priority: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }]
+				priority: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }],
+				firstIntegration: (() => {
+					const date = new Date(req.body.firstIntegration);
+					return isNaN(date.getTime()) ? Date.now() : date.getTime();
+				})(),
+				integrationReason: sanitizeString(req.body.integrationReason) ?? 'unknown'
 			}
 		);
 		if (client.matchedCount === 0) {
@@ -150,13 +160,18 @@ export default async function createClient(req: Request<any>, res: Response<any>
 		}
 	} else {
 		client = new Client({
-			name: sanitizeString(req.body.name),
+			name: sanitizeString(req.body.name || 'unknown'),
 			phone: phone,
 			firstname: sanitizeString(req.body.firstName ?? ''),
 			institution: sanitizeString(req.body.institution ?? ''),
 			area: area._id,
 			campaigns: [campaign._id],
-			priority: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }]
+			priority: req.body.priority ?? [{ campaign: campaign._id, id: '-1' }],
+			firstIntegration: (() => {
+				const date = new Date(req.body.firstIntegration);
+				return isNaN(date.getTime()) ? Date.now() : date.getTime();
+			})(),
+			integrationReason: sanitizeString(req.body.integrationReason) ?? 'unknown'
 		});
 	}
 

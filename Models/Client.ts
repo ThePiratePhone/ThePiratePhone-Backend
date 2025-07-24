@@ -39,9 +39,17 @@ const ClientSchema = new mongoose.Schema({
 		required: false,
 		default: []
 	},
+	firstIntegration: {
+		type: Date,
+		default: Date.now
+	},
+	integrationReason: {
+		type: String,
+		default: 'unknown'
+	},
 	createdAt: {
 		type: Date,
-		default: Date.now()
+		default: Date.now
 	}
 });
 
